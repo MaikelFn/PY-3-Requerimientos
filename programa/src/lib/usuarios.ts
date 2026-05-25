@@ -11,6 +11,7 @@ export type NuevoUsuario = {
 }
 
 export type UsuarioGuardado = NuevoUsuario & {
+  id: number
   fechaRegistro: string
 }
 
@@ -39,6 +40,17 @@ async function leerUsuarios(): Promise<UsuarioGuardado[]> {
   }
 }
 
+function obtenerSiguienteId(usuarios: UsuarioGuardado[]) {
+  if (usuarios.length === 0) {
+    return 0
+  }
+
+  return usuarios.reduce((mayorId, usuario) => {
+    const idUsuario = typeof usuario.id === "number" ? usuario.id : -1
+    return idUsuario > mayorId ? idUsuario : mayorId
+  }, -1) + 1
+}
+
 export async function guardarUsuarioEnArchivo(datosUsuario: NuevoUsuario) {
   const usuarios = await leerUsuarios()
   const correoNormalizado = datosUsuario.correo.trim().toLowerCase()
@@ -52,6 +64,7 @@ export async function guardarUsuarioEnArchivo(datosUsuario: NuevoUsuario) {
   }
 
   const usuarioGuardado: UsuarioGuardado = {
+    id: obtenerSiguienteId(usuarios),
     nombre: datosUsuario.nombre.trim(),
     apellido: datosUsuario.apellido.trim(),
     correo: correoNormalizado,
@@ -63,4 +76,23 @@ export async function guardarUsuarioEnArchivo(datosUsuario: NuevoUsuario) {
   await writeFile(rutaUsuarios, JSON.stringify(usuarios, null, 2), "utf8")
 
   return usuarioGuardado
+}
+
+export async function autenticarUsuario(
+  correo: string,
+  contrasena: string
+): Promise<Omit<UsuarioGuardado, "contrasena">> {
+  const usuarios = await leerUsuarios()
+  const correoNormalizado = correo.trim().toLowerCase()
+
+  const usuario = usuarios.find(
+    (u) => u.correo.trim().toLowerCase() === correoNormalizado
+  )
+
+  if (!usuario || usuario.contrasena !== contrasena) {
+    throw new Error("Credenciales inválidas")
+  }
+
+  const { contrasena: _con, ...usuarioSinContrasena } = usuario
+  return usuarioSinContrasena
 }

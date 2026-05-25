@@ -6,6 +6,61 @@ type Pantalla = "registro" | "inicioSesion" | "recuperarContrasena"
 
 export default function RegistroInicioSesion() {
     const [pantalla, setPantalla] = useState<Pantalla>("inicioSesion")
+
+    // Estado para inicio de sesión
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+
+    // Estado para registro
+    const [nombre, setNombre] = useState("")
+    const [apellido, setApellido] = useState("")
+    const [emailRegistro, setEmailRegistro] = useState("")
+    const [passwordRegistro, setPasswordRegistro] = useState("")
+
+    async function handleLogin() {
+        try {
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ correo: email, contrasena: password })
+            })
+
+            if (!res.ok) {
+                const err = await res.json()
+                alert(err.error || 'Error al iniciar sesión')
+                return
+            }
+
+            const usuario = await res.json()
+            alert(`Bienvenido, ${usuario.nombre} ${usuario.apellido}`)
+        } catch (err) {
+            alert('Error de conexión')
+        }
+    }
+
+    async function handleRegister() {
+        try {
+            const res = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, apellido, correo: emailRegistro, contrasena: passwordRegistro })
+            })
+
+            if (!res.ok) {
+                const err = await res.json()
+                alert(err.error || 'Error al crear la cuenta')
+                return
+            }
+
+            const usuario = await res.json()
+            alert(`Cuenta creada. Bienvenido, ${usuario.nombre}`)
+            setPantalla('inicioSesion')
+            setEmail(usuario.correo)
+        } catch (err) {
+            alert('Error de conexión')
+        }
+    }
+
     return(
         <main className={style.fondo}>
             <div className={style.tarjeta}>
@@ -20,19 +75,19 @@ export default function RegistroInicioSesion() {
 
                         <div className={style.campos}>
                             <label className={style.etiqueta}>Correo electrónico</label>
-                            <input type="email" placeholder="juanperez@correo.com" className={style.input} />
+                            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="juanperez@correo.com" className={style.input} />
                         </div>
 
                         <div className={style.campos}>
                             <label className={style.etiqueta}>Contraseña</label>
-                            <input type="password" placeholder="********" className={style.input} />
+                            <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="********" className={style.input} />
                         </div>
                         
                         <div className={style.olvidar}>
                             <button onClick={() => setPantalla("recuperarContrasena")} className={style.enlace}>¿Olvidaste tu contraseña?</button>
                         </div>
 
-                        <button className={style.boton}>Iniciar sesión</button>
+                        <button onClick={handleLogin} className={style.boton}>Iniciar sesión</button>
                         <p className={style.piepagina}>
                             ¿No tienes una cuenta?{" "}
                             <button onClick={() => setPantalla("registro")} className={style.enlace}>
@@ -52,26 +107,26 @@ export default function RegistroInicioSesion() {
                         <div className={style.dosColumnas}>
                             <div className={style.campos}>
                                 <label className={style.etiqueta}>Nombre</label>
-                                <input type="text" placeholder="Juan" className={style.input} />
+                                <input value={nombre} onChange={(e) => setNombre(e.target.value)} type="text" placeholder="Juan" className={style.input} />
                             </div>
 
                             <div className={style.campos}>
                                 <label className={style.etiqueta}>Apellido</label>
-                                <input type="text" placeholder="Pérez" className={style.input} />
+                                <input value={apellido} onChange={(e) => setApellido(e.target.value)} type="text" placeholder="Pérez" className={style.input} />
                             </div>
                         </div>
 
                         <div className={style.campos}>
                             <label className={style.etiqueta}>Correo electrónico</label>
-                            <input type="email" placeholder="juanperez@correo.com" className={style.input} />
+                            <input value={emailRegistro} onChange={(e) => setEmailRegistro(e.target.value)} type="email" placeholder="juanperez@correo.com" className={style.input} />
                         </div>
 
                         <div className={style.campos}>
                             <label className={style.etiqueta}>Contraseña</label>
-                            <input type="password" placeholder="********" className={style.input} />
+                            <input value={passwordRegistro} onChange={(e) => setPasswordRegistro(e.target.value)} type="password" placeholder="********" className={style.input} />
                         </div>
 
-                        <button className={style.boton}>Crear cuenta</button>
+                        <button onClick={handleRegister} className={style.boton}>Crear cuenta</button>
                         <p className={style.piepagina}>
                             ¿Ya tienes una cuenta?{" "}
                             <button onClick={() => setPantalla("inicioSesion")} className={style.enlace}>
