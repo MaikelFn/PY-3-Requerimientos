@@ -1,0 +1,437 @@
+.contenedor {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: auto;
+  background-image: url('/fondo.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 4rem 1rem;
+  font-family: sans-serif;
+}
+
+.tarjeta {
+  background-color: rgba(255, 255, 255, 0.95);
+  width: 100%;
+  max-width: 760px;
+  padding: 2rem;
+  border-radius: 14px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.campoHorizontal {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.campoHorizontal .etiqueta {
+  width: 160px;
+  min-width: 160px;
+  padding-top: 0.5rem;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.filaDoble {
+  display: flex;
+  gap: 2rem;
+}
+
+.filaDoble > div {
+  flex: 1;
+}
+
+.campoVertical {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.etiquetaNegrita {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #444;
+  text-transform: uppercase;
+  margin-top: 0.5rem;
+}
+
+.input,
+.textarea {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #111827;
+  outline: none;
+  font-family: inherit;
+  background-color: #f8fafc;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.campoImagenes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.agregarImagenFila {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.botonAgregarImagen {
+  background-color: #0ea5e9;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.botonAgregarImagen:hover {
+  background-color: #0284c7;
+}
+
+.galeriaImagenes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.imagenMini {
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #f8fafc;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.previewImagen {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem; /* Separa los dos botones horizontalmente */
+  margin-top: 1rem;
+}
+
+.botonCancel {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  padding: 0.7rem 2rem;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.botonCancel:hover {
+  background-color: #e2e8f0;
+}
+
+.botonSubmit {
+  background-color: #0f172a;
+  color: #ffffff;
+  padding: 0.8rem 1.6rem;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.botonSubmit:hover {
+  background-color: #111827;
+}
+
+.contenedorContador {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.contenedorContador .textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.contador {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 0.25rem;
+}
+
+.editorSimulado {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.barraEditor {
+  background-color: #f9f9f9;
+  border-bottom: 1px solid #ccc;
+  padding: 0.5rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  color: #666;
+  font-size: 0.85rem;
+  user-select: none;
+}
+
+.barraEditor span {
+  cursor: pointer;
+}
+
+.textareaEditor {
+  width: 100%;
+  border: none;
+  padding: 0.8rem;
+  font-size: 0.95rem;
+  outline: none;
+  resize: vertical;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.selectorMetodo {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 0.25rem;
+  max-width: 300px;
+}
+
+.botonMetodo {
+  flex: 1;
+  padding: 0.35rem;
+  font-size: 0.75rem;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.botonMetodo.activo {
+  background-color: #666;
+  color: #fff;
+  border-color: #666;
+}
+
+.zonaSubidaHorizontal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background-color: #fff;
+}
+
+.previsualizaciones {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.cuadroFoto, .cuadroFotoCargada {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  background-color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.cuadroFotoCargada {
+  background-color: #a7f3d0;
+}
+
+.botonSeleccionar {
+  background-color: #e2e8f0;
+  color: #333;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: 1px solid #cbd5e1;
+}
+
+.botonSeleccionar:hover {
+  background-color: #cbd5e1;
+}
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.botonCancel {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  padding: 0.8rem 2rem;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.botonCancel:hover {
+  background-color: #e2e8f0;
+}
+
+.botonSubmit {
+  background-color: #000000;
+  color: #ffffff;
+  padding: 0.8rem 2rem;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.botonSubmit:hover {
+  background-color: #222222;
+}
+
+.contenedorBuscador {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.listaDesplegable {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  margin-top: 0.25rem;
+  padding: 0;
+  list-style: none;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.opcionDesplegable {
+  padding: 0.8rem 1rem;
+  font-size: 0.95rem;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.opcionDesplegable:hover {
+  background-color: #f1f5f9;
+}
+
+.inputError {
+  border-color: #ef4444 !important;
+  background-color: #fef2f2 !important;
+}
+
+.mensajeError {
+  color: #ef4444;
+  font-size: 0.85rem;
+  margin-top: 0.35rem;
+  font-weight: 500;
+}
+
+.contenedorFechasDinamicas {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tablaFechasCupos {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filaFechaCupo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background-color: #ffffff;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+}
+
+.fechaTexto {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #334155;
+  flex: 1;
+}
+
+.inputCupos {
+  width: 140px;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.inputCupos:focus {
+  border-color: #666;
+}
+
+
+.botonEliminarFecha {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 1.25rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  line-height: 1;
+}
+
+.botonEliminarFecha:hover {
+  color: #dc2626;
+}

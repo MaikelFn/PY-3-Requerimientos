@@ -75,11 +75,6 @@ export default function FormularioAgregarDestinos() {
             <input id="ubicacion" name="ubicacion" value={form.ubicacion} onChange={handleChange} className={styles.input} required />
           </div>
 
-          {/* Duración */}
-          <div className={styles.campoHorizontal}>
-            <label htmlFor="fecha" className={styles.etiqueta}>Duración</label>
-            <input id="fecha" name="fecha" type="text" placeholder="Ej: 3 horas" value={form.fecha} onChange={handleChange} className={styles.input} required />
-          </div>
 
           {/* Breve Descripción */}
           <div className={styles.campoHorizontal}>
@@ -103,7 +98,7 @@ export default function FormularioAgregarDestinos() {
 
           {/* Sección de Imagen/Multimedia Flexible */}
           <div className={styles.campoVertical}>
-            <label className={styles.etiquetaNegrita}>MULTIMEDIA</label>
+            <label className={styles.etiquetaNegrita}>IMAGENES DEL DESTINO</label>
             
             <div className={styles.selectorMetodo}>
               <button type="button" className={`${styles.botonMetodo} ${metodoImagen === "archivo" ? styles.activo : ""}`} onClick={() => setMetodoImagen("archivo")}>Desde Dispositivo</button>
