@@ -61,3 +61,16 @@ export async function POST(request: Request) {
     )
   }
 }
+
+export async function GET() {
+  try {
+    const { leerDestinos } = await import("../../../lib/destinos")
+    const destinos = await leerDestinos()
+    return NextResponse.json(destinos)
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error?.message || "No se pudieron obtener los destinos" },
+      { status: 500 }
+    )
+  }
+}

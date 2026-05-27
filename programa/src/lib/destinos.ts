@@ -18,7 +18,7 @@ export type DestinoGuardado = DestinoNuevo & {
 
 const rutaDestinos = path.join(process.cwd(), "src", "database", "destinos.json")
 
-async function leerDestinos(): Promise<DestinoGuardado[]> {
+export async function leerDestinos(): Promise<DestinoGuardado[]> {
   try {
     const contenido = await readFile(rutaDestinos, "utf8")
 

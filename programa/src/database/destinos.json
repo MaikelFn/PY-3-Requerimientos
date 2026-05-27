@@ -1,1 +1,13 @@
-[]
+[
+  {
+    "id": 0,
+    "nombre": "Cahuita",
+    "ubicacion": "Nose",
+    "descripcionBreve": "Playa pichuda",
+    "descripcionDetallada": "No se es una playa tiene arena y un monton de chatas",
+    "imagenes": [
+      "/imagenes/destinos/2ed9ed7a-1d5f-409a-a204-6cf9e5e0c68f.jpg"
+    ],
+    "fechaRegistro": "2026-05-27T05:46:43.731Z"
+  }
+]
