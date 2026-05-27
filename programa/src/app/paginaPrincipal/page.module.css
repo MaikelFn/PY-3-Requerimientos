@@ -1,0 +1,239 @@
+.contenedor {
+    min-height: 100vh;
+    background-color: #f2f7f6;
+}
+
+.banner {
+    background-image: url('/banner.png');
+    background-size: cover;
+    background-position: center;
+    height: 510px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    color: white;
+}
+
+.banner h1 {
+    background: rgba(0,0,0,0.5);
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.banner button {
+    background-color: #e63946;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+}
+
+.contenido {
+    text-align: center;
+    padding: 40px;
+}
+
+.contenido h2 {
+    color: #1b4332;
+    margin-bottom: 10px;
+}
+
+.contenido p {
+    color: #1b4332;
+    margin-bottom: 10px;
+}
+
+.boton {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.boton button {
+    background-color: #2d6a4f;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.tours { 
+    display: block;
+    background: #fff;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.tours h2 {
+    width: 100%;
+    text-align: center;
+    padding: 20px;
+    color: #1b4332;
+}
+
+.info {
+    flex: 1;
+    padding: 15px;
+}
+
+.info h3 {
+    margin-top: 0;
+    color: #e6005c;
+    margin-bottom: 8px;
+}
+
+.cancelacion {
+    color: green;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.buscador {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.buscador input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border: 1px solid #574646;
+    color: #000000;
+}
+
+.descripcion {
+    margin: 10px 0;
+    color: #000000;
+}
+
+.detalles {
+    display: flex;
+    gap: 15px;
+    font-size: 14px;
+    color: rgb(56, 55, 55)
+}
+
+.precio {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.precio p {
+    font-size: 20px;
+    font-weight: bold;
+    color: #e6005c;
+}
+
+.contacto {
+    margin-top: 50px;
+    padding: 20px;
+    background: #f5f5f5;
+    text-align: center;
+}
+
+.rating {
+    font-size: 14px;
+    color: #555;
+}
+
+.botonExplorar {
+    background-color: #2d6a4f;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.tituloSeccion {
+    font-size: 28px;   
+    font-weight: bold;
+    margin-bottom: 20px;
+    color:#e6005c;
+    text-align: center;
+}
+
+.botonDetalle {
+    background-color: #1b4332;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.menuSuperior {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px 20px;
+    background: #f5f5f5;
+}
+
+.menuDerecho {
+    display: flex;
+    gap: 15px;
+}
+
+.menu {
+    position: relative;
+    cursor: pointer;
+}
+
+
+/* TEXTO */
+.menu span {
+    font-weight: 500;
+    color: #333;
+}
+
+.submenu {
+    display: none;
+    position: absolute;
+    top: 25px;
+    right: 0;
+    background: white;
+    min-width: 180px;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    z-index: 100;
+}
+
+
+/* MOSTRAR AL PASAR EL MOUSE */
+.menu:hover .submenu {
+    display: block;
+}
+
+
+/* ITEMS */
+.submenu a {
+    display: block;
+    padding: 8px;
+    text-decoration: none;
+    color: black;
+}
+
+.submenu a:hover {
+    background: #f0f0f0;
+    border-radius: 5px;
+}
+
+.submenu p {
+    margin: 5px 0;
+    font-size: 13px;
+    color: #666;
+}
+
