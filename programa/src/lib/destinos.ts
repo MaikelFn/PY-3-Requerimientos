@@ -18,54 +18,59 @@ export type DestinoGuardado = DestinoNuevo & {
 
 const rutaDestinos = path.join(process.cwd(), "src", "database", "destinos.json")
 
-export async function leerDestinos(): Promise<DestinoGuardado[]> {
+async function leerArchivoJSON<T>(ruta: string): Promise<T[]> {
   try {
-    const contenido = await readFile(rutaDestinos, "utf8")
-
-    if (!contenido.trim()) {
-      return []
-    }
-
-    const destinos = JSON.parse(contenido) as DestinoGuardado[]
-    return Array.isArray(destinos) ? destinos : []
-  } catch (error) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error &&
-      error.code === "ENOENT"
-    ) {
-      return []
-    }
-
+    const contenido = await readFile(ruta, "utf8")
+    if (!contenido.trim()) return []
+    
+    const datos = JSON.parse(contenido) as T[]
+    return Array.isArray(datos) ? datos : []
+  } catch (error: any) {
+    if (error?.code === "ENOENT") return []
     throw error
   }
 }
 
-function obtenerSiguienteId(destinos: DestinoGuardado[]) {
-  if (destinos.length === 0) {
-    return 0
-  }
+function obtenerSiguienteId(destinos: DestinoGuardado[]): number {
+  if (destinos.length === 0) return 0
+  return Math.max(...destinos.map(d => typeof d.id === "number" ? d.id : -1)) + 1
+}
 
-  return destinos.reduce((mayorId, destino) => {
-    const idDestino = typeof destino.id === "number" ? destino.id : -1
-    return idDestino > mayorId ? idDestino : mayorId
-  }, -1) + 1
+function limpiarCadenas(destino: DestinoNuevo): DestinoNuevo {
+  return {
+    nombre: destino.nombre.trim(),
+    ubicacion: destino.ubicacion.trim(),
+    descripcionBreve: destino.descripcionBreve.trim(),
+    descripcionDetallada: destino.descripcionDetallada.trim(),
+    imagenes: Array.isArray(destino.imagenes)
+      ? destino.imagenes.map(img => img.trim()).filter(Boolean)
+      : [],
+  }
+}
+
+export async function leerDestinos(): Promise<DestinoGuardado[]> {
+  return leerArchivoJSON<DestinoGuardado>(rutaDestinos)
+}
+
+export async function obtenerIdPorNombreDestino(nombre: string): Promise<number | null> {
+  const destinos = await leerDestinos()
+  const destino = destinos.find(d => d.nombre.toLowerCase() === nombre.trim().toLowerCase())
+  return destino?.id ?? null
+}
+
+export async function obtenerDestinoById(id: number): Promise<DestinoGuardado | null> {
+  const destinos = await leerDestinos()
+  const destino = destinos.find(d => d.id === id)
+  return destino ?? null
 }
 
 export async function guardarDestinoEnArchivo(datosDestino: DestinoNuevo) {
   const destinos = await leerDestinos()
-  const imagenesGuardadas = Array.isArray(datosDestino.imagenes)
-    ? datosDestino.imagenes.map((imagen) => imagen.trim()).filter(Boolean)
-    : []
+  const datosLimpios = limpiarCadenas(datosDestino)
 
   const destinoGuardado: DestinoGuardado = {
+    ...datosLimpios,
     id: obtenerSiguienteId(destinos),
-    nombre: datosDestino.nombre.trim(),
-    ubicacion: datosDestino.ubicacion.trim(),
-    descripcionBreve: datosDestino.descripcionBreve.trim(),
-    descripcionDetallada: datosDestino.descripcionDetallada.trim(),
-    imagenes: imagenesGuardadas,
     fechaRegistro: new Date().toISOString(),
   }
 

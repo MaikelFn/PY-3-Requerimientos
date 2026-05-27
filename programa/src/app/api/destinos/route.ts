@@ -2,7 +2,7 @@ import { randomUUID } from "crypto"
 import { mkdir, writeFile } from "fs/promises"
 import path from "path"
 import { NextResponse } from "next/server"
-import { guardarDestinoEnArchivo } from "../../../lib/destinos"
+import { guardarDestinoEnArchivo, leerDestinos } from "../../../lib/destinos"
 
 const rutaCarpetaImagenes = path.join(
   process.cwd(),
@@ -10,6 +10,10 @@ const rutaCarpetaImagenes = path.join(
   "imagenes",
   "destinos"
 )
+
+function obtenerString(formData: FormData, campo: string): string {
+  return String(formData.get(campo) ?? "").trim()
+}
 
 async function guardarImagenSubida(imagen: File) {
   await mkdir(rutaCarpetaImagenes, { recursive: true })
@@ -28,21 +32,20 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData()
 
-    const nombre = String(formData.get("nombre") ?? "").trim()
-    const ubicacion = String(formData.get("ubicacion") ?? "").trim()
-    const descripcionBreve = String(formData.get("descripcionBreve") ?? "").trim()
-    const descripcionDetallada = String(formData.get("descripcionDetallada") ?? "").trim()
-    const archivoImagen = formData.get("imagen")
+    const nombre = obtenerString(formData, "nombre")
+    const ubicacion = obtenerString(formData, "ubicacion")
+    const descripcionBreve = obtenerString(formData, "descripcionBreve")
+    const descripcionDetallada = obtenerString(formData, "descripcionDetallada")
+    const archivoImagen = formData.get("imagen") as File | null
 
-    if (!nombre || !ubicacion || !descripcionBreve || !descripcionDetallada) {
+    const camposObligatorios = [nombre, ubicacion, descripcionBreve, descripcionDetallada]
+    if (camposObligatorios.some(campo => !campo)) {
       return NextResponse.json({ error: "Faltan datos del destino" }, { status: 400 })
     }
 
     let imagenes: string[] = []
-
-    if (archivoImagen instanceof File && archivoImagen.size > 0) {
-      const rutaPublica = await guardarImagenSubida(archivoImagen)
-      imagenes = [rutaPublica]
+    if (archivoImagen && archivoImagen.size > 0) {
+      imagenes = [await guardarImagenSubida(archivoImagen)]
     }
 
     const destino = await guardarDestinoEnArchivo({
@@ -64,7 +67,6 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    const { leerDestinos } = await import("../../../lib/destinos")
     const destinos = await leerDestinos()
     return NextResponse.json(destinos)
   } catch (error: any) {
