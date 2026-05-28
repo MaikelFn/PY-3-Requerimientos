@@ -32,7 +32,8 @@ export default function RegistroInicioSesion() {
             }
 
             const usuario = await res.json()
-            alert(`Bienvenido, ${usuario.nombre} ${usuario.apellido}`)
+            // Redirigir a la página principal
+            window.location.href = "/paginaPrincipal"
         } catch (err) {
             alert('Error de conexión')
         }

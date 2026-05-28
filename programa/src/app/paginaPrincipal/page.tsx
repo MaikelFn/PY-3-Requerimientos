@@ -50,11 +50,24 @@ export default function PaginaPrincipal() {
 
         <div className={style.contenedor}>
             <div className={style.menuSuperior}>
+                <div className={style.menuIzquierdo}>
+                    {/*Botón para cerrar sesión*/}
+                    <button className={style.botonCerrar} onClick={() => {
+                        localStorage.removeItem("usuario");
+                        window.location.href = "/";
+                    }}>
+                        Cerrar sesión
+                    </button>
+                </div>
+
                 {/*Menu derecho*/}
                 <div className={style.menuDerecho}>
                     {/*Perfil*/}
                     <div className={style.menu}>
-                        <span>PERFIL</span> 
+                        <div className={style.itemMenu}>
+                            <span>👤</span>
+                            <p>Perfil</p>
+                        </div>
                         <div className={style.submenu}>
                             <a href="#reservas">Historial Reservas</a>
                             <a href="#pagos">Historial Pagos</a>
@@ -62,7 +75,10 @@ export default function PaginaPrincipal() {
                     </div>
                     {/* idioma / moneda*/}
                     <div className={style.menu}>
-                        <span>ES / USD</span>
+                        <div className={style.itemMenu}>
+                            <span>🌐</span>
+                            <p>ES/USD$</p>
+                        </div>
                         <div className={style.submenu}>
                             <p><strong>Idioma:</strong></p>
                             <a>Español</a>
@@ -75,11 +91,14 @@ export default function PaginaPrincipal() {
                     </div>
                     {/*Contacto */}
                     <div className={style.menu}>
-                        <span>CONTACTO</span>
+                        <div className={style.itemMenu}>
+                            <span>📞</span>
+                            <p>Contacto</p>
+                        </div>
                         <div className={style.submenu}>
-                            <a href="#contacto">Contacto empresa</a>
-                            <a>Email: contacto@tours.com</a>
-                            <a>Tel: +506 8888-8888</a>
+                            <p><strong>Contacto:</strong></p>
+                            <p>Email: contacto@tours.com</p>
+                            <p>Tel: +506 8888-8888</p>
                         </div>
                     </div>
 
@@ -87,15 +106,6 @@ export default function PaginaPrincipal() {
             </div>
             {/*Banner*/}
             <div className={style.banner}>
-                <h1>Bienvenido a bordo! {usuario}</h1>
-
-                {/*Botón para cerrar sesión*/}
-                <button className={style.boton} onClick={() => {
-                    localStorage.removeItem("usuario");
-                    window.location.href = "/";
-                }}>
-                    Cerrar sesión
-                </button>
             </div>
             {/*Buscador de tours*/}
             <div className={style.buscador}>
@@ -105,6 +115,7 @@ export default function PaginaPrincipal() {
             <div className={style.contenido}>
                 <h2>Explora el mundo con nosotros</h2>
                 <p>Descubre destinos increíbles, reserva tus viajes y vive experiencias inolvidables.</p>
+
             </div>
             {/*Tours destacados*/}
             <div className={style.tours}>

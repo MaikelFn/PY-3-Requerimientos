@@ -13,12 +13,7 @@
     align-items: center;
     padding: 20px;
     color: white;
-}
-
-.banner h1 {
-    background: rgba(0,0,0,0.5);
-    padding: 10px;
-    border-radius: 8px;
+    position: relative;
 }
 
 .banner button {
@@ -28,6 +23,7 @@
     border-radius: 8px;
     color: white;
     cursor: pointer;
+
 }
 
 .contenido {
@@ -98,6 +94,8 @@
     margin: 20px 0;
     display: flex;
     justify-content: center;
+    width: 50%;
+    margin-left: 300px;
 }
 
 .buscador input {
@@ -176,9 +174,24 @@
 
 .menuSuperior {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
     padding: 10px 20px;
     background: #f5f5f5;
+}
+
+.menuIzquierdo {
+    display: flex;
+    gap: 15px;
+}
+
+.botonCerrar{
+    background-color: #e63946;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
 }
 
 .menuDerecho {
@@ -190,7 +203,6 @@
     position: relative;
     cursor: pointer;
 }
-
 
 /* TEXTO */
 .menu span {
@@ -211,12 +223,10 @@
     z-index: 100;
 }
 
-
 /* MOSTRAR AL PASAR EL MOUSE */
 .menu:hover .submenu {
     display: block;
 }
-
 
 /* ITEMS */
 .submenu a {
@@ -234,6 +244,33 @@
 .submenu p {
     margin: 5px 0;
     font-size: 13px;
-    color: #666;
+    color: #333;
 }
+
+.submenu a {
+    pointer-events: none;
+    cursor: default;
+
+}
+
+.itemMenu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* ICONO */
+.itemMenu span {
+    font-size: 20px;
+}
+
+/* TEXTO */
+.itemMenu p {
+    margin: 0;
+    font-size: 12px;
+    color: #333;
+}
+
 
