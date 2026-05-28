@@ -1,6 +1,7 @@
 "use client";
 import {useEffect, useState} from "react";
 import style from "./page.module.css"
+import { useRouter } from "next/navigation";
 
 
 type Tour = {
@@ -16,6 +17,7 @@ export default function PaginaPrincipal() {
     const [usuario, setUsuario] = useState("");
     const [tours, setTours] = useState<Tour[]>([]);
     const [query, setQuery] = useState("")
+    const router = useRouter();
     const toursFiltrados = tours.filter(tour =>
     tour.nombreTour.toLowerCase().includes(query.toLowerCase()) ||
     tour.descripcionBreve.toLowerCase().includes(query.toLowerCase())
@@ -132,7 +134,7 @@ export default function PaginaPrincipal() {
                         {/*precio */}
                         <div className={style.precio}>
                             <p>${tour.precio}</p>
-                            <button className={style.botonDetalle}>
+                            <button className={style.botonDetalle} onClick={() => router.push(`/detalle/${tour.id}`)}>
                                 Ver detalles
                             </button>
                         </div>
