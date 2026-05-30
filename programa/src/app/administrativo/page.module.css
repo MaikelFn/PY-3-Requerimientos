@@ -1,0 +1,172 @@
+.contenedor {
+    min-height: 100vh;
+    background-color: #f2f7f6;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.menuSuperior {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.menuIzquierdo {
+    display: flex;
+    align-items: center;
+}
+
+.menuDerecho {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.botonVolver {
+    background-color: #ffffff;
+    color: #1b4332;
+    border: 1px solid #1b4332;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.botonVolver:hover {
+    background-color: #1b4332;
+    color: white;
+}
+
+.perfilAdmin {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+    background: #f5f5f5;
+    padding: 8px 15px;
+    border-radius: 20px;
+}
+
+.contenido {
+    text-align: center;
+    padding: 60px 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.tituloSeccion {
+    font-size: 32px;   
+    font-weight: bold;
+    margin-bottom: 12px;
+    color: #1b4332;
+}
+
+.subtitulo {
+    color: #555;
+    font-size: 16px;
+    margin-bottom: 40px;
+}
+
+.panelControles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.menuAdmin {
+    position: relative;
+    display: inline-block;
+}
+
+.botonGestion {
+    background-color: #2d6a4f;
+    color: white;
+    border: none;
+    padding: 16px 28px;
+    font-size: 15px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.botonGestion:hover {
+    background-color: #1b4332;
+}
+
+.botonDisponibilidad {
+    background-color: #2d6a4f;
+    color: white;
+    border: none;
+    padding: 16px 28px;
+    font-size: 15px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.2s ease;
+}
+
+.botonDisponibilidad:hover {
+    background-color: #1b4332;
+}
+
+.submenuAdmin {
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: white;
+    min-width: 200px;
+    border-radius: 8px;
+    padding: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    z-index: 150;
+    transition: all 0.25s ease;
+}
+
+.menuAdmin:hover .submenuAdmin {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(5px);
+}
+
+.indicadorSubmenu {
+    margin: 4px 8px 8px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 4px;
+    text-align: left;
+}
+
+.opcionSubmenu {
+    display: block;
+    padding: 10px 12px;
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+    text-align: left;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.opcionSubmenu:hover {
+    background-color: #f0f7f4;
+    color: #2d6a4f;
+}
