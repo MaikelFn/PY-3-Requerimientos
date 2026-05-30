@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 
 type Tour = {
-    id?: string;
+    id?: number;
     nombreTour: string;
     descripcionBreve: string;
     precio: string;
@@ -133,10 +133,17 @@ export default function PaginaPrincipal() {
                         </div>
                         {/*precio */}
                         <div className={style.precio}>
-                            <p>${tour.precio}</p>
-                            <button className={style.botonDetalle} onClick={() => router.push(`/detalle/${tour.id}`)}>
-                                Ver detalles
-                            </button>
+                            <p>₡{tour.precio}</p>
+                            {/*Botón para ver detalles del tour*/}
+                            <button className={style.botonDetalle} onClick={() => {
+                                if(tour.id !== undefined) {
+                                    {/* Guardar el tour seleccionado en sessionStorage para acceder a él en la página de detalles */}
+                                    sessionStorage.setItem("tourSeleccionado", JSON.stringify(tour));
+                                    router.push(`/detalleTours?id=${tour.id}`)
+                                } else {
+                                    console.error("ID del tour no definido", tour);
+                                }
+                            }}>Ver detalles</button>
                         </div>
                     </div>
                 ))}

@@ -1,31 +1,43 @@
 [
     {
-        "nombreTour": "Tour Parque Nacional Manuel Antonio",
-        "destinoId": 1,
-        "precio": "65",
-        "duracion": "6 horas",
-        "descripcionBreve": "Explora uno de los parques más famosos de Costa Rica con playas, senderos y vida silvestre.",
-        "itinerario": "Salida desde San José, caminata guiada, visita a la playa, regreso.",
-        "descripcionDetallada": "En este tour visitarás el Parque Nacional Manuel Antonio, donde podrás observar monos, perezosos y aves exóticas. Incluye guía certificado y tiempo libre en la playa.",
-        "imagenes": [],
+        "nombreTour": "Tour Volcán Arenal y Aguas Termales",
+        "destinoId": 2,
+        "precio": "65000",
+        "duracion": "10 horas",
+        "descripcionBreve": "Descubre el volcán Arenal y relájate en aguas termales.",
+        "itinerario": "1. Salida desde San José\n2. Parada en mirador del volcán\n3. Almuerzo típico\n4. Visita a aguas termales\n5. Regreso al hotel",
+        "descripcionDetallada": "Este tour te lleva al majestuoso volcán Arenal donde podrás disfrutar de vistas increíbles. Luego visitarás aguas termales naturales para relajarte, incluyendo transporte y guía especializado.",
+        "imagenes": [
+            "/imagenes/tours/arenal-1.jpg",
+            "/imagenes/tours/arenal-2.jpg"
+        ],
         "fechasYCupos": [
-            { "fecha": "2026-06-10", "cuposDisponibles": 20 },
-            { "fecha": "2026-06-15", "cuposDisponibles": 15 }
-        ]
+            { "fecha": "2026-06-08", "cupos": "25" },
+            { "fecha": "2026-06-12", "cupos": "20" },
+            { "fecha": "2026-06-18", "cupos": "15" }
+        ],
+        "id": 2,
+        "fechaRegistro": "2026-05-29T12:00:00.000Z"
     },
     {
-        "nombreTour": "Tour Volcán Arenal y Catarata La Fortuna",
+        "nombreTour": "Tour Volcán Poás y Jardines de Cataratas",
         "destinoId": 2,
-        "precio": "80",
+        "precio": "55000",
         "duracion": "8 horas",
-        "descripcionBreve": "Visita el majestuoso Volcán Arenal y la impresionante Catarata La Fortuna en un solo día.",
-        "itinerario": "Salida desde San José, visita al volcán, caminata a la catarata, regreso.",
-        "descripcionDetallada": "Este tour te llevará a conocer el Volcán Arenal, uno de los más activos de Costa Rica, seguido de una caminata hasta la hermosa Catarata La Fortuna. Incluye guía y transporte.",
-        "imagenes": [],
+        "descripcionBreve": "Visita el volcán Poás y los hermosos jardines de cataratas.",
+        "itinerario": "1. Salida desde San José\n2. Visita al volcán Poás\n3. Almuerzo en restaurante local\n4. Recorrido por jardines de cataratas\n5. Regreso al hotel",
+        "descripcionDetallada": "Explora el impresionante volcán Poás con su cráter activo y luego disfruta de un paseo por los jardines de cataratas cercanos, con transporte incluido.",
+        "imagenes": [
+            "/imagenes/tours/poas-1.jpg",
+            "/imagenes/tours/poas-2.jpg"
+        ],
         "fechasYCupos": [
-            { "fecha": "2026-06-12", "cuposDisponibles": 25 },
-            { "fecha": "2026-06-18", "cuposDisponibles": 10 }
-        ]
+            { "fecha": "2026-06-10", "cupos": "30" },
+            { "fecha": "2026-06-15", "cupos": "25" },
+            { "fecha": "2026-06-20", "cupos": "20" }
+        ],
+        "id": 3,
+        "fechaRegistro": "2026-05-30T12:00:00.000Z" 
     }
 
 

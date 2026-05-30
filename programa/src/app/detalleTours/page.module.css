@@ -7,7 +7,7 @@
 }
 
 /* BOTÓN VOLVER */
-.volcer {
+.volver {
     background: none;
     border: none;
     color: #666;
@@ -16,73 +16,236 @@
     margin-bottom: 20px;
 }
 
-.volcer:hover {
-    text-decoration: underline;
+.titulo {
+    font-size: 32px;
+    font-weight: 700;
+    color: #2bb8b8;
+    margin-bottom: 8px;
+    line-height: 1.2;
 }
 
-/* IMÁGENES */
-.contenedor img {
-    width: 100%;
-    max-height: 350px;
-    object-fit: cover;
+.cuerpo {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 40px;
+    align-items: start;
+}
+
+/*Columna izquierda*/
+.seccion {
+    background: #fff;
+    border-radius: 14px;
+    padding: 28px;
+    margin-bottom: 20px;
+    border: 1px solid #ebebeb;
+}
+
+.tituloSeccion {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.descripcionDetallada {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #444;
+}
+
+/*información general*/
+.infoGeneral {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.infoItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.infoIcono {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.infoLabel {
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+    font-family: Arial, sans-serif;
+}
+
+.infoValor {
+    font-size: 14px;
+    color: #1a1a1a;
+    font-weight: 600;
+}
+
+/*Itinerario*/
+.itinerario {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.pasoItinerario {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid #f5f5f5;
+    position: relative;
+}
+
+.pasoItinerario:last-child {
+    border-bottom: none;
+}
+
+.pasoPunto {
+    width: 12px;
+    height: 12px;
+    background: #1a6b3c;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+}
+
+.pasoItinerario p {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/*Columna derecha*/
+.columnaDerecha {
+    position: sticky;
+    top: 80px;
+}
+
+.reserva {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e0e0e0;
+    padding: 28px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+.precioTour {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.desde {
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Arial, sans-serif;
+}
+
+.precio {
+    font-size: 34px;
+    font-weight: 800;
+    color: #1a1a1a;
+    line-height: 1.1;
+}
+
+.porPersona {
+    font-size: 13px;
+    color: #888;
+    font-family: Arial, sans-serif;
+}
+
+/* FECHAS */
+.fechas {
+    margin-bottom: 24px;
+}
+
+.fechasLabel {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+    font-family: Arial, sans-serif;
+}
+ 
+.fechaItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
     border-radius: 10px;
-    margin-bottom: 15px;
+    border: 1.5px solid #e8e8e8;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: Arial, sans-serif;
 }
 
-/* TÍTULO */
-.contenedor h1 {
-    font-size: 28px;
-    margin-bottom: 15px;
+.fechaItem:hover {
+    border-color: #1a6b3c;
+    background: #f0faf4;
+}
+
+.fechaSeleccionada {
+    border-color: #1a6b3c !important;
+    background: #f0faf4 !important;
+}
+
+.fechaTexto {
+    font-size: 13px;
     color: #333;
 }
 
-/* TEXTO */
-.contenedor p {
-    margin-bottom: 10px;
-    line-height: 1.5;
-}
-
-/* SECCIÓN DISPONIBILIDAD */
-.contenedor h3 {
-    margin-top: 25px;
-    margin-bottom: 10px;
-}
-
-.contenedor .ul {
-    padding: 0;
-    list-style: none;
-}
-
-.contenedor li {
-    background: #f5f5f5;
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 8px;
-    display: flex;
-    justify-content: space-between;
-}
-
-/* PRECIO DESTACADO */
-.contenedor p strong {
-    color: #000;
+.cupos {
+    font-size: 12px;
+    color: #1a6b3c;
+    font-weight: 600;
+    background: #e8f5ee;
+    padding: 3px 8px;
+    border-radius: 20px;
+    text-align: center;
 }
 
 /* BOTÓN RESERVAR */
-.reservar {
-    margin-top: 30px;
-    background: #e6005c;
-    color: white;
-    border: none;
-    padding: 14px 20px;
-    font-size: 16px;
-    border-radius: 12px;
-    cursor: pointer;
+.btnReservar {
     width: 100%;
-    transition: 0.2s;
+    background: #1a6b3c;
+    color: #fff;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    font-family: Arial, sans-serif;
+    letter-spacing: 0.3px;
 }
 
-.reservar:hover {
-    background: #c4004d;
+.btnReservar:hover {
+    background: #145530;
 }
 
+.btnReservar:active {
+    transform: scale(0.98);
+}
 
+.notaReserva {
+    text-align: center;
+    font-size: 12px;
+    color: #888;
+    margin-top: 10px;
+    font-family: Arial, sans-serif;
+}
