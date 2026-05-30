@@ -9,6 +9,11 @@ type FormState = {
   descripcionDetallada: string
 }
 
+type ImagenItem = {
+  archivo: File
+  preview: string
+}
+
 export default function FormularioAgregarDestinos() {
   const [form, setForm] = useState<FormState>({
     nombre: "",
@@ -17,8 +22,7 @@ export default function FormularioAgregarDestinos() {
     descripcionDetallada: "",
   })
 
-  const [archivoImagen, setArchivoImagen] = useState<File | null>(null)
-  const [previewImagen, setPreviewImagen] = useState<string | null>(null)
+  const [imagenes, setImagenes] = useState<ImagenItem[]>([])
   const [cargando, setCargando] = useState(false)
   const [mensaje, setMensaje] = useState<{ tipo: "exito" | "error"; texto: string } | null>(null)
 
@@ -28,17 +32,28 @@ export default function FormularioAgregarDestinos() {
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const archivo = e.target.files[0]
-      setArchivoImagen(archivo)
-      
-      // Crear preview
+    if (!e.target.files || e.target.files.length === 0) return
+
+    Array.from(e.target.files).forEach((archivo) => {
+      // Evitar duplicados por nombre
+      const yaExiste = imagenes.some((img) => img.archivo.name === archivo.name)
+      if (yaExiste) return
+
       const reader = new FileReader()
       reader.onload = (evento) => {
-        setPreviewImagen(evento.target?.result as string)
+        setImagenes((prev) => [
+          ...prev,
+          { archivo, preview: evento.target?.result as string },
+        ])
       }
       reader.readAsDataURL(archivo)
-    }
+    })
+
+    e.target.value = ""
+  }
+
+  const handleEliminarImagen = (index: number) => {
+    setImagenes((prev) => prev.filter((_, i) => i !== index))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -53,8 +68,10 @@ export default function FormularioAgregarDestinos() {
       formData.append("descripcionBreve", form.descripcionBreve)
       formData.append("descripcionDetallada", form.descripcionDetallada)
 
-      if (archivoImagen) {
-        formData.append("imagen", archivoImagen)
+      if (imagenes.length > 0) {
+        imagenes.forEach((img) => {
+          formData.append("imagenes", img.archivo)
+        })
       }
 
       const respuesta = await fetch("/api/destinos", {
@@ -78,8 +95,7 @@ export default function FormularioAgregarDestinos() {
           descripcionBreve: "",
           descripcionDetallada: "",
         })
-        setArchivoImagen(null)
-        setPreviewImagen(null)
+        setImagenes([])
         setMensaje(null)
       }, 2000)
     } catch (error: any) {
@@ -97,8 +113,7 @@ export default function FormularioAgregarDestinos() {
       descripcionBreve: "",
       descripcionDetallada: "",
     })
-    setArchivoImagen(null)
-    setPreviewImagen(null)
+    setImagenes([])
     setMensaje(null)
   }
 
@@ -188,22 +203,57 @@ export default function FormularioAgregarDestinos() {
 
           {/* Sección de Imagen/Multimedia */}
           <div className={styles.campoVertical}>
-            <label className={styles.etiquetaNegrita}>IMAGENES DEL DESTINO</label>
+            <label className={styles.etiquetaNegrita}>IMÁGENES DEL DESTINO</label>
             
             <div className={styles.zonaSubidaHorizontal}>
               <div className={styles.previsualizaciones}>
-                {previewImagen ? (
-                  <img src={previewImagen} alt="Preview" style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "8px" }} />
-                ) : (
+                {imagenes.length === 0 ? (
                   <div className={styles.cuadroFoto}>🌄</div>
+                ) : (
+                  imagenes.map((img, index) => (
+                    <div key={index} style={{ position: "relative", display: "inline-block", marginRight: "8px" }}>
+                      <img 
+                        src={img.preview} 
+                        alt={`Preview ${index + 1}`} 
+                        style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "8px" }} 
+                      />
+                      {/* Botón para eliminar imagen individual */}
+                      <button
+                        type="button"
+                        onClick={() => handleEliminarImagen(index)}
+                        disabled={cargando}
+                        style={{
+                          position: "absolute",
+                          top: "4px",
+                          right: "4px",
+                          background: "rgba(0,0,0,0.55)",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "50%",
+                          width: "20px",
+                          height: "20px",
+                          cursor: "pointer",
+                          fontSize: "12px",
+                          lineHeight: "20px",
+                          textAlign: "center",
+                          padding: 0,
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))
                 )}
               </div>
+
+              {/* Input acepta múltiples archivos utilizando la propiedad 'multiple' */}
               <label htmlFor="imagenArchivo" className={styles.botonSeleccionar}>
                 Seleccionar Archivos
                 <input 
                   id="imagenArchivo" 
                   type="file" 
                   accept="image/*" 
+                  multiple
                   onChange={handleFileChange} 
                   style={{ display: 'none' }} 
                   disabled={cargando}

@@ -7,6 +7,11 @@ type FechaCupo = {
   cupos: string
 }
 
+type ImagenItem = {
+  archivo: File
+  preview: string
+}
+
 type TourFormState = {
   nombreTour: string
   destino: string
@@ -15,7 +20,6 @@ type TourFormState = {
   descripcionBreve: string
   itinerario: string
   descripcionDetallada: string
-  imagenUrl: string
 }
 
 const destinosRegistrados = [
@@ -35,16 +39,13 @@ export default function FormularioAgregarTours() {
     descripcionBreve: "",
     itinerario: "",
     descripcionDetallada: "",
-    imagenUrl: "",
   })
 
-  // Estado para la lista de fechas con sus respectivos cupos
   const [fechasSeleccionadas, setFechasSeleccionadas] = useState<FechaCupo[]>([])
-  // Estado temporal para el input del calendario
   const [nuevaFecha, setNuevaFecha] = useState("")
 
-  const [metodoImagen, setMetodoImagen] = useState<"archivo" | "url">("archivo")
-  const [archivoImagen, setArchivoImagen] = useState<File | null>(null)
+  const [imagenes, setImagenes] = useState<ImagenItem[]>([])
+
   const [mostrarDesplegable, setMostrarDesplegable] = useState(false)
   const [errorDestino, setErrorDestino] = useState(false)
 
@@ -65,49 +66,65 @@ export default function FormularioAgregarTours() {
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
-  // Manejar el agregado de una nueva fecha al calendario
   const handleAgregarFecha = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fechaElegida = e.target.value
     if (!fechaElegida) return
-
-    // Evitar duplicar la misma fecha
     if (!fechasSeleccionadas.some(item => item.fecha === fechaElegida)) {
       setFechasSeleccionadas([...fechasSeleccionadas, { fecha: fechaElegida, cupos: "" }])
     }
-    setNuevaFecha("") // Resetea el input visual
+    setNuevaFecha("")
   }
 
-  // Actualizar los cupos de una fecha específica
   const handleCuposChange = (index: number, cantidad: string) => {
     const copias = [...fechasSeleccionadas]
     copias[index].cupos = cantidad
     setFechasSeleccionadas(copias)
   }
 
-  // Eliminar una fecha de la lista si el administrador se equivoca
   const handleEliminarFecha = (index: number) => {
     setFechasSeleccionadas(fechasSeleccionadas.filter((_, i) => i !== index))
   }
 
   const handleSeleccionarDestino = (destinoSeleccionado: string) => {
-    setForm((prev) => ({ ...prev, ...{ destino: destinoSeleccionado } }))
+    setForm((prev) => ({ ...prev, destino: destinoSeleccionado }))
     setMostrarDesplegable(false)
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setArchivoImagen(e.target.files[0])
-    }
+    if (!e.target.files || e.target.files.length === 0) return
+
+    const nuevasImagenes: ImagenItem[] = []
+
+    Array.from(e.target.files).forEach((archivo) => {
+      // Evitar duplicados por nombre
+      const yaExiste = imagenes.some((img) => img.archivo.name === archivo.name)
+      if (yaExiste) return
+
+      const reader = new FileReader()
+      reader.onload = (evento) => {
+        setImagenes((prev) => [
+          ...prev,
+          { archivo, preview: evento.target?.result as string },
+        ])
+      }
+      reader.readAsDataURL(archivo)
+    })
+
+    e.target.value = ""
+  }
+
+  const handleEliminarImagen = (index: number) => {
+    setImagenes((prev) => prev.filter((_, i) => i !== index))
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (errorDestino) return 
+    if (errorDestino) return
 
     const datosFinales = {
       ...form,
       fechasYCupos: fechasSeleccionadas,
-      imagen: metodoImagen === "url" ? form.imagenUrl : archivoImagen?.name || ""
+      imagenes: imagenes.map((img) => img.archivo.name),
     }
     console.log("Enviar todo el esquema del tour:", datosFinales)
   }
@@ -121,10 +138,9 @@ export default function FormularioAgregarTours() {
       descripcionBreve: "",
       itinerario: "",
       descripcionDetallada: "",
-      imagenUrl: "",
     })
     setFechasSeleccionadas([])
-    setArchivoImagen(null)
+    setImagenes([])
     setErrorDestino(false)
   }
 
@@ -132,7 +148,7 @@ export default function FormularioAgregarTours() {
     <main className={styles.contenedor}>
       <div className={styles.tarjeta}>
         <form onSubmit={handleSubmit} className={styles.formulario}>
-          
+
           {/* Nombre del Tour */}
           <div className={styles.campoHorizontal}>
             <label htmlFor="nombreTour" className={styles.etiqueta}>Nombre del Tour</label>
@@ -143,17 +159,17 @@ export default function FormularioAgregarTours() {
           <div className={styles.campoHorizontal}>
             <label htmlFor="destino" className={styles.etiqueta}>Destino</label>
             <div className={styles.contenedorBuscador}>
-              <input 
-                id="destino" 
-                name="destino" 
-                value={form.destino} 
-                onChange={handleChange} 
+              <input
+                id="destino"
+                name="destino"
+                value={form.destino}
+                onChange={handleChange}
                 onFocus={() => setMostrarDesplegable(true)}
-                onBlur={() => setTimeout(() => setMostrarDesplegable(false), 200)} 
-                className={`${styles.input} ${errorDestino ? styles.inputError : ""}`} 
+                onBlur={() => setTimeout(() => setMostrarDesplegable(false), 200)}
+                className={`${styles.input} ${errorDestino ? styles.inputError : ""}`}
                 placeholder="Escribe para buscar destinos registrados..."
                 autoComplete="off"
-                required 
+                required
               />
               {mostrarDesplegable && destinosFiltrados.length > 0 && (
                 <ul className={styles.listaDesplegable}>
@@ -187,32 +203,30 @@ export default function FormularioAgregarTours() {
             </div>
           </div>
 
-          {/* NUEVO: Selección Múltiple de Fechas y Cupos */}
+          {/* Fechas y Cupos */}
           <div className={styles.campoHorizontal}>
             <label htmlFor="calendario" className={styles.etiqueta}>Añadir Fechas</label>
             <div className={styles.contenedorFechasDinamicas}>
-              <input 
-                id="calendario" 
-                type="date" 
-                value={nuevaFecha} 
-                onChange={handleAgregarFecha} 
-                className={styles.input} 
+              <input
+                id="calendario"
+                type="date"
+                value={nuevaFecha}
+                onChange={handleAgregarFecha}
+                className={styles.input}
               />
-              
-              {/* Listado dinámico de fechas agregadas con su campo de cupos */}
               {fechasSeleccionadas.length > 0 && (
                 <div className={styles.tablaFechasCupos}>
                   {fechasSeleccionadas.map((item, index) => (
                     <div key={index} className={styles.filaFechaCupo}>
                       <span className={styles.fechaTexto}>{item.fecha}</span>
-                      <input 
-                        type="number" 
-                        min="1" 
-                        placeholder="Cupos disponibles" 
-                        value={item.cupos} 
+                      <input
+                        type="number"
+                        min="1"
+                        placeholder="Cupos disponibles"
+                        value={item.cupos}
                         onChange={(e) => handleCuposChange(index, e.target.value)}
                         className={styles.inputCupos}
-                        required 
+                        required
                       />
                       <button type="button" onClick={() => handleEliminarFecha(index)} className={styles.botonEliminarFecha}>×</button>
                     </div>
@@ -222,7 +236,7 @@ export default function FormularioAgregarTours() {
             </div>
           </div>
 
-          {/* NUEVO: Itinerario */}
+          {/* Itinerario */}
           <div className={styles.campoHorizontal}>
             <label htmlFor="itinerario" className={styles.etiqueta}>Itinerario</label>
             <textarea id="itinerario" name="itinerario" value={form.itinerario} onChange={handleChange} className={styles.textarea} placeholder="Ej: 08:00 AM - Salida del hotel, 10:00 AM - Llegada al sendero..." rows={3} required />
@@ -239,31 +253,68 @@ export default function FormularioAgregarTours() {
             </div>
           </div>
 
-          {/* Sección Multimedia */}
+          {/* Imágenes — múltiples*/}
           <div className={styles.campoVertical}>
             <label className={styles.etiquetaNegrita}>IMAGENES DEL TOUR</label>
-            <div className={styles.selectorMetodo}>
-              <button type="button" className={`${styles.botonMetodo} ${metodoImagen === "archivo" ? styles.activo : ""}`} onClick={() => setMetodoImagen("archivo")}>Desde Dispositivo</button>
-              <button type="button" className={`${styles.botonMetodo} ${metodoImagen === "url" ? styles.activo : ""}`} onClick={() => setMetodoImagen("url")}>Desde URL Web</button>
-            </div>
+            <div className={styles.zonaSubidaHorizontal}>
 
-            {metodoImagen === "archivo" ? (
-              <div className={styles.zonaSubidaHorizontal}>
-                <div className={styles.previsualizaciones}>
+              {/* Previews de todas las imágenes agregadas */}
+              <div className={styles.previsualizaciones}>
+                {imagenes.length === 0 ? (
                   <div className={styles.cuadroFoto}>🌄</div>
-                  {archivoImagen && <div className={styles.cuadroFotoCargada}>📄</div>}
-                </div>
-                <label htmlFor="imagenArchivo" className={styles.botonSeleccionar}>
-                  Seleccionar Archivos
-                  <input id="imagenArchivo" type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
-                </label>
+                ) : (
+                  imagenes.map((img, index) => (
+                    <div key={index} style={{ position: "relative", display: "inline-block" }}>
+                      <img
+                        src={img.preview}
+                        alt={`Preview ${index + 1}`}
+                        style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "8px" }}
+                      />
+                      {/* Botón para eliminar imagen individual */}
+                      <button
+                        type="button"
+                        onClick={() => handleEliminarImagen(index)}
+                        style={{
+                          position: "absolute",
+                          top: "4px",
+                          right: "4px",
+                          background: "rgba(0,0,0,0.55)",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "50%",
+                          width: "20px",
+                          height: "20px",
+                          cursor: "pointer",
+                          fontSize: "12px",
+                          lineHeight: "20px",
+                          textAlign: "center",
+                          padding: 0,
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))
+                )}
               </div>
-            ) : (
-              <input id="imagenUrl" name="imagenUrl" type="url" placeholder="https://ejemplo.com/foto-tour.jpg" value={form.imagenUrl} onChange={handleChange} className={styles.input} />
-            )}
+
+              {/* Input acepta múltiples archivos */}
+              <label htmlFor="imagenArchivo" className={styles.botonSeleccionar}>
+                Seleccionar Archivos
+                <input
+                  id="imagenArchivo"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleFileChange}
+                  style={{ display: "none" }}
+                />
+              </label>
+
+            </div>
           </div>
 
-          {/* Botones de acción */}
+          {/* Botones */}
           <div className={styles.acciones}>
             <button type="button" onClick={handleCancel} className={styles.botonCancel}>Cancelar</button>
             <button type="submit" className={styles.botonSubmit} disabled={errorDestino}>Agregar tour</button>
