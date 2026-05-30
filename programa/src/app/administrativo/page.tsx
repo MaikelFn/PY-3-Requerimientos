@@ -33,7 +33,7 @@ export default function PanelAdministrativo() {
                     <div className={style.submenuAdmin}>
                         <div className={style.indicadorSubmenu}>Opciones</div>
                         <a className={style.opcionSubmenu} onClick={() => router.push("/formularioAgregarDestinos")}>Crear destino</a>
-                        <a className={style.opcionSubmenu} onClick={() => router.push("/formularioAgregarDestinos")}>Modificar destino</a>
+                        <a className={style.opcionSubmenu} onClick={() => router.push("/formularioModificarDestinos")}>Modificar destino</a>
                         <a className={style.opcionSubmenu} onClick={() => router.push("/formularioAgregarDestinos")}>Eliminar destino</a>
                     </div>
                 </div>
@@ -44,7 +44,7 @@ export default function PanelAdministrativo() {
                     <div className={style.submenuAdmin}>
                         <div className={style.indicadorSubmenu}>Opciones</div>
                         <a className={style.opcionSubmenu} onClick={() => router.push("/formularioAgregarTours")}>Crear tour</a>
-                        <a className={style.opcionSubmenu} onClick={() => router.push("/formularioAgregarTours")}>Modificar tour</a>
+                        <a className={style.opcionSubmenu} onClick={() => router.push("/formularioModificarTours")}>Modificar tour</a>
                         <a className={style.opcionSubmenu} onClick={() => router.push("/formularioAgregarTours")}>Eliminar tour</a>
                     </div>
                 </div>
