@@ -3,15 +3,19 @@ import "server-only"
 import { readFile, writeFile } from "fs/promises"
 import path from "path"
 
+export type Roll = "Cliente" | "Administrador"
+
 export type NuevoUsuario = {
   nombre: string
   apellido: string
   correo: string
   contrasena: string
+  roll?: Roll
 }
 
 export type UsuarioGuardado = NuevoUsuario & {
   id: number
+  roll: Roll
   fechaRegistro: string
 }
 
@@ -69,6 +73,7 @@ export async function guardarUsuarioEnArchivo(datosUsuario: NuevoUsuario) {
     apellido: datosUsuario.apellido.trim(),
     correo: correoNormalizado,
     contrasena: datosUsuario.contrasena,
+    roll: datosUsuario.roll ?? "Cliente",
     fechaRegistro: new Date().toISOString(),
   }
 
