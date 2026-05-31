@@ -16,6 +16,11 @@ export default function RegistroInicioSesion() {
     const [apellido, setApellido] = useState("")
     const [emailRegistro, setEmailRegistro] = useState("")
     const [passwordRegistro, setPasswordRegistro] = useState("")
+    const [pasoRecuperar, setPasoRecuperar] = useState(1)
+    const [correoRecuperar, setCorreoRecuperar] = useState("")
+    const [codigoIngresado, setCodigoIngresado] = useState("")
+    const [nuevaContrasena, setNuevaContrasena] = useState("")
+    const [enviando, setEnviando] = useState(false)
 
     async function handleLogin() {
         try {
@@ -61,6 +66,48 @@ export default function RegistroInicioSesion() {
             alert('Error de conexión')
         }
     }
+
+    async function handleEnviarCodigo() {
+        if (!correoRecuperar) return alert("Ingresa tu correo")
+        setEnviando(true)
+        try{
+            const resultado = await fetch("/api/recuperar/enviar", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({correo: correoRecuperar})
+            })
+            if (!resultado.ok) {
+                const err = await resultado.json()
+                alert(err.error || "Error al enviar el código")
+                return
+            }
+            setPasoRecuperar(2)
+        }catch {
+            alert("Error de coneción")
+        }finally {
+            setEnviando(false)
+        }
+    }
+
+    async function handleVerificarCodigo() {
+        if (!codigoIngresado || !nuevaContrasena) return alert("Completa todos los campos")
+        try {
+            const res = await fetch("/api/recuperar/verificar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ correo: correoRecuperar, codigo: codigoIngresado, nuevaContrasena })
+            }) 
+            if (!res.ok) {
+                const err = await res.json()
+                alert(err.error || "Código incorrecto")
+                return
+            }
+            setPasoRecuperar(3)
+        } catch {
+            alert("Error de conexión")
+        }
+    }
+
 
     return(
         <main className={style.fondo}>
@@ -142,20 +189,70 @@ export default function RegistroInicioSesion() {
                     <div>
                         <button onClick={() => setPantalla("inicioSesion")} className={style.volver}>← Volver</button>
                         <h2 className={style.titulo}>Recuperar contraseña</h2>
-                        <p className={style.subtitulo}>Ingresa tu correo electrónico para recibir instrucciones de recuperación.</p>
-
-                        <div className={style.campos}>
-                            <label className={style.etiqueta}>Correo electrónico</label>
-                            <input type="email" placeholder="juanperez@correo.com" className={style.input} />
-                        </div>
-
-                        <button className={style.boton}>Enviar instrucciones</button>
-
-                        <p className={style.piepagina}>
-                            <button onClick={() => setPantalla("inicioSesion")} className={style.enlace}>
-                                Volver al inicio de sesión
+                        {/* Ingresar correo*/}
+                        {pasoRecuperar === 1 && (
+                            <>
+                            <p className={style.subtitulo}> Ingresa tu coreo y te enviaremos un código.</p>
+                            <div className={style.campos}>
+                                <label className={style.etiqueta}> Correo electrónico</label>
+                                <input
+                                    type="email"
+                                    placeholder="juanperez@correo.com"
+                                    value={correoRecuperar}
+                                    onChange={(e) => setCorreoRecuperar(e.target.value)}
+                                    className={style.input}/>
+                            </div>
+                            <button onClick={handleEnviarCodigo} className={style.boton}>
+                                {enviando ? "Enviando..." : "Enviar código"}
                             </button>
-                        </p>
+                            </>
+                        )}
+
+                        {/* Ingrear cosigo y la cosntraseña nueva */}
+                        {pasoRecuperar === 2 && (
+                            <>
+                                <p className={style.subtitulo}>Ingresa el código que enviamos a <strong>{correoRecuperar}</strong></p>
+                                <div className={style.campos}>
+                                    <label className={style.etiqueta}>Código de 6 dígitos</label>
+                                    <input
+                                        type="text"
+                                        placeholder="483921"
+                                        maxLength={6}
+                                        value={codigoIngresado}
+                                        onChange={(e) => setCodigoIngresado(e.target.value)}
+                                        className={style.input}
+                                        />
+                                </div>
+                                <div className={style.campos}>
+                                    <label className={style.etiqueta}>Nueva contraseña</label>
+                                    <input
+                                        type="password"
+                                        placeholder="********"
+                                        value={nuevaContrasena}
+                                        onChange={(e) => setNuevaContrasena(e.target.value)}
+                                        className={style.input}
+                                    />
+                                </div>
+                                <button onClick={handleVerificarCodigo} className={style.boton}>
+                                    Cambiar contraseña
+                                </button>
+                                <p className={style.piepagina}>
+                                    <button onClick={handleEnviarCodigo} className={style.enlace}>
+                                        Reenviar código
+                                    </button>
+                                </p>
+                            </>
+                        )}
+
+                        {/*Exito*/}
+                        {pasoRecuperar === 3 && (
+                            <>
+                                <p className={style.subtitulo}>¡Contraseña cambiada con éxito!</p>
+                                <button onClick={() => { setPantalla("inicioSesion"); setPasoRecuperar(1) }} className={style.boton}>
+                                    Ir a iniciar sesión
+                                </button>
+                            </>
+                        )}
                     </div>
                 )}
             </div>

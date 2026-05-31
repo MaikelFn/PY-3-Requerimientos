@@ -101,3 +101,13 @@ export async function autenticarUsuario(
   const { contrasena: _con, ...usuarioSinContrasena } = usuario
   return usuarioSinContrasena
 }
+
+export async function actulizarContrasena(correo: string, nuevaContrasena: string): Promise<void> {
+  const usuarios = await leerUsuarios()
+  const correoNormalizado = correo.trim().toLowerCase() //convierte el correo a minusculas y eleimina los espacios
+  const indiceUsuario = usuarios.findIndex(u => u.correo.trim().toLowerCase() === correoNormalizado)
+  if (indiceUsuario === -1) throw new Error("Usuario no encontrado")
+    usuarios[indiceUsuario].contrasena = nuevaContrasena
+  await writeFile(rutaUsuarios, JSON.stringify(usuarios, null, 2), "utf8")
+}
+
