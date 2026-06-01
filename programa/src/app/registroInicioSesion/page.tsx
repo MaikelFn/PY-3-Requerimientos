@@ -37,8 +37,14 @@ export default function RegistroInicioSesion() {
             }
 
             const usuario = await res.json()
-            // Redirigir a la página principal
-            window.location.href = "/paginaPrincipal"
+            
+            // REDIRECCIÓN CONDICIONAL SEGÚN EL ROL DE LA BASE DE DATOS
+            if (usuario.roll === "Administrador") {
+                window.location.href = "/paginaPrincipalAdmin"
+            } else {
+                window.location.href = "/paginaPrincipal"
+            }
+            
         } catch (err) {
             alert('Error de conexión')
         }
@@ -83,7 +89,7 @@ export default function RegistroInicioSesion() {
             }
             setPasoRecuperar(2)
         }catch {
-            alert("Error de coneción")
+            alert("Error de conexión")
         }finally {
             setEnviando(false)
         }

@@ -107,7 +107,38 @@ export async function actulizarContrasena(correo: string, nuevaContrasena: strin
   const correoNormalizado = correo.trim().toLowerCase() //convierte el correo a minusculas y eleimina los espacios
   const indiceUsuario = usuarios.findIndex(u => u.correo.trim().toLowerCase() === correoNormalizado)
   if (indiceUsuario === -1) throw new Error("Usuario no encontrado")
-    usuarios[indiceUsuario].contrasena = nuevaContrasena
+  usuarios[indiceUsuario].contrasena = nuevaContrasena
   await writeFile(rutaUsuarios, JSON.stringify(usuarios, null, 2), "utf8")
 }
 
+
+export async function actualizarRolUsuario(correo: string, nuevoRol: Roll): Promise<Omit<UsuarioGuardado, "contrasena">> {
+  const usuarios = await leerUsuarios()
+  const correoNormalizado = correo.trim().toLowerCase()
+  
+  const indiceUsuario = usuarios.findIndex(u => u.correo.trim().toLowerCase() === correoNormalizado)
+  if (indiceUsuario === -1) {
+    throw new Error("Usuario no encontrado")
+  }
+
+  // Modificar el rol del usuario seleccionado
+  usuarios[indiceUsuario].roll = nuevoRol
+
+  await writeFile(rutaUsuarios, JSON.stringify(usuarios, null, 2), "utf8")
+  
+  const { contrasena: _con, ...usuarioSinContrasena } = usuarios[indiceUsuario]
+  return usuarioSinContrasena
+}
+
+export async function obtenerTodosLosUsuarios(): Promise<Omit<UsuarioGuardado, "contrasena">[]> {
+  const usuarios = await leerUsuarios()
+  
+  return usuarios.map((usuario) => {
+    const { contrasena, ...usuarioSinContrasena } = usuario
+    return {
+      ...usuarioSinContrasena,
+      // Si el usuario viejo de la BD no tiene roll asignado, por defecto se renderiza como Cliente
+      roll: usuario.roll ?? "Cliente"
+    }
+  })
+}

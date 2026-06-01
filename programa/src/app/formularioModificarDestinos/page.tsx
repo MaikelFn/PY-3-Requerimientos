@@ -1,5 +1,5 @@
 ﻿"use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import styles from "./page.module.css"
 
@@ -13,6 +13,8 @@ type Destino = {
 
 export default function FormularioModificarDestinos() {
   const router = useRouter()
+  const editorRef = useRef<HTMLDivElement>(null)
+  
   const [listaDestinos, setListaDestinos] = useState<Destino[]>([])
   const [destinoSeleccionadoId, setDestinoSeleccionadoId] = useState<string>("")
   
@@ -25,6 +27,7 @@ export default function FormularioModificarDestinos() {
   
   const [cargando, setCargando] = useState(false)
 
+  // 1. Cargar destinos desde la API al iniciar la página
   useEffect(() => {
     async function obtenerDestinos() {
       try {
@@ -40,6 +43,19 @@ export default function FormularioModificarDestinos() {
     obtenerDestinos()
   }, [])
 
+  // 2. RECUPERACIÓN AUTOMÁTICA DEL TEXTO GUARDADO
+  // Este useEffect vigila cuando el usuario selecciona un destino o cambia el id,
+  // asegurando que el HTML enriquecido existente se dibuje dentro del cuadro editable.
+  useEffect(() => {
+    if (destinoSeleccionadoId && editorRef.current) {
+      // Evita reescribir el contenido si el usuario ya está escribiendo activamente ahí adentro
+      if (editorRef.current.innerHTML !== form.descripcionDetallada) {
+        editorRef.current.innerHTML = form.descripcionDetallada || ""
+      }
+    }
+  }, [destinoSeleccionadoId, form.descripcionDetallada])
+
+  // Al seleccionar un destino del dropdown, actualizamos el estado base
   const handleSelectDestino = (idString: string) => {
     setDestinoSeleccionadoId(idString)
     if (!idString) {
@@ -53,14 +69,31 @@ export default function FormularioModificarDestinos() {
         nombre: dest.nombre,
         ubicacion: dest.ubicacion,
         descripcionBreve: dest.descripcionBreve,
-        descripcionDetallada: dest.descripcionDetallada,
+        descripcionDetallada: dest.descripcionDetallada, // Aquí viene el HTML guardado (ej: "texto <b>negrita</b>")
       })
+    }
+  }
+
+  // Captura el texto nuevo que digita el usuario en tiempo real en el cuadro editable
+  const handleEditorChange = () => {
+    if (editorRef.current) {
+      const htmlContenido = editorRef.current.innerHTML
+      setForm((prev) => ({ ...prev, descripcionDetallada: htmlContenido }))
     }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setForm((prev) => ({ ...prev, [name]: value }))
+  }
+
+  // Ejecuta comandos visuales nativos (Negrita, Cursiva, etc)
+  const ejecutarComando = (comando: string) => {
+    document.execCommand(comando, false, undefined)
+    handleEditorChange() // Guarda el cambio inmediatamente en el estado
+    if (editorRef.current) {
+      editorRef.current.focus()
+    }
   }
 
   const handleGuardarCambios = async (e: React.FormEvent) => {
@@ -113,8 +146,19 @@ export default function FormularioModificarDestinos() {
   }
 
   const handleCancel = () => {
-    router.push("/formularioModificarDestinos")
+    setDestinoSeleccionadoId("")
+    setForm({
+      nombre: "",
+      ubicacion: "",
+      descripcionBreve: "",
+      descripcionDetallada: "",
+    })
+    if (editorRef.current) {
+      editorRef.current.innerHTML = ""
+    }
   }
+
+  const estiloTextoNegro = { color: "#000000" }
 
   return (
     <main className={styles.contenedor}>
@@ -128,10 +172,11 @@ export default function FormularioModificarDestinos() {
             className={styles.input} 
             value={destinoSeleccionadoId} 
             onChange={(e) => handleSelectDestino(e.target.value)}
+            style={estiloTextoNegro}
           >
             <option value="">-- Elige un destino para modificar --</option>
             {listaDestinos.map((d) => (
-              <option key={d.id} value={d.id}>{d.nombre}</option>
+              <option key={d.id} value={d.id} style={estiloTextoNegro}>{d.nombre}</option>
             ))}
           </select>
         </div>
@@ -142,36 +187,58 @@ export default function FormularioModificarDestinos() {
             {/* Nombre del Destino */}
             <div className={styles.campoHorizontal}>
               <label htmlFor="nombre" className={styles.etiqueta}>Nombre del Destino</label>
-              <input id="nombre" name="nombre" value={form.nombre} onChange={handleChange} className={styles.input} required />
+              <input id="nombre" name="nombre" value={form.nombre || ""} onChange={handleChange} className={styles.input} style={estiloTextoNegro} required />
             </div>
 
             {/* Ubicación */}
             <div className={styles.campoHorizontal}>
               <label htmlFor="ubicacion" className={styles.etiqueta}>Ubicación</label>
-              <input id="ubicacion" name="ubicacion" value={form.ubicacion} onChange={handleChange} className={styles.input} required />
+              <input id="ubicacion" name="ubicacion" value={form.ubicacion || ""} onChange={handleChange} className={styles.input} style={estiloTextoNegro} required />
             </div>
 
             {/* Breve Descripción */}
             <div className={styles.campoHorizontal}>
               <label htmlFor="descripcionBreve" className={styles.etiqueta}>Breve Descripción</label>
               <div className={styles.contenedorContador}>
-                <textarea id="descripcionBreve" name="descripcionBreve" maxLength={150} value={form.descripcionBreve} onChange={handleChange} className={styles.textarea} rows={2} required />
-                <span className={styles.contador}>{form.descripcionBreve.length} / 150</span>
+                <textarea id="descripcionBreve" name="descripcionBreve" maxLength={150} value={form.descripcionBreve || ""} onChange={handleChange} className={styles.textarea} style={estiloTextoNegro} rows={2} required />
+                <span className={styles.contador}>{(form.descripcionBreve || "").length} / 150</span>
               </div>
             </div>
 
-            {/* Descripción Detallada */}
+            {/* Descripción Detallada con Editor Visual En Vivo */}
             <div className={styles.campoVertical}>
               <label htmlFor="descripcionDetallada" className={styles.etiquetaNegrita}>DESCRIPCIÓN DETALLADA</label>
-              <div className={styles.editorSimulado}>
-                <div className={styles.barraEditor}>
-                  <span><b>B</b></span> <span><i>I</i></span> <span><u>U</u></span> <span><s>S</s></span> <span>≡ ▾</span> <span>🔗</span>
+              <div className={styles.editorSimulado} style={{ border: "1px solid #cbd5e1", borderRadius: "6px", overflow: "hidden", background: "#fff" }}>
+                
+                {/* Barra de Herramientas */}
+                <div className={styles.barraEditor} style={{ display: "flex", gap: "8px", padding: "6px", background: "#f1f5f9", borderBottom: "1px solid #cbd5e1" }}>
+                  <button type="button" onClick={() => ejecutarComando("bold")} style={{ cursor: "pointer", padding: "2px 8px", background: "#fff", border: "1px solid #ccc", borderRadius: "4px", fontWeight: "bold", color: "#000" }}>B</button>
+                  <button type="button" onClick={() => ejecutarComando("italic")} style={{ cursor: "pointer", padding: "2px 8px", background: "#fff", border: "1px solid #ccc", borderRadius: "4px", fontStyle: "italic", color: "#000" }}>I</button>
+                  <button type="button" onClick={() => ejecutarComando("underline")} style={{ cursor: "pointer", padding: "2px 8px", background: "#fff", border: "1px solid #ccc", borderRadius: "4px", textDecoration: "underline", color: "#000" }}>U</button>
+                  <button type="button" onClick={() => ejecutarComando("strikeThrough")} style={{ cursor: "pointer", padding: "2px 8px", background: "#fff", border: "1px solid #ccc", borderRadius: "4px", textDecoration: "line-through", color: "#000" }}>S</button>
                 </div>
-                <textarea id="descripcionDetallada" name="descripcionDetallada" value={form.descripcionDetallada} onChange={handleChange} className={styles.textareaEditor} rows={4} required />
+                
+                {/* El cuadro recupera y renderiza el HTML guardado automáticamente */}
+                <div 
+                  id="descripcionDetallada" 
+                  ref={editorRef}
+                  contentEditable
+                  onInput={handleEditorChange}
+                  onBlur={handleEditorChange}
+                  style={{ 
+                    ...estiloTextoNegro, 
+                    width: "100%", 
+                    minHeight: "140px",
+                    padding: "12px", 
+                    outline: "none",
+                    background: "#ffffff",
+                    overflowY: "auto"
+                  }} 
+                />
               </div>
             </div>
 
-            {/* TRES BOTONES REQUERIDOS */}
+            {/* BOTONES DE ACCIÓN */}
             <div className={styles.acciones} style={{ justifyContent: "space-between", marginTop: "2rem" }}>
               <button 
                 type="button" 
