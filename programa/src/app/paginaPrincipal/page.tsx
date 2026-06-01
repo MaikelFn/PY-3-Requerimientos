@@ -12,14 +12,42 @@ type Tour = {
 };
 
 export default function PaginaPrincipal() {
-    const [usuario, setUsuario] = useState("");
     const [tours, setTours] = useState<Tour[]>([]);
     const [query, setQuery] = useState("");
+    const [precioMinimo, setPrecioMinimo] = useState("");
+    const [precioMaximo, setPrecioMaximo] = useState("");
+    const [queryFiltro, setQueryFiltro] = useState("");
+    const [precioMinimoFiltro, setPrecioMinimoFiltro] = useState("");
+    const [precioMaximoFiltro, setPrecioMaximoFiltro] = useState("");
 
-    const toursFiltrados = tours.filter(tour =>
-        tour.nombreTour.toLowerCase().includes(query.toLowerCase()) ||
-        tour.descripcionBreve.toLowerCase().includes(query.toLowerCase())
-    );
+    // Filtrar los tours según el texto de búsqueda y los rangos de precio
+    const toursFiltrados = tours.filter(tour => {
+        
+const coincideTexto = tour.nombreTour.toLowerCase().includes(queryFiltro.toLowerCase()) ||
+        tour.descripcionBreve.toLowerCase().includes(queryFiltro.toLowerCase());
+        
+        const precio = Number(tour.precio);
+        const coincidePrecioMinimo = precioMinimoFiltro === "" || precio >= Number(precioMinimoFiltro);
+        const coincidePrecioMaximo = precioMaximoFiltro === "" || precio <= Number(precioMaximoFiltro);
+        return coincideTexto  && coincidePrecioMinimo && coincidePrecioMaximo;
+    });
+
+    // Función para aplicar los filtros al hacer clic en el botón
+    const aplicarFiltros = () => {
+        setQueryFiltro(query);
+        setPrecioMinimoFiltro(precioMinimo);
+        setPrecioMaximoFiltro(precioMaximo);
+    }
+
+    //limpiar filtros
+    const limpiarFiltros = () => {
+        setQuery("");
+        setPrecioMinimo("");
+        setPrecioMaximo("");
+        setQueryFiltro("");
+        setPrecioMinimoFiltro("");
+        setPrecioMaximoFiltro("");
+    }
 
     useEffect(() => {
         async function cargarTours(){
@@ -89,7 +117,8 @@ export default function PaginaPrincipal() {
             </div>
 
             <div className={style.banner}></div>
-
+            
+            {/*Buscador */}
             <div className={style.buscador}>
                 <input 
                     type="text" 
@@ -98,6 +127,32 @@ export default function PaginaPrincipal() {
                     onChange={(e) => setQuery(e.target.value)} 
                     className={style.input} 
                 />
+                <input 
+                    type="number"
+                    placeholder="Precio mínimo"
+                    value={precioMinimo}
+                    min="0"
+                    onChange={(e) => setPrecioMinimo(e.target.value)}
+                    className={style.input}
+                />
+                <input
+                    type="number"
+                    placeholder="Precio máximo"
+                    value={precioMaximo}
+                    min="0"
+                    onChange={(e) => setPrecioMaximo(e.target.value)}
+                    className={style.input}
+                />
+                <button
+                    onClick={aplicarFiltros}
+                    className={style.botonBuscar}>
+                        Buscar
+                </button>
+                <button
+                    onClick={limpiarFiltros}
+                    className={style.botonLimpiar}>
+                    Limpiar
+                </button>
             </div>
 
             <div className={style.contenido}>

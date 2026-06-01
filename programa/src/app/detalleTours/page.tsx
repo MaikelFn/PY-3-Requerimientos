@@ -47,9 +47,15 @@ export default function DetalleTours() {
         <div className={style.contenedor}>
             {/*volver*/}
             <button className={style.volver} onClick={() => router.back()}>← Volver</button>
-            {tour.imagenes?.map((img, index) => (
-                <img key={index} src={img} alt={tour.nombreTour}/>
-            ))}
+            
+            {/*Galeria de imágenes*/}
+            <div className={style.galeria}>
+                {tour.imagenes?.map((img, index) => (
+                    <div key={index} className={style.imagenContenedor}>
+                        <img src={img} alt={`${tour.nombreTour} ${index + 1}`} className={style.imagen} />
+                    </div>
+                ))}
+            </div>
 
             {/* TÍTULO */}
                 <h1 className={style.titulo}>{tour.nombreTour}</h1>
