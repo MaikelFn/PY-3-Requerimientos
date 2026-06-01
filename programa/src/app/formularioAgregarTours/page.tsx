@@ -117,17 +117,50 @@ export default function FormularioAgregarTours() {
     setImagenes((prev) => prev.filter((_, i) => i !== index))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (errorDestino) return
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
+  if (errorDestino) return
 
-    const datosFinales = {
-      ...form,
-      fechasYCupos: fechasSeleccionadas,
-      imagenes: imagenes.map((img) => img.archivo.name),
+  try {
+    const formData = new FormData()
+    
+    formData.append("nombreTour", form.nombreTour)
+    formData.append("destinoId", "2") 
+    formData.append("precio", form.precio)
+    formData.append("duracion", form.duracion)
+    formData.append("descripcionBreve", form.descripcionBreve)
+    formData.append("itinerario", form.itinerario)
+    formData.append("descripcionDetallada", form.descripcionDetallada)
+    
+    formData.append("fechasYCupos", JSON.stringify(fechasSeleccionadas))
+
+    if (imagenes.length > 0) {
+      imagenes.forEach((img) => {
+        formData.append("imagenes", img.archivo)
+      })
     }
-    console.log("Enviar todo el esquema del tour:", datosFinales)
+
+    const respuesta = await fetch("/api/tours", {
+      method: "POST",
+      body: formData, 
+    })
+
+    if (!respuesta.ok) {
+      const datosError = await respuesta.json()
+      alert(datosError.error || "Ocurrió un error al guardar el tour.")
+      return
+    }
+
+    const tourCreado = await respuesta.json()
+    alert(`¡Excelente! El tour "${tourCreado.nombreTour}" ha sido creado con éxito.`)
+    
+    handleCancel()
+
+  } catch (error) {
+    console.error("Error al enviar el formulario:", error)
+    alert("Hubo un problema de conexión con el servidor.")
   }
+}
 
   const handleCancel = () => {
     setForm({

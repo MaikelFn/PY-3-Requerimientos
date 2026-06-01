@@ -8,6 +8,11 @@ type FechaCupo = {
   cupos: string
 }
 
+type ImagenItem = {
+  archivo: File | null
+  preview: string
+}
+
 type Tour = {
   id: number
   nombreTour: string
@@ -18,6 +23,7 @@ type Tour = {
   itinerario: string
   descripcionDetallada: string
   fechasYCupos?: FechaCupo[]
+  imagenes?: string[] 
 }
 
 type DestinoBase = {
@@ -45,6 +51,7 @@ export default function FormularioModificarTours() {
 
   const [fechasSeleccionadas, setFechasSeleccionadas] = useState<FechaCupo[]>([])
   const [nuevaFecha, setNuevaFecha] = useState("")
+  const [imagenes, setImagenes] = useState<ImagenItem[]>([]) // Estado añadido para el carrusel
   const [mostrarDesplegable, setMostrarDesplegable] = useState(false)
   const [errorDestino, setErrorDestino] = useState(false)
   const [cargando, setCargando] = useState(false)
@@ -52,7 +59,6 @@ export default function FormularioModificarTours() {
   useEffect(() => {
     async function obtenerDatosIniciales() {
       try {
-
         const resTours = await fetch("/api/tours")
         if (resTours.ok) {
           const datosTours = await resTours.json()
@@ -111,6 +117,16 @@ export default function FormularioModificarTours() {
         descripcionDetallada: tour.descripcionDetallada,
       })
       setFechasSeleccionadas(tour.fechasYCupos || [])
+
+      if (tour.imagenes && Array.isArray(tour.imagenes)) {
+        const imagenesPrecargadas: ImagenItem[] = tour.imagenes.map((ruta) => ({
+          archivo: null,
+          preview: ruta,
+        }))
+        setImagenes(imagenesPrecargadas)
+      } else {
+        setImagenes([])
+      }
     }
   }
 
@@ -153,21 +169,65 @@ export default function FormularioModificarTours() {
     setFechasSeleccionadas(fechasSeleccionadas.filter((_, i) => i !== index))
   }
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return
+
+    Array.from(e.target.files).forEach((archivo) => {
+      const yaExiste = imagenes.some((img) => img.archivo?.name === archivo.name)
+      if (yaExiste) return
+
+      const reader = new FileReader()
+      reader.onload = (evento) => {
+        setImagenes((prev) => [
+          ...prev,
+          { archivo, preview: evento.target?.result as string },
+        ])
+      }
+      reader.readAsDataURL(archivo)
+    })
+    e.target.value = ""
+  }
+
+  const handleEliminarImagen = (index: number) => {
+    setImagenes((prev) => prev.filter((_, i) => i !== index))
+  }
+
   const handleGuardarCambios = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!tourSeleccionadoId || errorDestino) return
     setCargando(true)
 
     try {
+      const formData = new FormData()
+      formData.append("nombreTour", form.nombreTour)
+      formData.append("destino", form.destino)
+      formData.append("precio", form.precio)
+      formData.append("duracion", form.duracion)
+      formData.append("descripcionBreve", form.descripcionBreve)
+      formData.append("itinerario", form.itinerario)
+      formData.append("descripcionDetallada", form.descripcionDetallada)
+      formData.append("fechasYCupos", JSON.stringify(fechasSeleccionadas))
+
+      const imagenesExistentesMantenidas: string[] = []
+
+      imagenes.forEach((img) => {
+        if (img.archivo === null) {
+          imagenesExistentesMantenidas.push(img.preview)
+        } else {
+          formData.append("imagenes", img.archivo)
+        }
+      })
+
+      formData.append("imagenesExistentes", JSON.stringify(imagenesExistentesMantenidas))
+
       const res = await fetch(`/api/tours/${tourSeleccionadoId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, fechasYCupos: fechasSeleccionadas }),
+        body: formData, 
       })
 
       if (res.ok) {
         alert("¡Tour modificado exitosamente!")
-        router.push("/formularioModificarTours")
+        router.push("/administrativo")
       } else {
         alert("Error al actualizar el tour.")
       }
@@ -191,7 +251,7 @@ export default function FormularioModificarTours() {
 
       if (res.ok) {
         alert("El tour ha sido eliminado correctamente.")
-        router.push("/formularioModificarTours")
+        router.push("/administrativo")
       } else {
         alert("Hubo un error al intentar eliminar el tour.")
       }
@@ -214,6 +274,7 @@ export default function FormularioModificarTours() {
       descripcionDetallada: "",
     })
     setFechasSeleccionadas([])
+    setImagenes([]) 
     setErrorDestino(false)
     if (editorRef.current) {
       editorRef.current.innerHTML = ""
@@ -369,6 +430,64 @@ export default function FormularioModificarTours() {
               </div>
             </div>
 
+            {/* ESPACIO INTEGRADO PARA EL CARRUSEL DE IMÁGENES */}
+            <div className={styles.campoVertical}>
+              <label className={styles.etiquetaNegrita}>IMÁGENES DEL TOUR</label>
+              <div className={styles.zonaSubidaHorizontal}>
+                <div className={styles.previsualizaciones}>
+                  {imagenes.length === 0 ? (
+                    <div className={styles.cuadroFoto}>🌄</div>
+                  ) : (
+                    imagenes.map((img, index) => (
+                      <div key={index} style={{ position: "relative", display: "inline-block" }}>
+                        <img
+                          src={img.preview}
+                          alt={`Preview ${index + 1}`}
+                          style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "8px" }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleEliminarImagen(index)}
+                          style={{
+                            position: "absolute",
+                            top: "4px",
+                            right: "4px",
+                            background: "rgba(0,0,0,0.55)",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "50%",
+                            width: "20px",
+                            height: "20px",
+                            cursor: "pointer",
+                            fontSize: "12px",
+                            lineHeight: "20px",
+                            textAlign: "center",
+                            padding: 0,
+                          }}
+                          disabled={cargando}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <label htmlFor="imagenArchivo" className={styles.botonSeleccionar}>
+                  Seleccionar Archivos
+                  <input
+                    id="imagenArchivo"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleFileChange}
+                    style={{ display: "none" }}
+                    disabled={cargando}
+                  />
+                </label>
+              </div>
+            </div>
+
             {/* BOTONES DE ACCIÓN */}
             <div className={styles.acciones} style={{ justifyContent: "space-between", marginTop: "2.5rem" }}>
               <button 
@@ -382,10 +501,10 @@ export default function FormularioModificarTours() {
               </button>
               
               <div style={{ display: "flex", gap: "1rem" }}>
-                <button type="button" onClick={() => router.push("/formularioModificarTours")} className={styles.botonCancel} disabled={cargando}>
+                <button type="button" onClick={handleLimpiar} className={styles.botonCancel} disabled={cargando}>
                   Cancelar
                 </button>
-                <button type="submit" className={styles.botonSubmit} disabled={cargando}>
+                <button type="submit" className={styles.botonSubmit} disabled={cargando || errorDestino}>
                   {cargando ? "Guardando..." : "Guardar Cambios"}
                 </button>
               </div>

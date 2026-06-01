@@ -52,7 +52,8 @@ export async function POST(request: Request) {
     const itinerario = obtenerString(formData, "itinerario")
     const descripcionDetallada = obtenerString(formData, "descripcionDetallada")
     const fechasYCupos = parsearFechasYCupos(obtenerString(formData, "fechasYCupos"))
-    const archivoImagen = formData.get("imagen") as File | null
+    
+    const archivosImagenes = formData.getAll("imagenes") as File[]
 
     const camposObligatorios = [
       nombreTour, precio, duracion, 
@@ -64,8 +65,13 @@ export async function POST(request: Request) {
     }
 
     let imagenes: string[] = []
-    if (archivoImagen && archivoImagen.size > 0) {
-      imagenes = [await guardarImagenSubida(archivoImagen)]
+    if (archivosImagenes && archivosImagenes.length > 0) {
+      for (const archivo of archivosImagenes) {
+        if (archivo.size > 0) {
+          const rutaImagen = await guardarImagenSubida(archivo)
+          imagenes.push(rutaImagen) 
+        }
+      }
     }
 
     const tour = await guardarTourEnArchivo({
@@ -76,7 +82,7 @@ export async function POST(request: Request) {
       descripcionBreve,
       itinerario,
       descripcionDetallada,
-      imagenes,
+      imagenes, 
       fechasYCupos,
     })
 
