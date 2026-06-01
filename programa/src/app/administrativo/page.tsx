@@ -33,7 +33,6 @@ export default function PanelAdministrativo() {
         cargarUsuarios();
     }, []);
 
-    // Función para alternar el rol administrativo de un usuario
     const handleCambiarRol = async (correo: string, rolActual: "Cliente" | "Administrador") => {
         const nuevoRol = rolActual === "Administrador" ? "Cliente" : "Administrador";
         
@@ -69,7 +68,7 @@ export default function PanelAdministrativo() {
     <div className={style.contenedor}>
         <div className={style.menuSuperior}>
             <div className={style.menuIzquierdo}>
-                <button className={style.botonVolver} onClick={() => router.push("/paginaPrincipalAdmin")}>
+                <button className={style.botonVolver} onClick={() => router.push("/paginaPrincipal")}>
                     ⬅ Volver a la Pagina Principal
                 </button>
             </div>
@@ -89,7 +88,7 @@ export default function PanelAdministrativo() {
                 
                 {/* GESTIONAR DESTINOS */}
                 <div className={style.menuAdmin}>
-                    <button className={style.botonGestion}>📍 GESTIONAR DESTINO ▾</button>
+                    <button className={style.botonGestion}> GESTIONAR DESTINO ▾</button>
                     <div className={style.submenuAdmin}>
                         <div className={style.indicadorSubmenu}>Opciones</div>
                         <a className={style.opcionSubmenu} onClick={() => router.push("/formularioAgregarDestinos")}>Crear destino</a>
@@ -100,7 +99,7 @@ export default function PanelAdministrativo() {
 
                 {/* GESTIONAR TOURS */}
                 <div className={style.menuAdmin}>
-                    <button className={style.botonGestion}>🎒 GESTIONAR TOURS ▾</button>
+                    <button className={style.botonGestion}> GESTIONAR TOURS ▾</button>
                     <div className={style.submenuAdmin}>
                         <div className={style.indicadorSubmenu}>Opciones</div>
                         <a className={style.opcionSubmenu} onClick={() => router.push("/formularioAgregarTours")}>Crear tour</a>
@@ -112,12 +111,12 @@ export default function PanelAdministrativo() {
                 {/* GESTIONAR DISPONIBILIDAD */}
                 <div className={style.menuAdmin}>
                     <button className={style.botonDisponibilidad} onClick={() => router.push("/admin/disponibilidad")}>
-                        📅 GESTIONAR DISPONIBILIDAD DE TOUR
+                        GESTIONAR DISPONIBILIDAD DE TOUR
                     </button>
                 </div>
             </div>
 
-            {/* SECCIÓN NUEVA: GESTIÓN DE ROLES ADMINISTRATIVOS */}
+            {/* GESTIÓN DE ROLES ADMINISTRATIVOS */}
             <div style={{ marginTop: "60px", textAlign: "left", background: "#fff", padding: "30px", borderRadius: "10px", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
                 <h2 style={{ color: "#1b4332", marginBottom: "10px", fontSize: "22px" }}>🛡️ Gestión de Permisos de Usuarios</h2>
                 <p style={{ color: "#666", marginBottom: "20px", fontSize: "14px" }}>Asigna o revoca privilegios de administrador a las cuentas registradas en la plataforma.</p>

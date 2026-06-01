@@ -38,12 +38,11 @@ export default function RegistroInicioSesion() {
 
             const usuario = await res.json()
             
-            // REDIRECCIÓN CONDICIONAL SEGÚN EL ROL DE LA BASE DE DATOS
-            if (usuario.roll === "Administrador") {
-                window.location.href = "/paginaPrincipalAdmin"
-            } else {
-                window.location.href = "/paginaPrincipal"
-            }
+            // GUARDAR EL USUARIO COMPLETO (INCLUYENDO SU ROL) EN LOCALSTORAGE
+            localStorage.setItem("usuario", JSON.stringify(usuario));
+            
+            // REDIRECCIÓN UNIFICADA A LA MISMA PÁGINA PRINCIPAL
+            window.location.href = "/paginaPrincipal";
             
         } catch (err) {
             alert('Error de conexión')

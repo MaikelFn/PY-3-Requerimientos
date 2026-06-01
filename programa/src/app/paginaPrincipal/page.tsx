@@ -11,7 +11,14 @@ type Tour = {
     imagenes?: string[];
 };
 
+type UsuarioAutenticado = {
+    nombre: string;
+    correo: string;
+    roll: string; 
+};
+
 export default function PaginaPrincipal() {
+    const [usuario, setUsuario] = useState<UsuarioAutenticado | null>(null);
     const [tours, setTours] = useState<Tour[]>([]);
     const [query, setQuery] = useState("");
     const [precioMinimo, setPrecioMinimo] = useState("");
@@ -19,27 +26,25 @@ export default function PaginaPrincipal() {
     const [queryFiltro, setQueryFiltro] = useState("");
     const [precioMinimoFiltro, setPrecioMinimoFiltro] = useState("");
     const [precioMaximoFiltro, setPrecioMaximoFiltro] = useState("");
+    const router = useRouter();
 
     // Filtrar los tours según el texto de búsqueda y los rangos de precio
     const toursFiltrados = tours.filter(tour => {
-        
-const coincideTexto = tour.nombreTour.toLowerCase().includes(queryFiltro.toLowerCase()) ||
-        tour.descripcionBreve.toLowerCase().includes(queryFiltro.toLowerCase());
+        const coincideTexto = tour.nombreTour.toLowerCase().includes(queryFiltro.toLowerCase()) ||
+            tour.descripcionBreve.toLowerCase().includes(queryFiltro.toLowerCase());
         
         const precio = Number(tour.precio);
         const coincidePrecioMinimo = precioMinimoFiltro === "" || precio >= Number(precioMinimoFiltro);
         const coincidePrecioMaximo = precioMaximoFiltro === "" || precio <= Number(precioMaximoFiltro);
-        return coincideTexto  && coincidePrecioMinimo && coincidePrecioMaximo;
+        return coincideTexto && coincidePrecioMinimo && coincidePrecioMaximo;
     });
 
-    // Función para aplicar los filtros al hacer clic en el botón
     const aplicarFiltros = () => {
         setQueryFiltro(query);
         setPrecioMinimoFiltro(precioMinimo);
         setPrecioMaximoFiltro(precioMaximo);
     }
 
-    //limpiar filtros
     const limpiarFiltros = () => {
         setQuery("");
         setPrecioMinimo("");
@@ -50,6 +55,15 @@ const coincideTexto = tour.nombreTour.toLowerCase().includes(queryFiltro.toLower
     }
 
     useEffect(() => {
+        const datosUsuarioLocal = localStorage.getItem("usuario");
+        if (datosUsuarioLocal) {
+            try {
+                setUsuario(JSON.parse(datosUsuarioLocal));
+            } catch (e) {
+                console.error("Error al parsear el usuario", e);
+            }
+        }
+
         async function cargarTours(){
             try {
                 const respuesta = await fetch("/api/tours");
@@ -78,6 +92,26 @@ const coincideTexto = tour.nombreTour.toLowerCase().includes(queryFiltro.toLower
                 </div>
 
                 <div className={style.menuDerecho}>
+                    
+                    {/* CONDICIONAL: Solo se muestra si el rol del usuario es 'Administrador' */}
+                    {usuario && usuario.roll === "Administrador" && (
+                        <div className={style.menu}>
+                            <div className={style.itemMenu}>
+                                <span>⚙️</span>
+                                <p>Panel Administrativo</p>
+                            </div>
+                            <div className={style.submenu}>
+                                <p><strong>Gestión:</strong></p>
+                                <a 
+                                    style={{ cursor: "pointer", pointerEvents: "auto" }} 
+                                    onClick={() => router.push("/administrativo")}
+                                >
+                                    Ir al panel administrativo
+                                </a>
+                            </div>
+                        </div>
+                    )}
+
                     <div className={style.menu}>
                         <div className={style.itemMenu}>
                             <span>👤</span>
@@ -118,7 +152,7 @@ const coincideTexto = tour.nombreTour.toLowerCase().includes(queryFiltro.toLower
 
             <div className={style.banner}></div>
             
-            {/*Buscador */}
+            {/* Buscador */}
             <div className={style.buscador}>
                 <input 
                     type="text" 
@@ -151,7 +185,7 @@ const coincideTexto = tour.nombreTour.toLowerCase().includes(queryFiltro.toLower
                 <button
                     onClick={limpiarFiltros}
                     className={style.botonLimpiar}>
-                    Limpiar
+                        Limpiar
                 </button>
             </div>
 
@@ -181,18 +215,15 @@ function TarjetaTour({ tour }: { tour: Tour }) {
     const tieneMultiplesImagenes = imagenes.length > 1;
 
     useEffect(() => {
-        // Si el mouse no está encima o el tour solo tiene una o ninguna imagen, no hace falta activar el intervalo
         if (!mouseEncima || !tieneMultiplesImagenes) {
-            setIndiceImagen(0); // Resetea a la primera imagen al salir
+            setIndiceImagen(0);
             return;
         }
 
-        // Crear un intervalo que cambie la imagen cada 1.5 segundos (1500 ms)
         const intervalo = setInterval(() => {
             setIndiceImagen((idPrevio) => (idPrevio + 1) % imagenes.length);
         }, 1500);
 
-        // Limpiar el intervalo cuando el mouse salga o el componente cambie
         return () => clearInterval(intervalo);
     }, [mouseEncima, imagenes.length, tieneMultiplesImagenes]);
 
@@ -224,7 +255,6 @@ function TarjetaTour({ tour }: { tour: Tour }) {
                 <p className={style.descripcion}>{tour.descripcionBreve}</p>
             </div>
 
-            {/* Precio y acción */}
             <div className={style.precio}>
                 <p>₡{tour.precio}</p>
                 <button className={style.botonDetalle} onClick={() => {
