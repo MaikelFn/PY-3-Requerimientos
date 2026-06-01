@@ -92,3 +92,40 @@ export async function guardarTourEnArchivo(datosTour: TourNuevo) {
 
   return tourGuardado
 }
+
+export async function actualizarTourEnArchivo(id: number, datosTour: TourNuevo) {
+  const tours = await leerTours()
+  const indice = tours.findIndex(t => t.id === id)
+  
+  if (indice === -1) {
+    throw new Error("Tour no encontrado")
+  }
+
+  const datosLimpios = limpiarCadenas(datosTour)
+  const tourActualizado: TourGuardado = {
+    ...datosLimpios,
+    fechasYCupos: datosTour.fechasYCupos,
+    id,
+    fechaRegistro: tours[indice].fechaRegistro,
+  }
+
+  tours[indice] = tourActualizado
+  await writeFile(rutaTours, JSON.stringify(tours, null, 2), "utf8")
+
+  return tourActualizado
+}
+
+export async function eliminarTourDelArchivo(id: number) {
+  const tours = await leerTours()
+  const indice = tours.findIndex(t => t.id === id)
+  
+  if (indice === -1) {
+    throw new Error("Tour no encontrado")
+  }
+
+  const tourEliminado = tours[indice]
+  tours.splice(indice, 1)
+  await writeFile(rutaTours, JSON.stringify(tours, null, 2), "utf8")
+
+  return tourEliminado
+}

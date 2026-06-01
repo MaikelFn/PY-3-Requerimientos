@@ -79,3 +79,39 @@ export async function guardarDestinoEnArchivo(datosDestino: DestinoNuevo) {
 
   return destinoGuardado
 }
+
+export async function actualizarDestinoEnArchivo(id: number, datosDestino: DestinoNuevo) {
+  const destinos = await leerDestinos()
+  const indice = destinos.findIndex(d => d.id === id)
+  
+  if (indice === -1) {
+    throw new Error("Destino no encontrado")
+  }
+
+  const datosLimpios = limpiarCadenas(datosDestino)
+  const destinoActualizado: DestinoGuardado = {
+    ...datosLimpios,
+    id,
+    fechaRegistro: destinos[indice].fechaRegistro,
+  }
+
+  destinos[indice] = destinoActualizado
+  await writeFile(rutaDestinos, JSON.stringify(destinos, null, 2), "utf8")
+
+  return destinoActualizado
+}
+
+export async function eliminarDestinoDelArchivo(id: number) {
+  const destinos = await leerDestinos()
+  const indice = destinos.findIndex(d => d.id === id)
+  
+  if (indice === -1) {
+    throw new Error("Destino no encontrado")
+  }
+
+  const destinoEliminado = destinos[indice]
+  destinos.splice(indice, 1)
+  await writeFile(rutaDestinos, JSON.stringify(destinos, null, 2), "utf8")
+
+  return destinoEliminado
+}

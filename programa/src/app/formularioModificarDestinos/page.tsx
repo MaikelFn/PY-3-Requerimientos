@@ -3,12 +3,18 @@ import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import styles from "./page.module.css"
 
+type ImagenItem = {
+  archivo: File | null
+  preview: string
+}
+
 type Destino = {
   id: number
   nombre: string
   ubicacion: string
   descripcionBreve: string
   descripcionDetallada: string
+  imagenes?: string[]
 }
 
 export default function FormularioModificarDestinos() {
@@ -24,7 +30,8 @@ export default function FormularioModificarDestinos() {
     descripcionBreve: "",
     descripcionDetallada: "",
   })
-  
+
+  const [imagenes, setImagenes] = useState<ImagenItem[]>([])
   const [cargando, setCargando] = useState(false)
 
   // 1. Cargar destinos desde la API al iniciar la página
@@ -69,8 +76,18 @@ export default function FormularioModificarDestinos() {
         nombre: dest.nombre,
         ubicacion: dest.ubicacion,
         descripcionBreve: dest.descripcionBreve,
-        descripcionDetallada: dest.descripcionDetallada, // Aquí viene el HTML guardado (ej: "texto <b>negrita</b>")
+        descripcionDetallada: dest.descripcionDetallada,
       })
+
+      if (dest.imagenes && Array.isArray(dest.imagenes)) {
+        const imagenesPrecargadas: ImagenItem[] = dest.imagenes.map((ruta) => ({
+          archivo: null,
+          preview: ruta,
+        }))
+        setImagenes(imagenesPrecargadas)
+      } else {
+        setImagenes([])
+      }
     }
   }
 
@@ -96,21 +113,61 @@ export default function FormularioModificarDestinos() {
     }
   }
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return
+
+    Array.from(e.target.files).forEach((archivo) => {
+      const yaExiste = imagenes.some((img) => img.archivo?.name === archivo.name)
+      if (yaExiste) return
+
+      const reader = new FileReader()
+      reader.onload = (evento) => {
+        setImagenes((prev) => [
+          ...prev,
+          { archivo, preview: evento.target?.result as string },
+        ])
+      }
+      reader.readAsDataURL(archivo)
+    })
+    e.target.value = ""
+  }
+
+  const handleEliminarImagen = (index: number) => {
+    setImagenes((prev) => prev.filter((_, i) => i !== index))
+  }
+
   const handleGuardarCambios = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!destinoSeleccionadoId) return
     setCargando(true)
 
     try {
+      const formData = new FormData()
+      formData.append("nombre", form.nombre)
+      formData.append("ubicacion", form.ubicacion)
+      formData.append("descripcionBreve", form.descripcionBreve)
+      formData.append("descripcionDetallada", form.descripcionDetallada)
+
+      const imagenesExistentesMantenidas: string[] = []
+
+      imagenes.forEach((img) => {
+        if (img.archivo === null) {
+          imagenesExistentesMantenidas.push(img.preview)
+        } else {
+          formData.append("imagenes", img.archivo)
+        }
+      })
+
+      formData.append("imagenesExistentes", JSON.stringify(imagenesExistentesMantenidas))
+
       const res = await fetch(`/api/destinos/${destinoSeleccionadoId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: formData,
       })
 
       if (res.ok) {
         alert("¡Destino actualizado con éxito!")
-        router.push("/formularioModificarDestinos")
+        router.push("/administrativo")
       } else {
         alert("Error al guardar cambios en el destino.")
       }
@@ -134,7 +191,7 @@ export default function FormularioModificarDestinos() {
 
       if (res.ok) {
         alert("Destino eliminado correctamente.")
-        router.push("/formularioModificarDestinos")
+        router.push("/administrativo")
       } else {
         alert("Hubo un problema al eliminar el destino.")
       }
@@ -153,6 +210,7 @@ export default function FormularioModificarDestinos() {
       descripcionBreve: "",
       descripcionDetallada: "",
     })
+    setImagenes([])
     if (editorRef.current) {
       editorRef.current.innerHTML = ""
     }
@@ -173,6 +231,7 @@ export default function FormularioModificarDestinos() {
             value={destinoSeleccionadoId} 
             onChange={(e) => handleSelectDestino(e.target.value)}
             style={estiloTextoNegro}
+            disabled={cargando}
           >
             <option value="">-- Elige un destino para modificar --</option>
             {listaDestinos.map((d) => (
@@ -187,20 +246,20 @@ export default function FormularioModificarDestinos() {
             {/* Nombre del Destino */}
             <div className={styles.campoHorizontal}>
               <label htmlFor="nombre" className={styles.etiqueta}>Nombre del Destino</label>
-              <input id="nombre" name="nombre" value={form.nombre || ""} onChange={handleChange} className={styles.input} style={estiloTextoNegro} required />
+              <input id="nombre" name="nombre" value={form.nombre || ""} onChange={handleChange} className={styles.input} style={estiloTextoNegro} required disabled={cargando} />
             </div>
 
             {/* Ubicación */}
             <div className={styles.campoHorizontal}>
               <label htmlFor="ubicacion" className={styles.etiqueta}>Ubicación</label>
-              <input id="ubicacion" name="ubicacion" value={form.ubicacion || ""} onChange={handleChange} className={styles.input} style={estiloTextoNegro} required />
+              <input id="ubicacion" name="ubicacion" value={form.ubicacion || ""} onChange={handleChange} className={styles.input} style={estiloTextoNegro} required disabled={cargando} />
             </div>
 
             {/* Breve Descripción */}
             <div className={styles.campoHorizontal}>
               <label htmlFor="descripcionBreve" className={styles.etiqueta}>Breve Descripción</label>
               <div className={styles.contenedorContador}>
-                <textarea id="descripcionBreve" name="descripcionBreve" maxLength={150} value={form.descripcionBreve || ""} onChange={handleChange} className={styles.textarea} style={estiloTextoNegro} rows={2} required />
+                <textarea id="descripcionBreve" name="descripcionBreve" maxLength={150} value={form.descripcionBreve || ""} onChange={handleChange} className={styles.textarea} style={estiloTextoNegro} rows={2} required disabled={cargando} />
                 <span className={styles.contador}>{(form.descripcionBreve || "").length} / 150</span>
               </div>
             </div>
@@ -212,13 +271,12 @@ export default function FormularioModificarDestinos() {
                 
                 {/* Barra de Herramientas */}
                 <div className={styles.barraEditor} style={{ display: "flex", gap: "8px", padding: "6px", background: "#f1f5f9", borderBottom: "1px solid #cbd5e1" }}>
-                  <button type="button" onClick={() => ejecutarComando("bold")} style={{ cursor: "pointer", padding: "2px 8px", background: "#fff", border: "1px solid #ccc", borderRadius: "4px", fontWeight: "bold", color: "#000" }}>B</button>
-                  <button type="button" onClick={() => ejecutarComando("italic")} style={{ cursor: "pointer", padding: "2px 8px", background: "#fff", border: "1px solid #ccc", borderRadius: "4px", fontStyle: "italic", color: "#000" }}>I</button>
-                  <button type="button" onClick={() => ejecutarComando("underline")} style={{ cursor: "pointer", padding: "2px 8px", background: "#fff", border: "1px solid #ccc", borderRadius: "4px", textDecoration: "underline", color: "#000" }}>U</button>
-                  <button type="button" onClick={() => ejecutarComando("strikeThrough")} style={{ cursor: "pointer", padding: "2px 8px", background: "#fff", border: "1px solid #ccc", borderRadius: "4px", textDecoration: "line-through", color: "#000" }}>S</button>
+                  <button type="button" onClick={() => ejecutarComando("bold")} style={{ cursor: "pointer", padding: "2px 8px", background: "#fff", border: "1px solid #ccc", borderRadius: "4px", fontWeight: "bold", color: "#000" }} disabled={cargando}>B</button>
+                  <button type="button" onClick={() => ejecutarComando("italic")} style={{ cursor: "pointer", padding: "2px 8px", background: "#fff", border: "1px solid #ccc", borderRadius: "4px", fontStyle: "italic", color: "#000" }} disabled={cargando}>I</button>
+                  <button type="button" onClick={() => ejecutarComando("underline")} style={{ cursor: "pointer", padding: "2px 8px", background: "#fff", border: "1px solid #ccc", borderRadius: "4px", textDecoration: "underline", color: "#000" }} disabled={cargando}>U</button>
+                  <button type="button" onClick={() => ejecutarComando("strikeThrough")} style={{ cursor: "pointer", padding: "2px 8px", background: "#fff", border: "1px solid #ccc", borderRadius: "4px", textDecoration: "line-through", color: "#000" }} disabled={cargando}>S</button>
                 </div>
                 
-                {/* El cuadro recupera y renderiza el HTML guardado automáticamente */}
                 <div 
                   id="descripcionDetallada" 
                   ref={editorRef}
@@ -235,6 +293,64 @@ export default function FormularioModificarDestinos() {
                     overflowY: "auto"
                   }} 
                 />
+              </div>
+            </div>
+
+            {/* Imágenes del Destino */}
+            <div className={styles.campoVertical}>
+              <label className={styles.etiquetaNegrita}>IMÁGENES DEL DESTINO</label>
+              <div className={styles.zonaSubidaHorizontal}>
+                <div className={styles.previsualizaciones}>
+                  {imagenes.length === 0 ? (
+                    <div className={styles.cuadroFoto}>🌄</div>
+                  ) : (
+                    imagenes.map((img, index) => (
+                      <div key={index} style={{ position: "relative", display: "inline-block", marginRight: "8px" }}>
+                        <img 
+                          src={img.preview} 
+                          alt={`Preview ${index + 1}`} 
+                          style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "8px" }} 
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleEliminarImagen(index)}
+                          disabled={cargando}
+                          style={{
+                            position: "absolute",
+                            top: "4px",
+                            right: "4px",
+                            background: "rgba(0,0,0,0.55)",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "50%",
+                            width: "20px",
+                            height: "20px",
+                            cursor: "pointer",
+                            fontSize: "12px",
+                            lineHeight: "20px",
+                            textAlign: "center",
+                            padding: 0,
+                          }}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <label htmlFor="imagenArchivo" className={styles.botonSeleccionar}>
+                  Seleccionar Archivos
+                  <input 
+                    id="imagenArchivo" 
+                    type="file" 
+                    accept="image/*" 
+                    multiple
+                    onChange={handleFileChange} 
+                    style={{ display: 'none' }} 
+                    disabled={cargando}
+                  />
+                </label>
               </div>
             </div>
 

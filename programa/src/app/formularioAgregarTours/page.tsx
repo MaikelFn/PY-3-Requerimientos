@@ -12,9 +12,15 @@ type ImagenItem = {
   preview: string
 }
 
+type DestinoBase = {
+  id: number
+  nombre: string
+}
+
 type TourFormState = {
   nombreTour: string
-  destino: string
+  destino: string        // nombre del destino
+  destinoId: string      // id del destino seleccionado
   precio: string
   duracion: string
   descripcionBreve: string
@@ -22,18 +28,11 @@ type TourFormState = {
   descripcionDetallada: string
 }
 
-const destinosRegistrados = [
-  "La Fortuna, Alajuela",
-  "Manuel Antonio, Puntarenas",
-  "Tamarindo, Guanacaste",
-  "Monteverde, Puntarenas",
-  "Puerto Viejo, Limón"
-]
-
 export default function FormularioAgregarTours() {
   const [form, setForm] = useState<TourFormState>({
     nombreTour: "",
     destino: "",
+    destinoId: "",
     precio: "",
     duracion: "",
     descripcionBreve: "",
@@ -41,6 +40,8 @@ export default function FormularioAgregarTours() {
     descripcionDetallada: "",
   })
 
+  const [destinos, setDestinos] = useState<DestinoBase[]>([])
+  const [cargandoDestinos, setCargandoDestinos] = useState(true)
   const [fechasSeleccionadas, setFechasSeleccionadas] = useState<FechaCupo[]>([])
   const [nuevaFecha, setNuevaFecha] = useState("")
 
@@ -49,21 +50,58 @@ export default function FormularioAgregarTours() {
   const [mostrarDesplegable, setMostrarDesplegable] = useState(false)
   const [errorDestino, setErrorDestino] = useState(false)
 
-  const destinosFiltrados = destinosRegistrados.filter((dest) =>
-    dest.toLowerCase().includes(form.destino.toLowerCase())
+  // Cargar destinos reales desde la API
+  useEffect(() => {
+    async function cargarDestinos() {
+      try {
+        const res = await fetch("/api/destinos")
+        if (res.ok) {
+          const datos = await res.json()
+          setDestinos(datos)
+        } else {
+          console.error("Error al cargar destinos")
+        }
+      } catch (error) {
+        console.error("Error de conexión al cargar destinos:", error)
+      } finally {
+        setCargandoDestinos(false)
+      }
+    }
+    cargarDestinos()
+  }, [])
+
+  const destinosFiltrados = destinos.filter((dest) =>
+    dest.nombre.toLowerCase().includes(form.destino.toLowerCase())
   )
 
+  // Validar que el destino ingresado coincida exactamente con alguno de la lista
   useEffect(() => {
     if (form.destino.trim() === "") {
       setErrorDestino(false)
-    } else {
-      setErrorDestino(destinosFiltrados.length === 0)
+      return
     }
-  }, [form.destino])
+    const existe = destinos.some(
+      (dest) => dest.nombre.toLowerCase() === form.destino.toLowerCase()
+    )
+    setErrorDestino(!existe)
+    // Si el destino es válido y tenemos un id previamente seleccionado que coincide, lo mantenemos
+    if (existe && !form.destinoId) {
+      const destinoEncontrado = destinos.find(
+        (dest) => dest.nombre.toLowerCase() === form.destino.toLowerCase()
+      )
+      if (destinoEncontrado) {
+        setForm((prev) => ({ ...prev, destinoId: destinoEncontrado.id.toString() }))
+      }
+    }
+  }, [form.destino, destinos, form.destinoId])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setForm((prev) => ({ ...prev, [name]: value }))
+    // Si se modifica el destino manualmente, limpiamos el destinoId
+    if (name === "destino") {
+      setForm((prev) => ({ ...prev, destinoId: "" }))
+    }
   }
 
   const handleAgregarFecha = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,8 +123,12 @@ export default function FormularioAgregarTours() {
     setFechasSeleccionadas(fechasSeleccionadas.filter((_, i) => i !== index))
   }
 
-  const handleSeleccionarDestino = (destinoSeleccionado: string) => {
-    setForm((prev) => ({ ...prev, destino: destinoSeleccionado }))
+  const handleSeleccionarDestino = (destinoSeleccionado: DestinoBase) => {
+    setForm((prev) => ({
+      ...prev,
+      destino: destinoSeleccionado.nombre,
+      destinoId: destinoSeleccionado.id.toString(),
+    }))
     setMostrarDesplegable(false)
   }
 
@@ -96,7 +138,6 @@ export default function FormularioAgregarTours() {
     const nuevasImagenes: ImagenItem[] = []
 
     Array.from(e.target.files).forEach((archivo) => {
-      // Evitar duplicados por nombre
       const yaExiste = imagenes.some((img) => img.archivo.name === archivo.name)
       if (yaExiste) return
 
@@ -117,55 +158,59 @@ export default function FormularioAgregarTours() {
     setImagenes((prev) => prev.filter((_, i) => i !== index))
   }
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault()
-  if (errorDestino) return
-
-  try {
-    const formData = new FormData()
-    
-    formData.append("nombreTour", form.nombreTour)
-    formData.append("destinoId", "2") 
-    formData.append("precio", form.precio)
-    formData.append("duracion", form.duracion)
-    formData.append("descripcionBreve", form.descripcionBreve)
-    formData.append("itinerario", form.itinerario)
-    formData.append("descripcionDetallada", form.descripcionDetallada)
-    
-    formData.append("fechasYCupos", JSON.stringify(fechasSeleccionadas))
-
-    if (imagenes.length > 0) {
-      imagenes.forEach((img) => {
-        formData.append("imagenes", img.archivo)
-      })
-    }
-
-    const respuesta = await fetch("/api/tours", {
-      method: "POST",
-      body: formData, 
-    })
-
-    if (!respuesta.ok) {
-      const datosError = await respuesta.json()
-      alert(datosError.error || "Ocurrió un error al guardar el tour.")
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (errorDestino || !form.destinoId) {
+      alert("Por favor selecciona un destino válido de la lista.")
       return
     }
 
-    const tourCreado = await respuesta.json()
-    alert(`¡Excelente! El tour "${tourCreado.nombreTour}" ha sido creado con éxito.`)
-    
-    handleCancel()
+    try {
+      const formData = new FormData()
+      
+      formData.append("nombreTour", form.nombreTour)
+      formData.append("destinoId", form.destinoId)
+      formData.append("precio", form.precio)
+      formData.append("duracion", form.duracion)
+      formData.append("descripcionBreve", form.descripcionBreve)
+      formData.append("itinerario", form.itinerario)
+      formData.append("descripcionDetallada", form.descripcionDetallada)
+      
+      formData.append("fechasYCupos", JSON.stringify(fechasSeleccionadas))
 
-  } catch (error) {
-    console.error("Error al enviar el formulario:", error)
-    alert("Hubo un problema de conexión con el servidor.")
+      if (imagenes.length > 0) {
+        imagenes.forEach((img) => {
+          formData.append("imagenes", img.archivo)
+        })
+      }
+
+      const respuesta = await fetch("/api/tours", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!respuesta.ok) {
+        const datosError = await respuesta.json()
+        alert(datosError.error || "Ocurrió un error al guardar el tour.")
+        return
+      }
+
+      const tourCreado = await respuesta.json()
+      alert(`¡Excelente! El tour "${tourCreado.nombreTour}" ha sido creado con éxito.`)
+      
+      handleCancel()
+
+    } catch (error) {
+      console.error("Error al enviar el formulario:", error)
+      alert("Hubo un problema de conexión con el servidor.")
+    }
   }
-}
 
   const handleCancel = () => {
     setForm({
       nombreTour: "",
       destino: "",
+      destinoId: "",
       precio: "",
       duracion: "",
       descripcionBreve: "",
@@ -175,6 +220,17 @@ const handleSubmit = async (e: React.FormEvent) => {
     setFechasSeleccionadas([])
     setImagenes([])
     setErrorDestino(false)
+  }
+
+  // Si aún se están cargando los destinos, mostrar un indicador
+  if (cargandoDestinos) {
+    return (
+      <main className={styles.contenedor}>
+        <div className={styles.tarjeta}>
+          <p>Cargando destinos...</p>
+        </div>
+      </main>
+    )
   }
 
   return (
@@ -188,7 +244,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             <input id="nombreTour" name="nombreTour" value={form.nombreTour} onChange={handleChange} className={styles.input} placeholder="Ej: Caminata Nocturna Guiada" required />
           </div>
 
-          {/* Destino */}
+          {/* Destino con autocompletado desde API */}
           <div className={styles.campoHorizontal}>
             <label htmlFor="destino" className={styles.etiqueta}>Destino</label>
             <div className={styles.contenedorBuscador}>
@@ -206,12 +262,14 @@ const handleSubmit = async (e: React.FormEvent) => {
               />
               {mostrarDesplegable && destinosFiltrados.length > 0 && (
                 <ul className={styles.listaDesplegable}>
-                  {destinosFiltrados.map((dest, index) => (
-                    <li key={index} onClick={() => handleSeleccionarDestino(dest)} className={styles.opcionDesplegable}>{dest}</li>
+                  {destinosFiltrados.map((dest) => (
+                    <li key={dest.id} onClick={() => handleSeleccionarDestino(dest)} className={styles.opcionDesplegable}>
+                      {dest.nombre}
+                    </li>
                   ))}
                 </ul>
               )}
-              {errorDestino && <span className={styles.mensajeError}>[no hay coincidencias con tours existentes]</span>}
+              {errorDestino && <span className={styles.mensajeError}>[no hay coincidencias con destinos existentes]</span>}
             </div>
           </div>
 
@@ -286,12 +344,11 @@ const handleSubmit = async (e: React.FormEvent) => {
             </div>
           </div>
 
-          {/* Imágenes — múltiples*/}
+          {/* Imágenes — múltiples */}
           <div className={styles.campoVertical}>
             <label className={styles.etiquetaNegrita}>IMAGENES DEL TOUR</label>
             <div className={styles.zonaSubidaHorizontal}>
 
-              {/* Previews de todas las imágenes agregadas */}
               <div className={styles.previsualizaciones}>
                 {imagenes.length === 0 ? (
                   <div className={styles.cuadroFoto}>🌄</div>
@@ -303,7 +360,6 @@ const handleSubmit = async (e: React.FormEvent) => {
                         alt={`Preview ${index + 1}`}
                         style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "8px" }}
                       />
-                      {/* Botón para eliminar imagen individual */}
                       <button
                         type="button"
                         onClick={() => handleEliminarImagen(index)}
@@ -331,7 +387,6 @@ const handleSubmit = async (e: React.FormEvent) => {
                 )}
               </div>
 
-              {/* Input acepta múltiples archivos */}
               <label htmlFor="imagenArchivo" className={styles.botonSeleccionar}>
                 Seleccionar Archivos
                 <input
