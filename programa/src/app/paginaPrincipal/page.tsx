@@ -194,6 +194,13 @@ export default function PaginaPrincipal() {
                 <p>Descubre destinos increíbles, reserva tus viajes y vive experiencias inolvidables.</p>
             </div>
 
+            <button 
+                    className={style.botonExplorar}
+                    onClick={() => router.push("/paginaDestinos")}
+                >
+                    Ver destinos
+                </button>
+
             {/* Sección de Tours Destacados */}
             <div className={style.tours}>
                 <h2 className={style.tituloSeccion}>Tours destacados</h2>

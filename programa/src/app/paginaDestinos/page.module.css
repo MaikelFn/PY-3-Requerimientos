@@ -1,0 +1,160 @@
+
+.contenedor {
+    min-height: 100vh;
+    background-color: #f2f7f6;
+    
+}
+
+.encabezado {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 90px;
+}
+
+.botonRegresar {
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 18px;
+    cursor: pointer;
+    margin: 20px 20px;
+}
+
+.tituloPrincipal {
+    font-size: 28px;
+    color: #1E8C87;
+    margin: 0 10 20px;
+    font-weight: bold;
+    margin-left: 450px;
+}
+
+.buscador {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1.5px solid #ddd;
+    border-radius: 50px;
+    padding: 10px 20px;
+    gap: 10px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    transition: border-color 0.2s;
+    margin-left: 440px;
+    width: 40%;
+    
+}
+
+.input {
+    border: none;
+    outline: none;
+    font-size: 15px;
+    width: 100%;
+    font-family: 'Lato', sans-serif;
+    background: transparent;
+    color: #333;
+}
+
+.lista{
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.sinResultados {
+    text-align: center;
+    padding: 60px 20px;
+    color: #888;
+    font-size: 16px;
+}
+
+.tarjeta {
+    display: flex;
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    border: 1px solid #ede8e1;
+    transition: box-shadow 0.3s, transform 0.2s;
+    min-height: 220px;
+}
+
+.tarjeta:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    transform: translateY(-2px);
+}
+
+.imagenContenedor {
+    width: 280px;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+    background: #e8e0d8;
+}
+
+.imagen {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.tarjeta:hover .imagen { transform: scale(1.04); }
+
+.sinImagen {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    background: #f0ebe4;
+}
+
+.indicadores{
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 5px;
+}
+
+.indicador {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    transition: background 0.3s;
+}
+
+.activo { background: #fff; }
+
+.informacion {
+    flex: 1;
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: #272727;
+}
+
+
+.informacion h3 {
+    font-size: 22px;
+    color: #e6005c ;
+    margin: 0;
+}
+
+.ubicacion {
+    font-size: 13px;
+    color: #525252;
+    font-weight: 600;
+    margin: 0;
+}
+
+
+.card:hover {
+    transform: translateY(-3px);
+    transition: 0.3s;
+}

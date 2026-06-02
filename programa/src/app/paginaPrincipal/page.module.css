@@ -331,7 +331,7 @@
 
 .botonLimpiar{
     padding: 12px 20px;
-    background-color: #dbce13;
+    background-color: #F2B705 ;
     color: white;
     border: none;
     border-radius: 8px;
@@ -339,6 +339,18 @@
     font-weight: bold;
     height: 45px;
     text-align: center;
+}
+
+
+.botonExplorar {
+    background-color: #2E8BC0 ;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    height: 45px;
+    margin: 20px 20px;
 }
 
 
