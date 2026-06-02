@@ -51,7 +51,7 @@ export default function FormularioModificarTours() {
 
   const [fechasSeleccionadas, setFechasSeleccionadas] = useState<FechaCupo[]>([])
   const [nuevaFecha, setNuevaFecha] = useState("")
-  const [imagenes, setImagenes] = useState<ImagenItem[]>([]) // Estado añadido para el carrusel
+  const [imagenes, setImagenes] = useState<ImagenItem[]>([]) 
   const [mostrarDesplegable, setMostrarDesplegable] = useState(false)
   const [errorDestino, setErrorDestino] = useState(false)
   const [cargando, setCargando] = useState(false)
@@ -238,30 +238,6 @@ export default function FormularioModificarTours() {
     }
   }
 
-  const handleEliminarTour = async () => {
-    if (!tourSeleccionadoId) return
-    const confirmar = confirm("¿Estás completamente seguro de eliminar este tour? Esta acción no se puede deshacer.")
-    if (!confirmar) return
-    setCargando(true)
-
-    try {
-      const res = await fetch(`/api/tours/${tourSeleccionadoId}`, {
-        method: "DELETE",
-      })
-
-      if (res.ok) {
-        alert("El tour ha sido eliminado correctamente.")
-        router.push("/administrativo")
-      } else {
-        alert("Hubo un error al intentar eliminar el tour.")
-      }
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setCargando(false)
-    }
-  }
-
   const handleLimpiar = () => {
     setTourSeleccionadoId("")
     setForm({
@@ -287,6 +263,27 @@ export default function FormularioModificarTours() {
     <main className={styles.contenedor}>
       <div className={styles.tarjeta}>
         
+        {/* BOTÓN VOLVER */}
+        {!tourSeleccionadoId && (
+          <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "1.5rem" }}>
+            <button 
+              type="button" 
+              onClick={() => router.push("/administrativo")} 
+              className={styles.botonCancel}
+              style={{ 
+                width: "auto", 
+                padding: "0.5rem 1.5rem", 
+                fontSize: "0.9rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.50rem"
+              }}
+            >
+              ← Volver
+            </button>
+          </div>
+        )}
+
         {/* SELECTOR SUPERIOR DE TOURS */}
         <div className={styles.campoHorizontal} style={{ marginBottom: "2rem", borderBottom: "2px dashed #cbd5e1", paddingBottom: "1.5rem" }}>
           <label htmlFor="selectorTour" className={styles.etiqueta} style={{ fontWeight: "bold", color: "#000" }}>Modificar Tour</label>
@@ -304,17 +301,15 @@ export default function FormularioModificarTours() {
           </select>
         </div>
 
-        {/* Formulario que sólo aparece si hay un tour seleccionado */}
+        {/* Formulario */}
         {tourSeleccionadoId && (
           <form onSubmit={handleGuardarCambios} className={styles.formulario}>
 
-            {/* Nombre del Tour */}
             <div className={styles.campoHorizontal}>
               <label htmlFor="nombreTour" className={styles.etiqueta}>Nombre del Tour</label>
               <input id="nombreTour" name="nombreTour" value={form.nombreTour || ""} onChange={handleChange} className={styles.input} style={estiloTextoNegro} required disabled={cargando} />
             </div>
 
-            {/* Destino con autocompletado extraído de la Base de Datos */}
             <div className={styles.campoHorizontal}>
               <label htmlFor="destino" className={styles.etiqueta}>Destino</label>
               <div className={styles.contenedorBuscador}>
@@ -342,19 +337,16 @@ export default function FormularioModificarTours() {
               </div>
             </div>
 
-            {/* Precio */}
             <div className={styles.campoHorizontal}>
               <label htmlFor="precio" className={styles.etiqueta}>Precio ($ USD)</label>
               <input id="precio" name="precio" type="number" min="0" value={form.precio || ""} onChange={handleChange} className={styles.input} style={estiloTextoNegro} required disabled={cargando} />
             </div>
 
-            {/* Duración */}
             <div className={styles.campoHorizontal}>
               <label htmlFor="duracion" className={styles.etiqueta}>Duración</label>
               <input id="duracion" name="duracion" type="text" value={form.duracion || ""} onChange={handleChange} className={styles.input} style={estiloTextoNegro} required disabled={cargando} />
             </div>
 
-            {/* Breve Descripción */}
             <div className={styles.campoHorizontal}>
               <label htmlFor="descripcionBreve" className={styles.etiqueta}>Breve Descripción</label>
               <div className={styles.contenedorContador}>
@@ -363,7 +355,6 @@ export default function FormularioModificarTours() {
               </div>
             </div>
 
-            {/* Fechas y Cupos */}
             <div className={styles.campoHorizontal}>
               <label htmlFor="calendario" className={styles.etiqueta}>Añadir Fechas</label>
               <div className={styles.contenedorFechasDinamicas}>
@@ -391,26 +382,20 @@ export default function FormularioModificarTours() {
               </div>
             </div>
 
-            {/* Itinerario */}
             <div className={styles.campoHorizontal}>
               <label htmlFor="itinerario" className={styles.etiqueta}>Itinerario</label>
               <textarea id="itinerario" name="itinerario" value={form.itinerario || ""} onChange={handleChange} className={styles.textarea} style={estiloTextoNegro} rows={3} required disabled={cargando} />
             </div>
 
-            {/* Descripción Detallada Visual En Vivo */}
             <div className={styles.campoVertical}>
               <label htmlFor="descripcionDetallada" className={styles.etiquetaNegrita}>DESCRIPCIÓN DETALLADA DEL TOUR</label>
               <div className={styles.editorSimulado} style={{ border: "1px solid #cbd5e1", borderRadius: "6px", overflow: "hidden", background: "#fff" }}>
-                
-                {/* Barra de Herramientas Operativa */}
                 <div className={styles.barraEditor} style={{ display: "flex", gap: "8px", padding: "6px", background: "#f1f5f9", borderBottom: "1px solid #cbd5e1" }}>
                   <button type="button" onClick={() => ejecutarComando("bold")} style={{ cursor: "pointer", padding: "2px 8px", background: "#fff", border: "1px solid #ccc", borderRadius: "4px", fontWeight: "bold", color: "#000" }}>B</button>
                   <button type="button" onClick={() => ejecutarComando("italic")} style={{ cursor: "pointer", padding: "2px 8px", background: "#fff", border: "1px solid #ccc", borderRadius: "4px", fontStyle: "italic", color: "#000" }}>I</button>
                   <button type="button" onClick={() => ejecutarComando("underline")} style={{ cursor: "pointer", padding: "2px 8px", background: "#fff", border: "1px solid #ccc", borderRadius: "4px", textDecoration: "underline", color: "#000" }}>U</button>
                   <button type="button" onClick={() => ejecutarComando("strikeThrough")} style={{ cursor: "pointer", padding: "2px 8px", background: "#fff", border: "1px solid #ccc", borderRadius: "4px", textDecoration: "line-through", color: "#000" }}>S</button>
                 </div>
-
-                {/* Área de Visualización Interactiva */}
                 <div 
                   id="descripcionDetallada" 
                   ref={editorRef}
@@ -430,7 +415,6 @@ export default function FormularioModificarTours() {
               </div>
             </div>
 
-            {/* ESPACIO INTEGRADO PARA EL CARRUSEL DE IMÁGENES */}
             <div className={styles.campoVertical}>
               <label className={styles.etiquetaNegrita}>IMÁGENES DEL TOUR</label>
               <div className={styles.zonaSubidaHorizontal}>
@@ -488,26 +472,14 @@ export default function FormularioModificarTours() {
               </div>
             </div>
 
-            {/* BOTONES DE ACCIÓN */}
-            <div className={styles.acciones} style={{ justifyContent: "space-between", marginTop: "2.5rem" }}>
-              <button 
-                type="button" 
-                onClick={handleEliminarTour} 
-                className={styles.botonCancel} 
-                style={{ backgroundColor: "#ef4444", color: "#ffffff", borderColor: "#dc2626" }}
-                disabled={cargando}
-              >
-                Eliminar Tour
+            {/* BOTONES DE ACCIÓN (Alineados a la derecha por defecto) */}
+            <div className={styles.acciones} style={{ justifyContent: "flex-end", marginTop: "2.5rem" }}>
+              <button type="button" onClick={handleLimpiar} className={styles.botonCancel} disabled={cargando}>
+                Cancelar
               </button>
-              
-              <div style={{ display: "flex", gap: "1rem" }}>
-                <button type="button" onClick={handleLimpiar} className={styles.botonCancel} disabled={cargando}>
-                  Cancelar
-                </button>
-                <button type="submit" className={styles.botonSubmit} disabled={cargando || errorDestino}>
-                  {cargando ? "Guardando..." : "Guardar Cambios"}
-                </button>
-              </div>
+              <button type="submit" className={styles.botonSubmit} disabled={cargando || errorDestino}>
+                {cargando ? "Guardando..." : "Guardar Cambios"}
+              </button>
             </div>
 
           </form>

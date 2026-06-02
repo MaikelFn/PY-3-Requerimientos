@@ -93,7 +93,7 @@ export default function PanelAdministrativo() {
                         <div className={style.indicadorSubmenu}>Opciones</div>
                         <a className={style.opcionSubmenu} onClick={() => router.push("/formularioAgregarDestinos")}>Crear destino</a>
                         <a className={style.opcionSubmenu} onClick={() => router.push("/formularioModificarDestinos")}>Modificar destino</a>
-                        <a className={style.opcionSubmenu} onClick={() => router.push("/formularioAgregarDestinos")}>Eliminar destino</a>
+                        <a className={style.opcionSubmenu} onClick={() => router.push("/eliminarDestinos")}>Eliminar destino</a>
                     </div>
                 </div>
 
@@ -104,7 +104,7 @@ export default function PanelAdministrativo() {
                         <div className={style.indicadorSubmenu}>Opciones</div>
                         <a className={style.opcionSubmenu} onClick={() => router.push("/formularioAgregarTours")}>Crear tour</a>
                         <a className={style.opcionSubmenu} onClick={() => router.push("/formularioModificarTours")}>Modificar tour</a>
-                        <a className={style.opcionSubmenu} onClick={() => router.push("/formularioAgregarTours")}>Eliminar tour</a>
+                        <a className={style.opcionSubmenu} onClick={() => router.push("/eliminarTours")}>Eliminar tour</a>
                     </div>
                 </div>
 
@@ -118,7 +118,7 @@ export default function PanelAdministrativo() {
 
             {/* GESTIÓN DE ROLES ADMINISTRATIVOS */}
             <div style={{ marginTop: "60px", textAlign: "left", background: "#fff", padding: "30px", borderRadius: "10px", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
-                <h2 style={{ color: "#1b4332", marginBottom: "10px", fontSize: "22px" }}>🛡️ Gestión de Permisos de Usuarios</h2>
+                <h2 style={{ color: "#1b4332", marginBottom: "10px", fontSize: "22px" }}> Gestión de Permisos de Usuarios</h2>
                 <p style={{ color: "#666", marginBottom: "20px", fontSize: "14px" }}>Asigna o revoca privilegios de administrador a las cuentas registradas en la plataforma.</p>
                 
                 <div style={{ overflowX: "auto" }}>

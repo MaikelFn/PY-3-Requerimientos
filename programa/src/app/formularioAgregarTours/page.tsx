@@ -19,8 +19,8 @@ type DestinoBase = {
 
 type TourFormState = {
   nombreTour: string
-  destino: string        // nombre del destino
-  destinoId: string      // id del destino seleccionado
+  destino: string
+  destinoId: string    
   precio: string
   duracion: string
   descripcionBreve: string
@@ -74,7 +74,6 @@ export default function FormularioAgregarTours() {
     dest.nombre.toLowerCase().includes(form.destino.toLowerCase())
   )
 
-  // Validar que el destino ingresado coincida exactamente con alguno de la lista
   useEffect(() => {
     if (form.destino.trim() === "") {
       setErrorDestino(false)
@@ -98,7 +97,6 @@ export default function FormularioAgregarTours() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setForm((prev) => ({ ...prev, [name]: value }))
-    // Si se modifica el destino manualmente, limpiamos el destinoId
     if (name === "destino") {
       setForm((prev) => ({ ...prev, destinoId: "" }))
     }
@@ -222,7 +220,6 @@ export default function FormularioAgregarTours() {
     setErrorDestino(false)
   }
 
-  // Si aún se están cargando los destinos, mostrar un indicador
   if (cargandoDestinos) {
     return (
       <main className={styles.contenedor}>
