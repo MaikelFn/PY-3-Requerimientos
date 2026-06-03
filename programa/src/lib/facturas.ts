@@ -3,14 +3,16 @@ import "server-only"
 import { readFile, writeFile } from "fs/promises"
 import path from "path"
 
-export type EstadoPago = "cancelado" | "pendiente"
-
 export type FacturaNueva = {
   tourId: number
+  nombreTour: string
+  destino: string
   usuarioId: number
+  nombreUsuario: string
   cantidadCupos: number
+  precio: string
+  montoTotal: number
   fecha: string
-  estadoPago: EstadoPago
 }
 
 export type FacturaGuardada = FacturaNueva & {
@@ -58,11 +60,6 @@ export async function obtenerFacturasPorTour(tourId: number): Promise<FacturaGua
   return facturas.filter(f => f.tourId === tourId)
 }
 
-export async function obtenerFacturasPorEstado(estado: EstadoPago): Promise<FacturaGuardada[]> {
-  const facturas = await leerFacturas()
-  return facturas.filter(f => f.estadoPago === estado)
-}
-
 export async function guardarFacturaEnArchivo(datosFactura: FacturaNueva): Promise<FacturaGuardada> {
   const facturas = await leerFacturas()
   const nuevoId = obtenerSiguienteId(facturas)
@@ -96,10 +93,6 @@ export async function actualizarFactura(id: number, actualizaciones: Partial<Fac
   return facturaActualizada
 }
 
-export async function actualizarEstadoPago(id: number, nuevoEstado: EstadoPago): Promise<FacturaGuardada | null> {
-  return actualizarFactura(id, { estadoPago: nuevoEstado })
-}
-
 export async function eliminarFactura(id: number): Promise<boolean> {
   const facturas = await leerFacturas()
   const indice = facturas.findIndex(f => f.id === id)
@@ -114,11 +107,11 @@ export async function eliminarFactura(id: number): Promise<boolean> {
 
 export async function obtenerResumenFacturasUsuario(usuarioId: number) {
   const facturas = await obtenerFacturasPorUsuario(usuarioId)
+  const montoTotal = facturas.reduce((sum, f) => sum + f.montoTotal, 0)
   
   return {
     totalFacturas: facturas.length,
-    canceladas: facturas.filter(f => f.estadoPago === "cancelado").length,
-    pendientes: facturas.filter(f => f.estadoPago === "pendiente").length,
+    montoTotal,
     facturas,
   }
 }
@@ -126,12 +119,12 @@ export async function obtenerResumenFacturasUsuario(usuarioId: number) {
 export async function obtenerResumenFacturasTour(tourId: number) {
   const facturas = await obtenerFacturasPorTour(tourId)
   const totalCupos = facturas.reduce((sum, f) => sum + f.cantidadCupos, 0)
+  const montoTotal = facturas.reduce((sum, f) => sum + f.montoTotal, 0)
   
   return {
     totalVentas: facturas.length,
     totalCuposVendidos: totalCupos,
-    totalCancelado: facturas.filter(f => f.estadoPago === "cancelado").length,
-    totalPendiente: facturas.filter(f => f.estadoPago === "pendiente").length,
+    montoTotal,
     facturas,
   }
 }

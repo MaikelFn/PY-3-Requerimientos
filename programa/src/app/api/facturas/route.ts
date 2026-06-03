@@ -4,12 +4,9 @@ import {
   guardarFacturaEnArchivo,
   obtenerFacturasPorUsuario,
   obtenerFacturasPorTour,
-  obtenerFacturasPorEstado,
   actualizarFactura,
-  actualizarEstadoPago,
   eliminarFactura,
   type FacturaNueva,
-  type EstadoPago,
 } from "../../../lib/facturas"
 
 export async function GET(request: NextRequest) {
@@ -17,7 +14,6 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const usuarioId = searchParams.get("usuarioId")
     const tourId = searchParams.get("tourId")
-    const estado = searchParams.get("estado")
 
     let facturas
 
@@ -25,8 +21,6 @@ export async function GET(request: NextRequest) {
       facturas = await obtenerFacturasPorUsuario(parseInt(usuarioId, 10))
     } else if (tourId) {
       facturas = await obtenerFacturasPorTour(parseInt(tourId, 10))
-    } else if (estado) {
-      facturas = await obtenerFacturasPorEstado(estado as EstadoPago)
     } else {
       facturas = await leerFacturas()
     }
@@ -44,10 +38,10 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    const { tourId, usuarioId, cantidadCupos, fecha, estadoPago } = body
+    const { tourId, nombreTour, destino, usuarioId, nombreUsuario, cantidadCupos, precio, montoTotal, fecha } = body
 
     // Validaciones
-    if (!tourId || !usuarioId || !cantidadCupos || !fecha || !estadoPago) {
+    if (!tourId || !nombreTour || !destino || !usuarioId || !nombreUsuario || !cantidadCupos || !precio || !montoTotal || !fecha) {
       return NextResponse.json(
         { error: "Faltan datos de la factura" },
         { status: 400 }
@@ -68,19 +62,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (estadoPago !== "cancelado" && estadoPago !== "pendiente") {
-      return NextResponse.json(
-        { error: "El estado del pago debe ser 'cancelado' o 'pendiente'" },
-        { status: 400 }
-      )
-    }
-
     const datosFactura: FacturaNueva = {
       tourId,
+      nombreTour,
+      destino,
       usuarioId,
+      nombreUsuario,
       cantidadCupos,
+      precio,
+      montoTotal,
       fecha,
-      estadoPago,
     }
 
     const factura = await guardarFacturaEnArchivo(datosFactura)
