@@ -2,7 +2,8 @@ import { randomUUID } from "crypto"
 import { mkdir, writeFile } from "fs/promises"
 import path from "path"
 import { NextResponse } from "next/server"
-import { actualizarDestinoEnArchivo, eliminarDestinoDelArchivo } from "../../../../lib/destinos"
+import { actualizarDestinoEnArchivo } from "../../../../lib/destinos"
+import { eliminarDestino } from "../../../../lib/eliminarDestino"
 
 const rutaCarpetaImagenes = path.join(
   process.cwd(),
@@ -97,9 +98,16 @@ export async function DELETE(
       return NextResponse.json({ error: "ID inválido" }, { status: 400 })
     }
 
-    const destino = await eliminarDestinoDelArchivo(idNum)
+    const resultado = await eliminarDestino(idNum)
+
+    if (!resultado.exito) {
+      // 409 cuando el destino está asociado a tours, 404 si no existe.
+      const estado = resultado.mensaje === "Destino no encontrado" ? 404 : 409
+      return NextResponse.json({ error: resultado.mensaje }, { status: estado })
+    }
+
     return NextResponse.json(
-      { mensaje: "Destino eliminado correctamente", destino },
+      { mensaje: resultado.mensaje, destino: resultado.destino },
       { status: 200 }
     )
   } catch (error: any) {
