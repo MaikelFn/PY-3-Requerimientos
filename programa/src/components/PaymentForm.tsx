@@ -43,12 +43,24 @@ function CheckoutForm({
     setIsProcessing(true);
 
     try {
-      const { error } = await stripe.confirmPayment({
+      const { error: submitError } = await elements.submit();
+      if (submitError) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error en el pago',
+          text: submitError.message,
+        });
+        setIsProcessing(false);
+        return;
+      }
+
+      const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         clientSecret,
         confirmParams: {
           return_url: `${window.location.origin}/payment-success`,
         },
+        redirect: 'if_required',
       });
 
       if (error) {
@@ -58,8 +70,13 @@ function CheckoutForm({
           text: error.message,
         });
         setIsProcessing(false);
+      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+        // Pago exitoso sin redirección
+        if (onSuccess) {
+          onSuccess(paymentIntent.id);
+        }
+        setIsProcessing(false);
       }
-      // Si no hay error, confirmPayment redirige automáticamente
     } catch (err) {
       console.error('Error:', err);
       Swal.fire({
