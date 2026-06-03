@@ -2,6 +2,7 @@ import "server-only"
 
 import { readFile, writeFile } from "fs/promises"
 import path from "path"
+import { leerTours } from "./tours"
 
 export type DestinoNuevo = {
   nombre: string
@@ -109,9 +110,17 @@ export async function eliminarDestinoDelArchivo(id: number) {
     throw new Error("Destino no encontrado")
   }
 
+  const tours = await leerTours()
+  const toursAsociados = tours.filter(t => t.destinoId === id)
+  
+  if (toursAsociados.length > 0) {
+    throw new Error("No se puede eliminar el destino porque tiene tours asociados")
+  }
+
   const destinoEliminado = destinos[indice]
   destinos.splice(indice, 1)
   await writeFile(rutaDestinos, JSON.stringify(destinos, null, 2), "utf8")
 
   return destinoEliminado
 }
+
