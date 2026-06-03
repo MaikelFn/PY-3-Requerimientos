@@ -9,7 +9,7 @@ type Destino = {
     ubicacion: string;
     descripcionBreve: string;
     descripcionDetallada: string;
-    imagen?: string;
+    imagenes?: string[];
 };
 
 export default function PaginaDestinos() {
@@ -65,7 +65,7 @@ export default function PaginaDestinos() {
 function TarjetaDestino({destino}:{destino: Destino}) {
     const [indiceImagen, setIndiceImagen] = useState(0);
     const [mouseEncima, setMouseEncima] = useState(false);
-    const imagenes = destino.imagen ?? [];
+    const imagenes = destino.imagenes ?? [];
 
     useEffect(() => {
         if (!mouseEncima || imagenes.length <= 1) {
