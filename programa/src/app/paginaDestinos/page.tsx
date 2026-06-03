@@ -32,33 +32,35 @@ export default function PaginaDestinos() {
     }, []);
 
     return (
-        <div className={style.contenedor}>
-            {/*Encabezado*/}
-            <div className={style.encabezado}>
-                <button className={style.botonRegresar} onClick={() => router.push("/paginaPrincipal")}> ← Volver</button>
-                <h1 className={style.tituloPrincipal}>Explora nuestros destinos disponibles</h1>
-            
-            {/*Buscado*/}
-            <div className={style.buscador}>
-                <span>🔍</span>
-                <input type="text" placeholder="Buscar destino por nombre o ubicación..." value={query} onChange={(e) => setQuery(e.target.value)} className={style.input}/>
-            </div>
-            </div>
+        <main className={style.fondo}>
+            <div className={style.contenedor}>
+                {/*Encabezado*/}
+                <div className={style.encabezado}>
+                    <img src="/logo.png" alt="Logo" className={style.logo} onClick={() => router.push("/paginaPrincipal")}/>
+                    <h1 className={style.tituloPrincipal}>Explora nuestros destinos disponibles</h1>
+                
+                {/*Buscado*/}
+                <div className={style.buscador}>
+                    <span>🔍</span>
+                    <input type="text" placeholder="Buscar destino por nombre o ubicación..." value={query} onChange={(e) => setQuery(e.target.value)} className={style.input}/>
+                </div>
+                </div>
 
-            
-            {/*Lista de destinos*/}
-            <div className={style.lista}>
-                {destinosFiltrados.length === 0 ?(
-                    <div className={style.sinResultados}>
-                        <p>No se encontraron destinos.</p>
-                    </div>
-                ) : (
-                    destinosFiltrados.map(destino => (
-                        <TarjetaDestino key={destino.id} destino={destino}/>
-                    ))
-                )}
+                
+                {/*Lista de destinos*/}
+                <div className={style.lista}>
+                    {destinosFiltrados.length === 0 ?(
+                        <div className={style.sinResultados}>
+                            <p>No se encontraron destinos.</p>
+                        </div>
+                    ) : (
+                        destinosFiltrados.map(destino => (
+                            <TarjetaDestino key={destino.id} destino={destino}/>
+                        ))
+                    )}
+                </div>
             </div>
-        </div>
+        </main>
     );
 }
 
