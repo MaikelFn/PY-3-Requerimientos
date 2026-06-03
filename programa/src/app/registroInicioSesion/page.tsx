@@ -23,6 +23,14 @@ export default function RegistroInicioSesion() {
     const [enviando, setEnviando] = useState(false)
 
     async function handleLogin() {
+        if (!esCorreoValido(email)) {
+            alert("Por favor ingresar un correo válido")
+            return
+        }
+        if(!password) {
+            alert("Por favor ingresar una contraseña")
+            return
+        }
         try {
             const res = await fetch('/api/login', {
                 method: 'POST',
@@ -50,6 +58,18 @@ export default function RegistroInicioSesion() {
     }
 
     async function handleRegister() {
+        if (!nombre || !apellido) {
+            alert("Por favor ingresar nombre y apellido")
+            return
+        }
+        if (!esCorreoValido(emailRegistro)) {
+            alert("Por favor ingresa un correo electrónico válido")
+            return
+        }
+        if (!passwordRegistro || passwordRegistro.length < 6) {
+            alert("La contraseña debe tener al menos 6 caracteres")
+            return
+        }
         try {
             const res = await fetch('/api/register', {
                 method: 'POST',
@@ -73,6 +93,10 @@ export default function RegistroInicioSesion() {
     }
 
     async function handleEnviarCodigo() {
+        if (!esCorreoValido(correoRecuperar)) {
+            alert("Por favor ingresa un correo electrónico válido")
+            return
+        }
         if (!correoRecuperar) return alert("Ingresa tu correo")
         setEnviando(true)
         try{
@@ -111,6 +135,18 @@ export default function RegistroInicioSesion() {
         } catch {
             alert("Error de conexión")
         }
+    }
+
+    //Verifica que el correo tenga @ y que haya texto antes de y despues y que el dominio tengo un punto
+    function esCorreoValido(correo: string): boolean {
+        const partes = correo.split("@")
+        if (partes.length !== 2) return false
+        const [usuario, dominio] = partes
+        if (!usuario || usuario.length === 0) return false
+        if (!dominio || !dominio.includes(".")) return false
+        const partesDominio = dominio.split(".")
+        if (partesDominio.some(parte => parte.length === 0)) return false
+        return true
     }
 
 
@@ -153,7 +189,6 @@ export default function RegistroInicioSesion() {
                 {/* Registro */}
                 {pantalla === "registro" && (
                     <div>
-                        <button onClick={() => setPantalla("inicioSesion")} className={style.volver}>← Volver</button>
                         <h2 className={style.titulo}>Crea tu cuenta</h2>
                         <p className={style.subtitulo}>¡Únete a CR Tours y comienza tu aventura!</p>
 
