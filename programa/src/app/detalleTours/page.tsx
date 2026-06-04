@@ -153,7 +153,7 @@ export default function DetalleTours() {
                         )}
 
                         <button className={style.btnReservar}
-                        onClick={() => router.push(`/reserva/${tour.id}`)}>Reservar ahora</button>
+                        onClick={() => router.push(`/paginaReservas?id=${tour.id}`)}>Reservar ahora</button>
                         <p className={style.notaReserva}>Sin cobros hasta confirmar</p>
                     </div>
                 </div>
