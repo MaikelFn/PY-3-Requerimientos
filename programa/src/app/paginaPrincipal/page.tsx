@@ -83,12 +83,6 @@ export default function PaginaPrincipal() {
         <div className={style.contenedor}>
             <div className={style.menuSuperior}>
                 <div className={style.menuIzquierdo}>
-                    <button className={style.botonCerrar} onClick={() => {
-                        localStorage.removeItem("usuario");
-                        window.location.href = "/";
-                    }}>
-                        Cerrar sesión
-                    </button>
                 </div>
 
                 <div className={style.menuDerecho}>
@@ -112,6 +106,7 @@ export default function PaginaPrincipal() {
                         </div>
                     )}
 
+                    {/* PERFIL */}
                     <div className={style.menu}>
                         <div className={style.itemMenu}>
                             <span>👤</span>
@@ -120,6 +115,11 @@ export default function PaginaPrincipal() {
                         <div className={style.submenu}>
                             <a href="#reservas">Historial Reservas</a>
                             <a href="#pagos">Historial Pagos</a>
+                            <button className={style.botonCerrar} onClick={() => {
+                                localStorage.removeItem("usuario");
+                                window.location.href = "/";}}>
+                                Cerrar sesión
+                            </button>
                         </div>
                     </div>
                     <div className={style.menu}>
