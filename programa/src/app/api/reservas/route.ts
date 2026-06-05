@@ -13,6 +13,8 @@ import {
   type EstadoReserva,
 } from "../../../lib/reservas"
 
+import { restarCuposTour } from "../../../lib/tours"
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -51,7 +53,7 @@ export async function POST(request: NextRequest) {
     const { tourId, usuarioId, cantidadCupos, fecha, estadoReserva } = body
 
     // Validaciones
-    if (!tourId || !usuarioId || !cantidadCupos || !fecha || !estadoReserva) {
+    if (tourId === undefined || tourId === null || usuarioId === undefined || usuarioId === null || !cantidadCupos || !fecha || !estadoReserva) {
       return NextResponse.json(
         { error: "Faltan datos de la reserva" },
         { status: 400 }
@@ -78,6 +80,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Restar cupos del tour
+    await restarCuposTour(tourId, fecha, cantidadCupos)
 
     const datosReserva: ReservaNueva = {
       tourId,

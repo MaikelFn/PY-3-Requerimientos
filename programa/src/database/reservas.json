@@ -16,5 +16,14 @@
         "estadoReserva": "pendiente",
         "id": 3,
         "fechaRegistro": "2026-06-04T03:48:42.652Z"
+    },
+    {
+        "tourId": 3,
+        "usuarioId": 0,
+        "cantidadCupos": 5,
+        "fecha": "2026-06-15",
+        "estadoReserva": "pendiente",
+        "id": 4,
+        "fechaRegistro": "2026-06-05T05:33:11.969Z"
     }
 ]

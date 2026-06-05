@@ -1,0 +1,214 @@
+.pagina {
+    min-height: 100vh;
+    background-image: url('/fondo.png');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem;
+}
+
+/* CARGA */
+.estadoCarga {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    gap: 16px;
+    color: #555;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e0e0e0;
+    border-top-color: #1b4332;
+    border-radius: 50%;
+    animation: girar 0.8s linear infinite;
+}
+
+/* HEADER */
+.encabezado {
+    background: #fff;
+    border-bottom: 1px solid #e8e0d8;
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    height: 200;
+    cursor: pointer;
+    transition: transform 0.2s;
+    margin-left: 10px;
+}
+
+.titulo {
+    font-size: 30px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-left: 570;
+}
+
+/* CONTENEDOR */
+.contenedor {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 24px 60px;
+}
+
+/* SIN RESERVAS */
+.sinReservas {
+    text-align: center;
+    padding: 80px 20px;
+    color: #888;
+}
+
+.sinReservas span {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 16px;
+}
+
+.sinReservas p {
+    font-size: 16px;
+    margin-bottom: 24px;
+}
+
+.botonExplorar {
+    background: #1b4332;
+    color: #fff;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btnExplorar:hover { background: #145530; }
+
+/* LISTA */
+.lista {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* TARJETA */
+.tarjeta {
+    display: flex;
+    background: #fff;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    border: 1px solid #ede8e1;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+.tarjeta:hover {
+    box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+    transform: translateY(-2px);
+}
+
+/* IMAGEN */
+.imagenContenedor {
+    width: 200px;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: #e8e0d8;
+}
+
+.imagen {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.sinImagen {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    background: #f0ebe4;
+    min-height: 140px;
+}
+
+/* INFO */
+.info {
+    flex: 1;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.infoTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.nombreTour {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1b4332;
+    margin: 0;
+}
+
+.estado {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.estadoConfirmada { background: #e8f5ee; color: #1b4332; }
+.estadoPendiente { background: #fff8e1; color: #b8860b; }
+.estadoCancelada { background: #fdecea; color: #c0392b; }
+
+.detalles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 13px;
+    color: #555;
+}
+
+.infoBottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px;
+    border-top: 1px solid #f0ebe4;
+}
+
+.precio {
+    font-size: 20px;
+    font-weight: 800;
+    color: #1b4332;
+}
+
+.fechaRegistro {
+    font-size: 12px;
+    color: #aaa;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+    .tarjeta { flex-direction: column; }
+    .imagenContenedor { width: 100%; height: 180px; }
+    .infoBottom { flex-direction: column; align-items: flex-start; gap: 6px; }
+}

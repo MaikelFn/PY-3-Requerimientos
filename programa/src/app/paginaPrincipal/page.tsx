@@ -113,8 +113,11 @@ export default function PaginaPrincipal() {
                             <p>Perfil</p>
                         </div>
                         <div className={style.submenu}>
-                            <a href="#reservas">Historial Reservas</a>
-                            <a href="#pagos">Historial Pagos</a>
+                            <a style={{ cursor: "pointer", pointerEvents: "auto" }}
+                                onClick={() => router.push("/historialReservas")}>
+                                Historial Reservas
+                            </a>
+                            <a href="#reservas">Historial Pagos</a>
                             <button className={style.botonCerrar} onClick={() => {
                                 localStorage.removeItem("usuario");
                                 window.location.href = "/";}}>

@@ -129,3 +129,18 @@ export async function eliminarTourDelArchivo(id: number) {
 
   return tourEliminado
 }
+
+export async function restarCuposTour(tourId: number, fecha: string, cantidad: number): Promise<void> {
+    const tours = await leerTours()
+    const indice = tours.findIndex(t => t.id === tourId)
+    if (indice === -1) throw new Error("Tour no encontrado")
+
+    const fechaIndice = tours[indice].fechasYCupos?.findIndex(f => f.fecha === fecha)
+    if (fechaIndice === undefined || fechaIndice === -1) throw new Error("Fecha no encontrada")
+
+    const cuposActuales = Number(tours[indice].fechasYCupos[fechaIndice].cupos)
+    if (cuposActuales < cantidad) throw new Error("No hay suficientes cupos disponibles")
+
+    tours[indice].fechasYCupos[fechaIndice].cupos = String(cuposActuales - cantidad)
+    await writeFile(rutaTours, JSON.stringify(tours, null, 2), "utf8")
+}
