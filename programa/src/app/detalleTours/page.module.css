@@ -1,25 +1,29 @@
 
 .contenedor {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 20px;
+    min-height: 100vh;
+    background-image: url('/fondo.png');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
     font-family: Arial, sans-serif;
 }
 
 /* BOTÓN VOLVER */
-.volver {
-    background: none;
-    border: none;
-    color: #666;
-    font-size: 14px;
+.logo {
+    height: 120px;
     cursor: pointer;
-    margin-bottom: 20px;
+    transition: transform 0.2s;
+    margin-right: 1200;
 }
 
 .titulo {
     font-size: 32px;
     font-weight: 700;
-    color: #2bb8b8;
+    color: #ffffff;
     margin-bottom: 8px;
     line-height: 1.2;
 }
@@ -47,6 +51,12 @@
     margin-bottom: 20px;
     padding-bottom: 12px;
     border-bottom: 2px solid #f0f0f0;
+}
+
+.descripcionCorta {
+    font-size: 18px;
+    line-height: 1.8;
+    color: #ffffff;
 }
 
 .descripcionDetallada {
@@ -179,7 +189,7 @@
     margin-bottom: 12px;
     font-family: Arial, sans-serif;
 }
- 
+
 .fechaItem {
     display: flex;
     justify-content: space-between;
@@ -188,20 +198,10 @@
     border-radius: 10px;
     border: 1.5px solid #e8e8e8;
     margin-bottom: 8px;
-    cursor: pointer;
     transition: all 0.2s;
     font-family: Arial, sans-serif;
 }
 
-.fechaItem:hover {
-    border-color: #1a6b3c;
-    background: #f0faf4;
-}
-
-.fechaSeleccionada {
-    border-color: #1a6b3c !important;
-    background: #f0faf4 !important;
-}
 
 .fechaTexto {
     font-size: 13px;

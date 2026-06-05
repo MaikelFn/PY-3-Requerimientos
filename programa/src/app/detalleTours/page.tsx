@@ -46,7 +46,7 @@ export default function DetalleTours() {
     return (
         <div className={style.contenedor}>
             {/*volver*/}
-            <button className={style.volver} onClick={() => router.back()}>← Volver</button>
+            <img src="/logo.png" alt="Logo" className={style.logo} onClick={() => router.push("/paginaPrincipal")}/>
             
             {/*Galeria de imágenes*/}
             <div className={style.galeria}>
@@ -135,7 +135,7 @@ export default function DetalleTours() {
                         {/* FECHAS DISPONIBLES */}
                         {tour.fechasYCupos && tour.fechasYCupos.length > 0 && (
                             <div className={style.fechas}>
-                                <p className={style.fechasLabel}>Selecciona una fecha</p>
+                                <p className={style.fechasLabel}>Fechas disponibles</p>
                                 {tour.fechasYCupos.map((item, i) => (
                                     <div
                                         key={i}
