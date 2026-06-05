@@ -104,6 +104,10 @@ export default function PaginaReservas() {
         }
     }
 
+    function handlePagoExitoso() {
+        setReservaConfirmada(true)
+    }
+
     if (cargando) return (
         <div className={style.estadoCarga}>
             <div className={style.spinner}></div>
@@ -276,9 +280,13 @@ export default function PaginaReservas() {
                                                         fecha: fechaSeleccionada,
                                                         cupos: String(cantidadCupos)
                                                     }}
-                                                    onSuccess={async () => {
-                                                        await handleReservar()
+                                                    reservaData={{
+                                                        tourId: Number(id),
+                                                        usuarioId: Number(JSON.parse(localStorage.getItem("usuario") || "null")?.id || 0),
+                                                        cantidadCupos,
+                                                        fecha: fechaSeleccionada,
                                                     }}
+                                                    onSuccess={handlePagoExitoso}
                                                 />
                                             </>
                                         )}

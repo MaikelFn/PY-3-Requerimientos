@@ -113,6 +113,8 @@ export async function eliminarDestinoDelArchivo(id: number) {
   const tours = await leerTours()
   const toursAsociados = tours.filter(t => t.destinoId === id)
   
+  console.log(`Intentando eliminar destino ${id}. Tours asociados encontrados: ${toursAsociados.length}`)
+  
   if (toursAsociados.length > 0) {
     throw new Error("No se puede eliminar el destino porque tiene tours asociados")
   }

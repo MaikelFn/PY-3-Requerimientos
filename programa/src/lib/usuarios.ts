@@ -142,3 +142,15 @@ export async function obtenerTodosLosUsuarios(): Promise<Omit<UsuarioGuardado, "
     }
   })
 }
+
+export async function obtenerUsuarioById(id: number): Promise<Omit<UsuarioGuardado, "contrasena"> | null> {
+  const usuarios = await leerUsuarios()
+  const usuario = usuarios.find(u => u.id === id)
+  
+  if (!usuario) {
+    return null
+  }
+  
+  const { contrasena, ...usuarioSinContrasena } = usuario
+  return usuarioSinContrasena
+}

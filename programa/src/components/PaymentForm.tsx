@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   PaymentElement,
   Elements,
@@ -20,18 +20,94 @@ interface PaymentFormProps {
   description?: string;
   metadata?: Record<string, string>;
   onSuccess?: (paymentIntentId: string) => void;
+  reservaData?: {
+    tourId: number;
+    usuarioId: number;
+    cantidadCupos: number;
+    fecha: string;
+    nombreTour?: string;
+    destino?: string;
+    nombreUsuario?: string;
+    precio?: string;
+  };
 }
 
 function CheckoutForm({ 
   clientSecret,
   onSuccess,
+  onReset,
 }: { 
   clientSecret: string;
   onSuccess?: (paymentIntentId: string) => void;
+  onReset?: () => void;
 }) {
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [alreadyConfirmed, setAlreadyConfirmed] = useState(false);
+
+  const rollbackReservation = async (paymentIntentId: string) => {
+    try {
+      await fetch('/api/payments/rollback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ paymentIntentId }),
+      });
+    } catch (rollbackError) {
+      console.error('Error al restaurar reserva:', rollbackError);
+    }
+  };
+
+  useEffect(() => {
+    const confirmPaidIntent = async () => {
+      if (!stripe || !clientSecret || alreadyConfirmed) return;
+
+      const searchParams = new URL(window.location.href).searchParams;
+      const isStripeReturn =
+        searchParams.has('payment_intent') ||
+        searchParams.has('payment_intent_client_secret') ||
+        searchParams.has('redirect_status');
+
+      if (!isStripeReturn) return;
+
+      try {
+        const { paymentIntent } = await stripe.retrievePaymentIntent(clientSecret);
+
+        if (paymentIntent?.status === 'succeeded') {
+          const response = await fetch('/api/payments/confirm', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              paymentIntentId: paymentIntent.id,
+            }),
+          });
+
+          if (response.ok) {
+            setAlreadyConfirmed(true);
+            if (onReset) {
+              onReset();
+            }
+            if (onSuccess) {
+              onSuccess(paymentIntent.id);
+            }
+          }
+        } else if (paymentIntent && ['canceled', 'requires_payment_method'].includes(paymentIntent.status)) {
+          await rollbackReservation(paymentIntent.id);
+          if (onReset) {
+            onReset();
+          }
+        }
+      } catch (error) {
+        console.error('Error al recuperar PaymentIntent:', error);
+      }
+    };
+
+    confirmPaidIntent();
+  }, [stripe, clientSecret, alreadyConfirmed, onReset, onSuccess]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,28 +130,65 @@ function CheckoutForm({
         return;
       }
 
-      const { error, paymentIntent } = await stripe.confirmPayment({
+      const result = await (stripe as any).confirmPayment({
         elements,
         clientSecret,
         confirmParams: {
-          return_url: `${window.location.origin}/payment-success`,
+          return_url: window.location.href,
         },
         redirect: 'if_required',
-      });
+      }) as any;
 
-      if (error) {
+      if (result.error) {
+        // Cuando hay error, SIEMPRE recuperar el estado actual del PaymentIntent
+        // para asegurar rollback incluso si result.paymentIntent es undefined
+        try {
+          const { paymentIntent } = await stripe.retrievePaymentIntent(clientSecret);
+          if (paymentIntent?.id) {
+            console.log(`[handleSubmit] Error de pago, estado actual: ${paymentIntent.status}`);
+            await rollbackReservation(paymentIntent.id);
+          }
+        } catch (retrieveError) {
+          console.error('Error al recuperar PaymentIntent para rollback:', retrieveError);
+        }
+
+        if (onReset) {
+          onReset();
+        }
+
         Swal.fire({
           icon: 'error',
           title: 'Error en el pago',
-          text: error.message,
+          text: result.error.message,
         });
-        setIsProcessing(false);
-      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        // Pago exitoso sin redirección
-        if (onSuccess) {
-          onSuccess(paymentIntent.id);
+      } else if (result.paymentIntent?.status === 'succeeded') {
+        try {
+          const response = await fetch('/api/payments/confirm', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              paymentIntentId: result.paymentIntent.id,
+            }),
+          });
+
+          if (response.ok) {
+            if (onReset) {
+              onReset();
+            }
+            if (onSuccess) {
+              onSuccess(result.paymentIntent.id);
+            }
+          }
+        } catch (confirmError) {
+          console.error('Error al confirmar pago:', confirmError);
         }
-        setIsProcessing(false);
+      } else if (result.paymentIntent && ['canceled', 'requires_payment_method'].includes(result.paymentIntent.status)) {
+        await rollbackReservation(result.paymentIntent.id);
+        if (onReset) {
+          onReset();
+        }
       }
     } catch (err) {
       console.error('Error:', err);
@@ -84,6 +197,10 @@ function CheckoutForm({
         title: 'Error',
         text: 'Hubo un error al procesar el pago',
       });
+      if (onReset) {
+        onReset();
+      }
+    } finally {
       setIsProcessing(false);
     }
   };
@@ -108,9 +225,17 @@ export function PaymentForm({
   description,
   metadata,
   onSuccess,
+  reservaData,
 }: PaymentFormProps) {
   const [clientSecret, setClientSecret] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const storedSecret = window.sessionStorage.getItem('stripe_client_secret');
+    if (storedSecret) {
+      setClientSecret(storedSecret);
+    }
+  }, []);
 
   const handleCreatePayment = async () => {
     setIsLoading(true);
@@ -125,6 +250,7 @@ export function PaymentForm({
           currency,
           description,
           metadata,
+          reservaData,
         }),
       });
 
@@ -135,6 +261,7 @@ export function PaymentForm({
       }
 
       setClientSecret(data.clientSecret);
+      window.sessionStorage.setItem('stripe_client_secret', data.clientSecret);
     } catch (error) {
       console.error('Error:', error);
       Swal.fire({
@@ -172,7 +299,10 @@ export function PaymentForm({
         },
       }}
     >
-      <CheckoutForm clientSecret={clientSecret} onSuccess={onSuccess} />
+      <CheckoutForm clientSecret={clientSecret} onSuccess={onSuccess} onReset={() => {
+          window.sessionStorage.removeItem('stripe_client_secret');
+          setClientSecret('');
+        }} />
     </Elements>
   );
 }

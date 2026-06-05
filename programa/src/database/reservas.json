@@ -25,5 +25,23 @@
         "estadoReserva": "pendiente",
         "id": 4,
         "fechaRegistro": "2026-06-05T05:33:11.969Z"
+    },
+    {
+        "tourId": 4,
+        "usuarioId": 0,
+        "cantidadCupos": 8,
+        "fecha": "2026-06-30",
+        "estadoReserva": "cancelada",
+        "id": 5,
+        "fechaRegistro": "2026-06-05T08:09:33.498Z"
+    },
+    {
+        "tourId": 4,
+        "usuarioId": 0,
+        "cantidadCupos": 8,
+        "fecha": "2026-06-30",
+        "estadoReserva": "confirmada",
+        "id": 6,
+        "fechaRegistro": "2026-06-05T08:09:49.288Z"
     }
 ]

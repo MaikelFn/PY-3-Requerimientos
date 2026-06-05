@@ -1,1 +1,15 @@
-[]
+[
+    {
+        "tourId": 4,
+        "nombreTour": "Snorkel en el Parque Nacional Cahuita",
+        "destino": "Cahuita",
+        "usuarioId": 0,
+        "nombreUsuario": "Maikel Flores",
+        "cantidadCupos": 8,
+        "precio": "25000",
+        "montoTotal": 200000,
+        "fecha": "2026-06-30",
+        "id": 1,
+        "fechaRegistro": "2026-06-05T08:10:05.677Z"
+    }
+]
