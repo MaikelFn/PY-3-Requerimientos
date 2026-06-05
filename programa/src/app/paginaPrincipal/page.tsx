@@ -117,7 +117,10 @@ export default function PaginaPrincipal() {
                                 onClick={() => router.push("/historialReservas")}>
                                 Historial Reservas
                             </a>
-                            <a href="#reservas">Historial Pagos</a>
+                            <a style={{ cursor: "pointer", pointerEvents: "auto" }}
+                                onClick={() => router.push("/historialFacturas") }>
+                                Historial Pagos
+                            </a>
                             <button className={style.botonCerrar} onClick={() => {
                                 localStorage.removeItem("usuario");
                                 window.location.href = "/";}}>

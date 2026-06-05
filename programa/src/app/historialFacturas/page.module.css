@@ -1,0 +1,237 @@
+.pagina {
+    min-height: 100vh;
+    background-image: url('/fondo.png');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 2rem;
+}
+
+.estadoCarga {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    gap: 16px;
+    color: #555;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e0e0e0;
+    border-top-color: #1b4332;
+    border-radius: 50%;
+    animation: girar 0.8s linear infinite;
+}
+
+@keyframes girar {
+    to { transform: rotate(360deg); }
+}
+
+.encabezado {
+    background: rgba(255,255,255,0.95);
+    border-bottom: 1px solid #e8e0d8;
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-radius: 18px;
+}
+
+.logo {
+    width: 76px;
+    height: 76px;
+    object-fit: contain;
+    cursor: pointer;
+}
+
+.titulo {
+    font-size: 32px;
+    font-weight: 800;
+    color: #1b4332;
+    margin: 0;
+}
+
+.subtitulo {
+    margin: 6px 0 0;
+    color: #555;
+    font-size: 14px;
+}
+
+.contenedor {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 28px 20px 48px;
+}
+
+.resumen {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 26px;
+}
+
+.resumen div {
+    background: rgba(255,255,255,0.95);
+    border: 1px solid #e8e0d8;
+    border-radius: 16px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.resumen span {
+    color: #555;
+    font-size: 14px;
+}
+
+.resumen strong {
+    font-size: 24px;
+    color: #1b4332;
+}
+
+.sinFacturas {
+    text-align: center;
+    padding: 80px 20px;
+    color: #888;
+    background: rgba(255,255,255,0.9);
+    border-radius: 18px;
+}
+
+.sinFacturas span {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 16px;
+}
+
+.sinFacturas p {
+    font-size: 16px;
+    margin-bottom: 24px;
+}
+
+.botonExplorar {
+    background: #1b4332;
+    color: #fff;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.botonExplorar:hover {
+    background: #145530;
+}
+
+.lista {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.tarjeta {
+    display: flex;
+    background: rgba(255,255,255,0.95);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    border: 1px solid #e8e0d8;
+}
+
+.info {
+    flex: 1;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.infoTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.nombreTour {
+    font-size: 20px;
+    font-weight: 800;
+    color: #1b4332;
+    margin: 0;
+}
+
+.detalleId {
+    font-size: 12px;
+    color: #777;
+    padding: 6px 12px;
+    background: #f8f7f3;
+    border-radius: 999px;
+}
+
+.detalles {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    color: #555;
+    font-size: 14px;
+}
+
+.infoBottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding-top: 10px;
+    border-top: 1px solid #f0ebe4;
+}
+
+.precio {
+    font-size: 26px;
+    font-weight: 800;
+    color: #1b4332;
+    margin: 0;
+}
+
+.fechaRegistro {
+    font-size: 12px;
+    color: #888;
+    margin: 8px 0 0;
+}
+
+.nombreUsuario {
+    font-size: 14px;
+    color: #444;
+    font-weight: 600;
+}
+
+@media (max-width: 800px) {
+    .resumen {
+        grid-template-columns: 1fr;
+    }
+
+    .detalles {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .tarjeta {
+        flex-direction: column;
+    }
+
+    .infoBottom {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

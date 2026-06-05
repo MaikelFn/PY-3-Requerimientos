@@ -22,7 +22,7 @@
         "usuarioId": 0,
         "cantidadCupos": 5,
         "fecha": "2026-06-15",
-        "estadoReserva": "pendiente",
+        "estadoReserva": "confirmada",
         "id": 4,
         "fechaRegistro": "2026-06-05T05:33:11.969Z"
     },
