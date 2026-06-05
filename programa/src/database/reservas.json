@@ -4,7 +4,7 @@
         "usuarioId": 1,
         "cantidadCupos": 2,
         "fecha": "2026-06-20",
-        "estadoReserva": "pendiente",
+        "estadoReserva": "confirmada",
         "id": 1,
         "fechaRegistro": "2026-06-04T03:39:49.754Z"
     },
@@ -13,7 +13,7 @@
         "usuarioId": 1,
         "cantidadCupos": 2,
         "fecha": "2026-06-30",
-        "estadoReserva": "pendiente",
+        "estadoReserva": "cancelada",
         "id": 3,
         "fechaRegistro": "2026-06-04T03:48:42.652Z"
     },

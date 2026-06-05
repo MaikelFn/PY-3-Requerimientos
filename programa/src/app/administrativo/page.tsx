@@ -114,6 +114,13 @@ export default function PanelAdministrativo() {
                         GESTIONAR DISPONIBILIDAD DE TOUR
                     </button>
                 </div>
+
+                {/* GESTIONAR RESERVAS */}
+                <div className={style.menuAdmin}>
+                    <button className={style.botonGestion} onClick={() => router.push("/gestionarReservas")}>
+                        📋 GESTIONAR RESERVAS ▾
+                    </button>
+                </div>
             </div>
 
             {/* GESTIÓN DE ROLES ADMINISTRATIVOS */}

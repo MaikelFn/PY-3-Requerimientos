@@ -1,0 +1,493 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
+import style from "./page.module.css";
+
+type Reserva = {
+  id: number;
+  tourId: number;
+  usuarioId: number;
+  cantidadCupos: number;
+  fecha: string;
+  estadoReserva: "pendiente" | "confirmada" | "cancelada";
+  fechaRegistro: string;
+};
+
+type Tour = {
+  id: number;
+  nombreTour: string;
+  destinoId: number;
+};
+
+type Usuario = {
+  id: number;
+  nombre: string;
+  apellido: string;
+  correo: string;
+};
+
+type Destino = {
+  id: number;
+  nombre: string;
+  ubicacion: string;
+};
+
+export default function GestionarReservas() {
+  const router = useRouter();
+  const [reservas, setReservas] = useState<Reserva[]>([]);
+  const [tours, setTours] = useState<Tour[]>([]);
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [destinos, setDestinos] = useState<Destino[]>([]);
+  const [cargando, setCargando] = useState(true);
+  const [procesando, setProcesando] = useState(false);
+  const [filtro, setFiltro] = useState<"todas" | "pendientes" | "confirmadas">("todas");
+
+  // Cargar datos iniciales
+  useEffect(() => {
+    const cargarDatos = async () => {
+      try {
+        const [resReservas, resTours, resUsuarios, resDestinos] = await Promise.all([
+          fetch("/api/reservas"),
+          fetch("/api/tours"),
+          fetch("/api/usuarios/rol"),
+          fetch("/api/destinos"),
+        ]);
+
+        if (resReservas.ok) setReservas(await resReservas.json());
+        if (resTours.ok) setTours(await resTours.json());
+        if (resUsuarios.ok) setUsuarios(await resUsuarios.json());
+        if (resDestinos.ok) setDestinos(await resDestinos.json());
+      } catch (error) {
+        console.error("Error cargando datos:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se pudieron cargar los datos",
+        });
+      } finally {
+        setCargando(false);
+      }
+    };
+
+    cargarDatos();
+  }, []);
+
+  const obtenerTour = (tourId: number) => tours.find((t) => t.id === tourId);
+  const obtenerUsuario = (usuarioId: number) => usuarios.find((u) => u.id === usuarioId);
+  const obtenerDestino = (destinoId: number) => destinos.find((d) => d.id === destinoId);
+
+  const mostrarDetalles = (reserva: Reserva) => {
+    const tour = obtenerTour(reserva.tourId);
+    const destino = tour ? obtenerDestino(tour.destinoId) : null;
+    const usuario = obtenerUsuario(reserva.usuarioId);
+
+    const htmlContent = `
+      <div style="text-align: left; font-size: 14px;">
+        <div style="margin-bottom: 20px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+              <p style="margin: 0 0 8px 0; color: #666; font-size: 12px; font-weight: 600; text-transform: uppercase;">ID Reserva</p>
+              <p style="margin: 0; color: #1b4332; font-weight: bold; font-size: 18px;">#${reserva.id}</p>
+            </div>
+            <div>
+              <p style="margin: 0 0 8px 0; color: #666; font-size: 12px; font-weight: 600; text-transform: uppercase;">Estado</p>
+              <p style="margin: 0; color: #1b4332; font-weight: bold; font-size: 18px;">${reserva.estadoReserva.charAt(0).toUpperCase() + reserva.estadoReserva.slice(1)}</p>
+            </div>
+          </div>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+
+        <div style="margin-bottom: 20px;">
+          <h3 style="margin: 0 0 15px 0; color: #1b4332; font-size: 14px; font-weight: 600;">Información del Cliente</h3>
+          <p style="margin: 8px 0;"><strong>Nombre:</strong> ${usuario?.nombre} ${usuario?.apellido || ""}</p>
+          <p style="margin: 8px 0;"><strong>Correo:</strong> ${usuario?.correo || "No disponible"}</p>
+          <p style="margin: 8px 0;"><strong>ID Cliente:</strong> ${reserva.usuarioId}</p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <h3 style="margin: 0 0 15px 0; color: #1b4332; font-size: 14px; font-weight: 600;">Información del Tour</h3>
+          <p style="margin: 8px 0;"><strong>Tour:</strong> ${tour?.nombreTour || "No disponible"}</p>
+          <p style="margin: 8px 0;"><strong>Destino:</strong> ${destino?.nombre || "No disponible"}</p>
+          <p style="margin: 8px 0;"><strong>Ubicación:</strong> ${destino?.ubicacion || "No disponible"}</p>
+          <p style="margin: 8px 0;"><strong>ID Tour:</strong> ${reserva.tourId}</p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <h3 style="margin: 0 0 15px 0; color: #1b4332; font-size: 14px; font-weight: 600;">Detalles de la Reserva</h3>
+          <p style="margin: 8px 0;"><strong>Fecha del Tour:</strong> ${new Date(reserva.fecha).toLocaleDateString("es-ES", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          <p style="margin: 8px 0;"><strong>Cupos Reservados:</strong> <span style="background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 4px; font-weight: bold;">${reserva.cantidadCupos}</span></p>
+          <p style="margin: 8px 0;"><strong>Fecha de Registro:</strong> ${new Date(reserva.fechaRegistro).toLocaleDateString("es-ES", { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
+        </div>
+      </div>
+    `;
+
+    Swal.fire({
+      title: `Detalles de Reserva #${reserva.id}`,
+      html: htmlContent,
+      icon: "info",
+      confirmButtonText: "Cerrar",
+      width: "500px",
+    });
+  };
+
+  const confirmarReserva = async (reservaId: number) => {
+    const confirmacion = await Swal.fire({
+      title: "¿Confirmar reserva?",
+      text: "Esto confirmará la reserva del cliente",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Confirmar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!confirmacion.isConfirmed) return;
+
+    setProcesando(true);
+    try {
+      const res = await fetch(`/api/reservas/${reservaId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ estadoReserva: "confirmada" }),
+      });
+
+      if (res.ok) {
+        setReservas((prev) =>
+          prev.map((r) =>
+            r.id === reservaId ? { ...r, estadoReserva: "confirmada" } : r
+          )
+        );
+        Swal.fire({
+          icon: "success",
+          title: "Éxito",
+          text: "Reserva confirmada correctamente",
+        });
+      } else {
+        const data = await res.json();
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: data.error || "No se pudo confirmar la reserva",
+        });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Error al procesar la solicitud",
+      });
+    } finally {
+      setProcesando(false);
+    }
+  };
+
+  const cancelarReserva = async (reservaId: number) => {
+    const confirmacion = await Swal.fire({
+      title: "¿Cancelar reserva?",
+      text: "Se devolverán los cupos al tour automáticamente",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Cancelar reserva",
+      cancelButtonText: "Mantener",
+      confirmButtonColor: "#ef4444",
+    });
+
+    if (!confirmacion.isConfirmed) return;
+
+    setProcesando(true);
+    try {
+      const res = await fetch(`/api/reservas/${reservaId}/cancel`, {
+        method: "POST",
+      });
+
+      if (res.ok) {
+        setReservas((prev) =>
+          prev.map((r) =>
+            r.id === reservaId ? { ...r, estadoReserva: "cancelada" } : r
+          )
+        );
+        Swal.fire({
+          icon: "success",
+          title: "Éxito",
+          text: "Reserva cancelada y cupos devueltos",
+        });
+      } else {
+        const data = await res.json();
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: data.error || "No se pudo cancelar la reserva",
+        });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Error al procesar la solicitud",
+      });
+    } finally {
+      setProcesando(false);
+    }
+  };
+
+  const reservasFiltradas = reservas.filter((r) => {
+    if (filtro === "pendientes") return r.estadoReserva === "pendiente";
+    if (filtro === "confirmadas") return r.estadoReserva === "confirmada";
+    return true;
+  });
+
+  const getEstadoColor = (estado: string) => {
+    switch (estado) {
+      case "pendiente":
+        return "#fbbf24";
+      case "confirmada":
+        return "#4ade80";
+      case "cancelada":
+        return "#ef4444";
+      default:
+        return "#666";
+    }
+  };
+
+  return (
+    <div className={style.contenedor}>
+      <div className={style.menuSuperior}>
+        <div className={style.menuIzquierdo}>
+          <button
+            className={style.botonVolver}
+            onClick={() => router.push("/administrativo")}
+          >
+            ⬅ Volver al Panel Administrativo
+          </button>
+        </div>
+        <div className={style.menuDerecho}>
+          <span style={{ fontSize: "18px", fontWeight: "bold", color: "#1b4332" }}>
+            📋 Gestión de Reservas
+          </span>
+        </div>
+      </div>
+
+      <div className={style.contenido}>
+        <h1 className={style.tituloSeccion}>Gestión de Reservas</h1>
+        <p className={style.subtitulo}>
+          Confirma, cancela o visualiza todas las reservas del sistema
+        </p>
+
+        {/* Filtros */}
+        <div style={{ marginBottom: "30px", display: "flex", gap: "10px" }}>
+          {["todas", "pendientes", "confirmadas"].map((f) => (
+            <button
+              key={f}
+              onClick={() => setFiltro(f as typeof filtro)}
+              style={{
+                padding: "10px 20px",
+                borderRadius: "6px",
+                border: "none",
+                cursor: "pointer",
+                fontWeight: "600",
+                backgroundColor:
+                  filtro === f ? "#1b4332" : "#e0e7ff",
+                color: filtro === f ? "white" : "#1b4332",
+                transition: "all 0.3s",
+              }}
+            >
+              {f === "todas"
+                ? "Todas"
+                : f === "pendientes"
+                ? "Pendientes"
+                : "Confirmadas"}
+            </button>
+          ))}
+        </div>
+
+        {cargando ? (
+          <div style={{ textAlign: "center", padding: "50px" }}>
+            <p>Cargando reservas...</p>
+          </div>
+        ) : (
+          <>
+            <p style={{ color: "#666", marginBottom: "20px", fontSize: "14px" }}>
+              Total de reservas: <strong>{reservasFiltradas.length}</strong>
+            </p>
+
+            {reservasFiltradas.length === 0 ? (
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "40px",
+                  backgroundColor: "#f9fafb",
+                  borderRadius: "8px",
+                  color: "#666",
+                }}
+              >
+                <p>No hay reservas que mostrar</p>
+              </div>
+            ) : (
+              <div style={{ overflowX: "auto" }}>
+                <table
+                  style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    backgroundColor: "white",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+                    overflow: "hidden",
+                  }}
+                >
+                  <thead>
+                    <tr style={{ backgroundColor: "#f0f7f4", color: "#1b4332" }}>
+                      <th style={{ padding: "12px", textAlign: "left" }}>ID</th>
+                      <th style={{ padding: "12px", textAlign: "left" }}>Cliente</th>
+                      <th style={{ padding: "12px", textAlign: "left" }}>Tour</th>
+                      <th style={{ padding: "12px", textAlign: "left" }}>Destino</th>
+                      <th style={{ padding: "12px", textAlign: "left" }}>Fecha</th>
+                      <th style={{ padding: "12px", textAlign: "center" }}>Cupos</th>
+                      <th style={{ padding: "12px", textAlign: "center" }}>Estado</th>
+                      <th style={{ padding: "12px", textAlign: "center" }}>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {reservasFiltradas.map((reserva) => {
+                      const tour = obtenerTour(reserva.tourId);
+                      const usuario = obtenerUsuario(reserva.usuarioId);
+                      const destino = tour ? obtenerDestino(tour.destinoId) : null;
+
+                      return (
+                        <tr
+                          key={reserva.id}
+                          onClick={() => mostrarDetalles(reserva)}
+                          style={{
+                            borderBottom: "1px solid #eee",
+                            transition: "background-color 0.2s",
+                            cursor: "pointer",
+                          }}
+                          onMouseEnter={(e) => {
+                            (e.currentTarget as HTMLElement).style.backgroundColor =
+                              "#f9fafb";
+                          }}
+                          onMouseLeave={(e) => {
+                            (e.currentTarget as HTMLElement).style.backgroundColor =
+                              "transparent";
+                          }}
+                        >
+                          <td style={{ padding: "12px", color: "#0e0606" }}>
+                            #{reserva.id}
+                          </td>
+                          <td style={{ padding: "12px", color: "#0e0606" }}>
+                            {usuario?.nombre} {usuario?.apellido || ""}
+                          </td>
+                          <td style={{ padding: "12px", color: "#0e0606" }}>
+                            {tour?.nombreTour || "N/A"}
+                          </td>
+                          <td style={{ padding: "12px", color: "#0e0606" }}>
+                            {destino?.nombre || "N/A"}
+                          </td>
+                          <td style={{ padding: "12px", color: "#0e0606" }}>
+                            {new Date(reserva.fecha).toLocaleDateString("es-ES")}
+                          </td>
+                          <td style={{ padding: "12px", textAlign: "center", color: "#0e0606" }}>
+                            <strong>{reserva.cantidadCupos}</strong>
+                          </td>
+                          <td style={{ padding: "12px", textAlign: "center" }}>
+                            <span
+                              style={{
+                                padding: "4px 12px",
+                                borderRadius: "12px",
+                                fontSize: "12px",
+                                fontWeight: "bold",
+                                backgroundColor: getEstadoColor(reserva.estadoReserva) + "22",
+                                color: getEstadoColor(reserva.estadoReserva),
+                              }}
+                            >
+                              {reserva.estadoReserva.charAt(0).toUpperCase() +
+                                reserva.estadoReserva.slice(1)}
+                            </span>
+                          </td>
+                          <td style={{ padding: "12px", textAlign: "center" }}>
+                            {reserva.estadoReserva === "pendiente" && (
+                              <>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    confirmarReserva(reserva.id);
+                                  }}
+                                  disabled={procesando}
+                                  style={{
+                                    padding: "6px 12px",
+                                    marginRight: "8px",
+                                    borderRadius: "6px",
+                                    border: "none",
+                                    backgroundColor: "#4ade80",
+                                    color: "white",
+                                    cursor: "pointer",
+                                    fontWeight: "600",
+                                    fontSize: "12px",
+                                  }}
+                                >
+                                  ✓ Confirmar
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    cancelarReserva(reserva.id);
+                                  }}
+                                  disabled={procesando}
+                                  style={{
+                                    padding: "6px 12px",
+                                    borderRadius: "6px",
+                                    border: "none",
+                                    backgroundColor: "#ef4444",
+                                    color: "white",
+                                    cursor: "pointer",
+                                    fontWeight: "600",
+                                    fontSize: "12px",
+                                  }}
+                                >
+                                  ✕ Cancelar
+                                </button>
+                              </>
+                            )}
+                            {reserva.estadoReserva === "confirmada" && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  cancelarReserva(reserva.id);
+                                }}
+                                disabled={procesando}
+                                style={{
+                                  padding: "6px 12px",
+                                  borderRadius: "6px",
+                                  border: "none",
+                                  backgroundColor: "#ef4444",
+                                  color: "white",
+                                  cursor: "pointer",
+                                  fontWeight: "600",
+                                  fontSize: "12px",
+                                }}
+                              >
+                                ✕ Cancelar
+                              </button>
+                            )}
+                            {reserva.estadoReserva === "cancelada" && (
+                              <span style={{ color: "#999", fontSize: "12px" }}>
+                                —
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}

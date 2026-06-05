@@ -11,5 +11,18 @@
         "fecha": "2026-06-30",
         "id": 1,
         "fechaRegistro": "2026-06-05T08:10:05.677Z"
+    },
+    {
+        "tourId": 3,
+        "nombreTour": "Tour Volcán Poás y Jardines de Cataratas",
+        "destino": "Poas",
+        "usuarioId": 1,
+        "nombreUsuario": "Hyldia Thomas",
+        "cantidadCupos": 2,
+        "precio": "55000",
+        "montoTotal": 110000,
+        "fecha": "2026-06-20",
+        "id": 2,
+        "fechaRegistro": "2026-06-05T08:38:26.616Z"
     }
 ]

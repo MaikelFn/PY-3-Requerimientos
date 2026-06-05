@@ -4,6 +4,10 @@ import {
   actualizarReserva,
   eliminarReserva,
 } from "../../../../lib/reservas"
+import { guardarFacturaEnArchivo } from "../../../../lib/facturas"
+import { obtenerTourById } from "../../../../lib/tours"
+import { obtenerDestinoById } from "../../../../lib/destinos"
+import { obtenerUsuarioById } from "../../../../lib/usuarios"
 
 export async function GET(
   request: Request,
@@ -47,10 +51,44 @@ export async function PUT(
     const body = await request.json()
     const actualizaciones = body
 
+    const reservaAnterior = await obtenerReservaById(idNum)
+    if (!reservaAnterior) {
+      return NextResponse.json({ error: "Reserva no encontrada" }, { status: 404 })
+    }
+
     const reserva = await actualizarReserva(idNum, actualizaciones)
 
     if (!reserva) {
       return NextResponse.json({ error: "Reserva no encontrada" }, { status: 404 })
+    }
+
+    if (
+      actualizaciones.estadoReserva === "confirmada" &&
+      reservaAnterior.estadoReserva !== "confirmada"
+    ) {
+      try {
+        const tour = await obtenerTourById(reserva.tourId)
+        const usuario = await obtenerUsuarioById(reserva.usuarioId)
+        const destino = tour ? await obtenerDestinoById(tour.destinoId) : null
+
+        if (tour) {
+          const montoTotal = reserva.cantidadCupos * parseFloat(tour.precio)
+
+          await guardarFacturaEnArchivo({
+            tourId: reserva.tourId,
+            nombreTour: tour.nombreTour,
+            destino: destino?.nombre || tour.destinoId.toString(),
+            usuarioId: reserva.usuarioId,
+            nombreUsuario: usuario ? `${usuario.nombre} ${usuario.apellido}` : "",
+            cantidadCupos: reserva.cantidadCupos,
+            precio: tour.precio,
+            montoTotal,
+            fecha: reserva.fecha,
+          })
+        }
+      } catch (error) {
+        console.error("Error generando factura al confirmar reserva:", error)
+      }
     }
 
     return NextResponse.json(reserva)
