@@ -149,10 +149,10 @@ export default function DetalleTours() {
                         </div>
 
                         {/* FECHAS DISPONIBLES */}
-                        {tour.fechasYCupos && tour.fechasYCupos.length > 0 && (
+                        {tour.fechasYCupos && tour.fechasYCupos.filter(f => Number(f.cupos) > 0).length > 0 && (
                             <div className={style.fechas}>
                                 <p className={style.fechasLabel}>Fechas disponibles</p>
-                                {tour.fechasYCupos.map((item, i) => (
+                                {tour.fechasYCupos.filter(item => Number(item.cupos) > 0).map((item, i) => (
                                     <div
                                         key={i}
                                         className={`${style.fechaItem} ${fechaSeleccionada === item.fecha ? style.fechaSeleccionada : ""}`}

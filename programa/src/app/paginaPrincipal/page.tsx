@@ -9,6 +9,7 @@ type Tour = {
     descripcionBreve: string;
     precio: string;
     imagenes?: string[];
+    fechasYCupos?: FechaCupo[]
 };
 
 type UsuarioAutenticado = {
@@ -36,7 +37,11 @@ export default function PaginaPrincipal() {
         const precio = Number(tour.precio);
         const coincidePrecioMinimo = precioMinimoFiltro === "" || precio >= Number(precioMinimoFiltro);
         const coincidePrecioMaximo = precioMaximoFiltro === "" || precio <= Number(precioMaximoFiltro);
-        return coincideTexto && coincidePrecioMinimo && coincidePrecioMaximo;
+
+        //Ocultar tours sin cupos disponibles en ninguna fecha
+        const tieneCuposDisponibles = tour.fechasYCupos?.some(f => Number(f.cupos) > 0) ?? true
+
+        return coincideTexto && coincidePrecioMinimo && coincidePrecioMaximo && tieneCuposDisponibles;
     });
 
     const aplicarFiltros = () => {
