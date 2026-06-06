@@ -220,6 +220,7 @@ export default function PaginaPrincipal() {
 
 // SUBCOMPONENTE INTERNO PARA ENCAPSULAR LA LÓGICA DEL HOVER Y DEL CARRUSEL AUTOMÁTICO
 function TarjetaTour({ tour }: { tour: Tour }) {
+    const [usuario, setUsuario] = useState("");
     const router = useRouter();
     const [indiceImagen, setIndiceImagen] = useState(0);
     const [mouseEncima, setMouseEncima] = useState(false);
@@ -237,7 +238,8 @@ function TarjetaTour({ tour }: { tour: Tour }) {
             window.location.href = "/";
         } else {
             setUsuario(user);
-        }*/
+        }
+        */
 
         if (!mouseEncima || !tieneMultiplesImagenes) {
             setIndiceImagen(0);
