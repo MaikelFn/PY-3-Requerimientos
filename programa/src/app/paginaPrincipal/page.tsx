@@ -228,6 +228,17 @@ function TarjetaTour({ tour }: { tour: Tour }) {
     const tieneMultiplesImagenes = imagenes.length > 1;
 
     useEffect(() => {
+
+        /*
+        // Verificar si el usuario está autenticado
+        const user = localStorage.getItem("usuario");
+        //  Si no hay usuario redirigir al login
+        if (!user) {
+            window.location.href = "/";
+        } else {
+            setUsuario(user);
+        }*/
+
         if (!mouseEncima || !tieneMultiplesImagenes) {
             setIndiceImagen(0);
             return;
