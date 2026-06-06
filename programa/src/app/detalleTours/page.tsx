@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react"
 import {useRouter} from "next/navigation"
 import style from "./page.module.css"
-import { TourGuardado } from "@/src/lib/tours"
+import { TourGuardado } from "@/lib/tours"
 import { useSearchParams } from "next/navigation"
 
 export default function DetalleTours() {
@@ -13,6 +13,7 @@ export default function DetalleTours() {
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [fechaSeleccionada, setFechaSeleccionada] = useState<string | null>(null)
+    const [imagenActiva, setImagenActiva] = useState(0)
 
 
 
@@ -50,11 +51,26 @@ export default function DetalleTours() {
             
             {/*Galeria de imágenes*/}
             <div className={style.galeria}>
-                {tour.imagenes?.map((img, index) => (
-                    <div key={index} className={style.imagenContenedor}>
-                        <img src={img} alt={`${tour.nombreTour} ${index + 1}`} className={style.imagen} />
+                <div className={style.imagenPrincipal}>
+                    {tour.imagenes && tour.imagenes.length > 0 ? (
+                        <img src={tour.imagenes[imagenActiva]} alt={tour.nombreTour} />
+                    ) : (
+                        <div className={style.sinImagen}>📷</div>
+                    )}
+                </div>
+                {tour.imagenes && tour.imagenes.length > 1 && (
+                    <div className={style.miniaturas}>
+                        {tour.imagenes.map((img, i) => (
+                            <div
+                                key={i}
+                                className={`${style.miniatura} ${i === imagenActiva ? style.miniaturaActiva : ""}`}
+                                onClick={() => setImagenActiva(i)}
+                            >
+                                <img src={img} alt={`Imagen ${i + 1}`} />
+                            </div>
+                        ))}
                     </div>
-                ))}
+                )}
             </div>
 
             {/* TÍTULO */}
