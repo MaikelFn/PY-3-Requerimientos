@@ -94,6 +94,12 @@ export default function HistorialFacturas() {
                         <strong>{formatCurrency(montoTotalGastado)}</strong>
                         <button className={style.botonExplorar} onClick={() => router.push("/paginaPrincipal")}>Ver tours</button>
                     </div>
+                </div>
+
+                {facturas.length === 0 ? (
+                    <div className={style.estadoCarga}>
+                        <p>No tienes ninguna factura registrada todavía.</p>
+                    </div>
                 ) : (
                     <div className={style.lista}>
                         {facturas.map(factura => (
