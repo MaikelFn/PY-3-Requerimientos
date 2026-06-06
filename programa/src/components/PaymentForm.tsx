@@ -277,11 +277,23 @@ export function PaymentForm({
   if (!clientSecret) {
     return (
       <div className="w-full max-w-md mx-auto text-center">
-        <p className="mb-4 text-gray-700">Monto a pagar: ${amount.toFixed(2)}</p>
+        <p style={{ color: "#444" }}>Monto a pagar: ${amount.toFixed(2)}</p>
         <button
           onClick={handleCreatePayment}
           disabled={isLoading}
-          className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          style={{
+                    width: "100%",
+                    padding: "14px",
+                    background: isLoading ? "#aaa" : "#2d6a4f",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "10px",
+                    fontSize: "15px",
+                    fontWeight: "700",
+                    cursor: isLoading ? "not-allowed" : "pointer",
+                    transition: "background 0.2s",
+                    fontFamily: "Arial, sans-serif"
+                }}
         >
           {isLoading ? 'Preparando...' : 'Proceder al pago'}
         </button>
