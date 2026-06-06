@@ -211,7 +211,19 @@ function CheckoutForm({
       <button
         type="submit"
         disabled={isProcessing || !stripe || !elements}
-        className="w-full mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+        style={{
+                    width: "100%",
+                    padding: "14px",
+                    background: isProcessing ? "#aaa" : "#2d6a4f",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "10px",
+                    fontSize: "15px",
+                    fontWeight: "700",
+                    cursor: isProcessing ? "not-allowed" : "pointer",
+                    transition: "background 0.2s",
+                    fontFamily: "Arial, sans-serif"
+                }}
       >
         {isProcessing ? 'Procesando...' : 'Pagar'}
       </button>
