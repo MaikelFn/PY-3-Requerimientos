@@ -1,18 +1,25 @@
 import { NextResponse } from "next/server"
-import { Resend } from "resend"
-import { generarCodigo, guardarCodigo } from "@/src/lib/codigos"
+import nodemailer from "nodemailer"
+import { generarCodigo, guardarCodigo } from "@/lib/codigos"
 
-//LLave generada por RESEND
-const resend = new Resend("re_NvxY6T3B_5hmzLUTGwn6CiY3469N46xpv")
+const transportador = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASSWORD
+    }
+})
 
 export async function POST(request: Request) {
     try {
         const { correo } = await request.json()
         if (!correo) return NextResponse.json({ error: "Correo requerido"}, {status: 400})
+        
         const codigo = generarCodigo()
         guardarCodigo(correo, codigo)
-        await resend.emails.send({ 
-            from: "CR Tours <onboarding@resend.dev>",
+        
+        await transportador.sendMail({ 
+            from: `"CR Tours" <${process.env.GMAIL_USER}>`,
             to: correo,
             subject: "Código de recuperación - CR Tours",
             html: `
@@ -23,10 +30,12 @@ export async function POST(request: Request) {
                         ${codigo}
                     </div>
                     <p style="color: #888; font-size: 13px;">Este código expira en 15 minutos.</p>
+                    <p style="color: #888; font-size: 13px;">Si no solicitaste este código, ignora este mensaje.</p>
                 </div>`
             })
             return NextResponse.json({ok: true})
         }catch (error) {
+            console.error("Error al enviar correo:", error)
             return NextResponse.json({error: "Error al enviar el correo"}, {status:500})
     }
 }

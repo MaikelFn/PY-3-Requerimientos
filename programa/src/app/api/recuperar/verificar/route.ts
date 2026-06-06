@@ -1,6 +1,6 @@
 import { BaseNextResponse } from "next/dist/server/base-http"
-import { verificarCodigo, eliminarCodigo } from "@/src/lib/codigos"
-import { actulizarContrasena } from "@/src/lib/usuarios"
+import { verificarCodigo, eliminarCodigo } from "@/lib/codigos"
+import { actulizarContrasena } from "@/lib/usuarios"
 import { NextResponse } from "next/server"
 import { error } from "console"
 
