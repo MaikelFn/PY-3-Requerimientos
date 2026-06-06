@@ -3,6 +3,7 @@ import {useEffect, useState} from "react";
 import {useRouter, useSearchParams} from "next/navigation";
 import style from "./page.module.css"
 import { PaymentForm } from "@/components/PaymentForm";
+import { useCurrency } from "@/context/CurrencyContext";
 
 type FechaYCupo = {
     fecha: string
@@ -33,23 +34,9 @@ export default function PaginaReservas() {
     const [metodoPago, setMetodoPago] = useState<MetodoPago>(null)
     const [reservaCorfirmada, setReservaConfirmada] = useState(false)
     const [procesando, setProcesando] = useState(false)
-    const [tipoCambio, setTipoCambio] = useState<number | null>(null)
-    const [cargandoTipoCambio, setCargandoTipoCambio] = useState(true)
+    const { currency, exchangeRate, loading: cambioLoading, formatCurrency } = useCurrency()
 
     useEffect(() => {
-        async function cargarTipoCambio() {
-            try {
-                const resultado = await fetch("https://open.er-api.com/v6/latest/USD")
-                if (!resultado.ok) return
-                const datos = await resultado.json()
-                setTipoCambio(datos.rates.CRC)
-            } catch {
-                console.error("Error al obtener tipo de cambio")
-            } finally {
-                setCargandoTipoCambio(false)
-            }
-        }
-
         async function cargarTour() {
             try {
                 const resultado = await fetch("/api/tours")
@@ -66,12 +53,13 @@ export default function PaginaReservas() {
         if (id) {
             cargarTour()
         }
-        cargarTipoCambio()
     }, [id])
 
     const cuposDisponibles = tour?.fechasYCupos?.find(f => f.fecha === fechaSeleccionada)?.cupos ?? "0"
-    const precioTotal = tour? Number(tour.precio) * cantidadCupos : 0
-    const precioTotalUSD = tipoCambio? Number((precioTotal / tipoCambio).toFixed(2)): 0
+    const precioTotal = tour ? Number(tour.precio) * cantidadCupos : 0
+    const precioTotalUSD = currency === "CRC" ? Number((precioTotal / exchangeRate).toFixed(2)) : precioTotal
+    const precioPorPersona = tour ? Number(tour.precio) : 0
+    const stripeAmount = currency === "CRC" ? precioTotalUSD : precioTotal
 
     async function handleReservar() {
         if (!fechaSeleccionada) return alert("Selecciona una fecha")
@@ -247,7 +235,7 @@ export default function PaginaReservas() {
                                         <div className={style.datosOficina}>
                                             <p><strong>📍 Oficina central:</strong> Limón, Costa Rica</p>
                                             <p><strong>🕐 Horario:</strong> Lunes a Viernes 10:00am - 5:00pm</p>
-                                            <p><strong>💵 Monto a cancelar:</strong> ₡{precioTotal.toLocaleString("es-CR")}</p>
+                                            <p><strong>💵 Monto a cancelar:</strong> {formatCurrency(precioTotal)}</p>
                                         </div>
                                         <p className={style.notaOficina}>Al confirmar tu reserva quedará en estado <strong>pendiente</strong> hasta que realices el pago en efectivo.</p>
                                         <button className={style.botonAccion} onClick={handleReservar} disabled={procesando}>
@@ -259,18 +247,20 @@ export default function PaginaReservas() {
                                 {/*Stripe */}
                                 {metodoPago === "stripe" && (
                                     <div className={style.pagoStripe}>
-                                        {cargandoTipoCambio ? (
+                                        {currency === "CRC" && cambioLoading ? (
                                             <p className={style.notaStripe}>Obteniendo tipo de cambio...</p>
                                         ) : precioTotalUSD <= 0 ? (
                                             <p className={style.notaStripe}>No se pudo obtener el tipo de cambio. Intenta de nuevo.</p>
                                         ) : (
                                             <>
                                                 <p className={style.notaStripe}>
-                                                    Se cobrarán <strong>${precioTotalUSD.toFixed(2)} USD</strong> por {cantidadCupos} persona{cantidadCupos > 1 ? "s" : ""}
+                                                    Se cobrarán <strong>${stripeAmount.toFixed(2)} USD</strong> por {cantidadCupos} persona{cantidadCupos > 1 ? "s" : ""}
                                                 </p>
-                                                <p className={style.tipoCambio}>
-                                                    Tipo de cambio: ₡{tipoCambio?.toLocaleString("es-CR")} por $1 USD
-                                                </p>
+                                                {currency === "CRC" && (
+                                                    <p className={style.tipoCambio}>
+                                                        Tipo de cambio: ₡{exchangeRate.toLocaleString("es-CR")} por $1 USD
+                                                    </p>
+                                                )}
                                                 <PaymentForm
                                                     amount={precioTotalUSD}
                                                     currency="usd"
@@ -302,7 +292,7 @@ export default function PaginaReservas() {
                             <h2 className={style.tituloSeccion}>Resumen de pago</h2>
                             <div className={style.lineaPrecio}>
                                 <span>Precio por persona</span>
-                                <span>₡{Number(tour.precio).toLocaleString("es-CR")}</span>
+                                <span>{formatCurrency(precioPorPersona)}</span>
                             </div>
                             <div className={style.lineaPrecio}>
                                 <span>Personas</span>
@@ -317,7 +307,7 @@ export default function PaginaReservas() {
                             <div className={style.separador}></div>
                             <div className={style.lineaTotal}>
                                 <span>Total</span>
-                                <span>₡{precioTotal.toLocaleString("es-CR")}</span>
+                                <span>{formatCurrency(precioTotal)}</span>
                             </div>
                             {metodoPago === "stripe" && (
                                 <p className={style.totalUSD}>${precioTotalUSD.toFixed(2)} USD</p>

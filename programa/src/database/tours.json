@@ -2,7 +2,7 @@
   {
     "nombreTour": "Tour Volcán Arenal y Aguas Termales",
     "destinoId": 0,
-    "precio": "65000",
+    "precio": "65",
     "duracion": "10 horas",
     "descripcionBreve": "Descubre el volcán Arenal y relájate en aguas termales.",
     "itinerario": "1. Salida desde San José\r\n2. Parada en mirador del volcán\r\n3. Almuerzo típico\r\n4. Visita a aguas termales\r\n5. Regreso al hotel",
@@ -31,7 +31,7 @@
   {
     "nombreTour": "Tour Volcán Poás y Jardines de Cataratas",
     "destinoId": 0,
-    "precio": "55000",
+    "precio": "55",
     "duracion": "8 horas",
     "descripcionBreve": "Visita el volcán Poás y los hermosos jardines de cataratas.",
     "itinerario": "1. Salida desde San José\r\n2. Visita al volcán Poás\r\n3. Almuerzo en restaurante local\r\n4. Recorrido por jardines de cataratas\r\n5. Regreso al hotel",
@@ -63,7 +63,7 @@
   {
     "nombreTour": "Snorkel en el Parque Nacional Cahuita",
     "destinoId": 1,
-    "precio": "25000",
+    "precio": "25",
     "duracion": "3 horas",
     "descripcionBreve": "Este es un tour de esnórquel en Cahuita enfocado al 100% en la aventura marina y el arrecife de coral.",
     "itinerario": "Comenzamos con un paseo panorámico en bote de 10 minutos para realizar dos sesiones de esnórquel. Luego en la Playa de arena blanca de Punta Cahuita disfrutaremos un snack de fruta fresca.",

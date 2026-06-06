@@ -4,6 +4,7 @@ import {useRouter} from "next/navigation"
 import style from "./page.module.css"
 import { TourGuardado } from "@/lib/tours"
 import { useSearchParams } from "next/navigation"
+import { useCurrency } from "@/context/CurrencyContext"
 
 export default function DetalleTours() {
     const searchParams = useSearchParams()
@@ -14,6 +15,7 @@ export default function DetalleTours() {
     const [error, setError] = useState<string | null>(null);
     const [fechaSeleccionada, setFechaSeleccionada] = useState<string | null>(null)
     const [imagenActiva, setImagenActiva] = useState(0)
+    const { formatCurrency } = useCurrency()
 
 
 
@@ -144,7 +146,7 @@ export default function DetalleTours() {
                     <div className={style.reserva}>
                         <div className={style.precioTour}>
                             <span className={style.desde}>Desde</span>
-                            <span className={style.precio}>₡{Number(tour.precio).toLocaleString()}</span>
+                            <span className={style.precio}>{formatCurrency(Number(tour.precio))}</span>
                             <span className={style.porPersona}>por persona</span>
                         </div>
 

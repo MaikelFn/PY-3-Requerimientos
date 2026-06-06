@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import style from "./page.module.css"
+import { useCurrency } from "@/context/CurrencyContext"
 
 type Reserva = {
     id: number
@@ -23,6 +24,7 @@ type Tour = {
 
 export default function HistorialReservas() {
     const router = useRouter()
+    const { formatCurrency } = useCurrency()
     const [reservas, setReservas] = useState<Reserva[]>([])
     const [tours, setTours] = useState<Tour[]>([])
     const [cargando, setCargando] = useState(true)
@@ -122,7 +124,7 @@ export default function HistorialReservas() {
                                         </div>
 
                                         <div className={style.infoBottom}>
-                                            <span className={style.precio}>₡{precioTotal.toLocaleString("es-CR")}</span>
+                                            <span className={style.precio}>{formatCurrency(precioTotal)}</span>
                                             <span className={style.fechaRegistro}>
                                                 Reservado el {new Date(reserva.fechaRegistro).toLocaleDateString("es-CR")}
                                             </span>

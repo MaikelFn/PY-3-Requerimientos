@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import style from "./page.module.css";
 import { useRouter } from "next/navigation";
+import { useCurrency } from "@/context/CurrencyContext";
 
 type Tour = {
     id?: number;
@@ -28,6 +29,7 @@ export default function PaginaPrincipal() {
     const [precioMinimoFiltro, setPrecioMinimoFiltro] = useState("");
     const [precioMaximoFiltro, setPrecioMaximoFiltro] = useState("");
     const router = useRouter();
+    const { currency, setCurrency, formatCurrency } = useCurrency();
 
     // Filtrar los tours según el texto de búsqueda y los rangos de precio
     const toursFiltrados = tours.filter(tour => {
@@ -143,8 +145,14 @@ export default function PaginaPrincipal() {
                             <a>Español</a>
                             <a>Inglish</a>
                             <p><strong>Moneda:</strong></p>
-                            <a>USD ($)</a>
-                            <a>CRC (₡)</a>
+                            <select
+                                value={currency}
+                                onChange={(e) => setCurrency(e.target.value as "USD" | "CRC")}
+                                className={style.selectMoneda}
+                            >
+                                <option value="USD">USD ($)</option>
+                                <option value="CRC">CRC (₡)</option>
+                            </select>
                         </div>
                     </div>
                     <div className={style.menu}>
@@ -229,6 +237,7 @@ function TarjetaTour({ tour }: { tour: Tour }) {
     const router = useRouter();
     const [indiceImagen, setIndiceImagen] = useState(0);
     const [mouseEncima, setMouseEncima] = useState(false);
+    const { formatCurrency } = useCurrency();
 
     const imagenes = tour.imagenes ?? [];
     const tieneMultiplesImagenes = imagenes.length > 1;
@@ -257,6 +266,11 @@ function TarjetaTour({ tour }: { tour: Tour }) {
 
         return () => clearInterval(intervalo);
     }, [mouseEncima, imagenes.length, tieneMultiplesImagenes]);
+
+    const precioNumero = Number(tour.precio);
+    const precioFormateado = Number.isFinite(precioNumero)
+        ? formatCurrency(precioNumero)
+        : tour.precio;
 
     return (
         <div 
@@ -287,7 +301,7 @@ function TarjetaTour({ tour }: { tour: Tour }) {
             </div>
 
             <div className={style.precio}>
-                <p>₡{tour.precio}</p>
+                <p>{precioFormateado}</p>
                 <button className={style.botonDetalle} onClick={() => {
                     if (tour.id !== undefined) {
                         sessionStorage.setItem("tourSeleccionado", JSON.stringify(tour));

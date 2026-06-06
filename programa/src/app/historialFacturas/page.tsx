@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import style from "./page.module.css"
+import { useCurrency } from "@/context/CurrencyContext"
 
 type Factura = {
     id: number
@@ -28,6 +29,7 @@ type Usuario = {
 
 export default function HistorialFacturas() {
     const router = useRouter()
+    const { formatCurrency } = useCurrency()
     const [facturas, setFacturas] = useState<Factura[]>([])
     const [cargando, setCargando] = useState(true)
 
@@ -89,14 +91,7 @@ export default function HistorialFacturas() {
                     </div>
                     <div>
                         <span>Monto total</span>
-                        <strong>₡{montoTotalGastado.toLocaleString("es-CR")}</strong>
-                    </div>
-                </div>
-
-                {facturas.length === 0 ? (
-                    <div className={style.sinFacturas}>
-                        <span>🧾</span>
-                        <p>No tienes facturas registradas aún.</p>
+                        <strong>{formatCurrency(montoTotalGastado)}</strong>
                         <button className={style.botonExplorar} onClick={() => router.push("/paginaPrincipal")}>Ver tours</button>
                     </div>
                 ) : (
@@ -113,12 +108,12 @@ export default function HistorialFacturas() {
                                         <span>📍 {factura.destino}</span>
                                         <span>📅 Viaje: {new Date(factura.fecha).toLocaleDateString("es-CR", { day: "numeric", month: "long", year: "numeric" })}</span>
                                         <span>👥 {factura.cantidadCupos} cupo{factura.cantidadCupos > 1 ? "s" : ""}</span>
-                                        <span>💰 Precio unidad: ₡{Number(factura.precio).toLocaleString("es-CR")}</span>
+                                        <span>💰 Precio unidad: {formatCurrency(Number(factura.precio))}</span>
                                     </div>
 
                                     <div className={style.infoBottom}>
                                         <div>
-                                            <p className={style.precio}>₡{factura.montoTotal.toLocaleString("es-CR")}</p>
+                                            <p className={style.precio}>{formatCurrency(factura.montoTotal)}</p>
                                             <p className={style.fechaRegistro}>Registrada el {new Date(factura.fechaRegistro).toLocaleDateString("es-CR")}</p>
                                         </div>
                                         <div className={style.nombreUsuario}>
