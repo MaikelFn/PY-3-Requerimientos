@@ -2,33 +2,19 @@
 import { useState } from "react"
 import styles from "./page.module.css"
 import { useRouter } from "next/navigation"
+import { useLanguage } from "@/context/LanguageContext"
 
-
-type FormState = {
-  nombre: string
-  ubicacion: string
-  descripcionBreve: string
-  descripcionDetallada: string
-}
-
-type ImagenItem = {
-  archivo: File
-  preview: string
-}
+type FormState = { nombre: string; ubicacion: string; descripcionBreve: string; descripcionDetallada: string }
+type ImagenItem = { archivo: File; preview: string }
 
 export default function FormularioAgregarDestinos() {
-  const [form, setForm] = useState<FormState>({
-    nombre: "",
-    ubicacion: "",
-    descripcionBreve: "",
-    descripcionDetallada: "",
-  })
+  const { t } = useLanguage()
+  const router = useRouter()
 
+  const [form, setForm] = useState<FormState>({ nombre: "", ubicacion: "", descripcionBreve: "", descripcionDetallada: "" })
   const [imagenes, setImagenes] = useState<ImagenItem[]>([])
   const [cargando, setCargando] = useState(false)
   const [mensaje, setMensaje] = useState<{ tipo: "exito" | "error"; texto: string } | null>(null)
-  const router = useRouter();
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setForm((prev) => ({ ...prev, [name]: value }))
@@ -38,16 +24,10 @@ export default function FormularioAgregarDestinos() {
     if (!e.target.files || e.target.files.length === 0) return
 
     Array.from(e.target.files).forEach((archivo) => {
-      // Evitar duplicados por nombre
-      const yaExiste = imagenes.some((img) => img.archivo.name === archivo.name)
-      if (yaExiste) return
-
+      if (imagenes.some((img) => img.archivo.name === archivo.name)) return
       const reader = new FileReader()
       reader.onload = (evento) => {
-        setImagenes((prev) => [
-          ...prev,
-          { archivo, preview: evento.target?.result as string },
-        ])
+        setImagenes((prev) => [...prev, { archivo, preview: evento.target?.result as string }])
       }
       reader.readAsDataURL(archivo)
     })
@@ -70,34 +50,18 @@ export default function FormularioAgregarDestinos() {
       formData.append("ubicacion", form.ubicacion)
       formData.append("descripcionBreve", form.descripcionBreve)
       formData.append("descripcionDetallada", form.descripcionDetallada)
+      imagenes.forEach((img) => formData.append("imagenes", img.archivo))
 
-      if (imagenes.length > 0) {
-        imagenes.forEach((img) => {
-          formData.append("imagenes", img.archivo)
-        })
-      }
-
-      const respuesta = await fetch("/api/destinos", {
-        method: "POST",
-        body: formData,
-      })
-
+      const respuesta = await fetch("/api/destinos", { method: "POST", body: formData })
       if (!respuesta.ok) {
         const error = await respuesta.json()
-        throw new Error(error.error || "Error al guardar el destino")
+        throw new Error(error.error || t("errorGuardarDestino"))
       }
 
       const destino = await respuesta.json()
-      setMensaje({ tipo: "exito", texto: `¡Destino "${destino.nombre}" agregado correctamente!` })
-      
-      // Limpiar formulario
+      setMensaje({ tipo: "exito", texto: t("destinoCreadoOk").replace("{nombre}", destino.nombre) })
       setTimeout(() => {
-        setForm({
-          nombre: "",
-          ubicacion: "",
-          descripcionBreve: "",
-          descripcionDetallada: "",
-        })
+        setForm({ nombre: "", ubicacion: "", descripcionBreve: "", descripcionDetallada: "" })
         setImagenes([])
         setMensaje(null)
       }, 2000)
@@ -110,106 +74,60 @@ export default function FormularioAgregarDestinos() {
 
   // Función para manejar la acción de cancelar (Limpia el formulario)
   const handleCancel = () => {
-    setForm({
-      nombre: "",
-      ubicacion: "",
-      descripcionBreve: "",
-      descripcionDetallada: "",
-    })
+    setForm({ nombre: "", ubicacion: "", descripcionBreve: "", descripcionDetallada: "" })
     setImagenes([])
     setMensaje(null)
   }
 
   return (
     <main className={styles.contenedor}>
-      {/*volver al  menu principal*/}
-      <img src="/logo.png" alt="Logo" className={styles.logo} onClick={() => router.push("/paginaPrincipal")}/>
+      <img src="/logo.png" alt="Logo" className={styles.logo} onClick={() => router.push("/paginaPrincipal")} />
       <div className={styles.tarjeta}>
         {mensaje && (
-          <div style={{
-            padding: "12px 16px",
-            marginBottom: "16px",
-            borderRadius: "8px",
+          <div style={{ padding: "12px 16px", marginBottom: "16px", borderRadius: "8px",
             backgroundColor: mensaje.tipo === "exito" ? "#d4edda" : "#f8d7da",
             color: mensaje.tipo === "exito" ? "#155724" : "#721c24",
-            border: `1px solid ${mensaje.tipo === "exito" ? "#c3e6cb" : "#f5c6cb"}`,
-          }}>
+            border: `1px solid ${mensaje.tipo === "exito" ? "#c3e6cb" : "#f5c6cb"}` }}>
             {mensaje.texto}
           </div>
         )}
         <form onSubmit={handleSubmit} className={styles.formulario}>
-          
+
           {/* Nombre del Destino */}
           <div className={styles.campoHorizontal}>
-            <label htmlFor="nombre" className={styles.etiqueta}>Nombre del Destino</label>
-            <input 
-              id="nombre" 
-              name="nombre" 
-              value={form.nombre} 
-              onChange={handleChange} 
-              className={styles.input} 
-              required 
-              disabled={cargando}
-            />
+            <label htmlFor="nombre" className={styles.etiqueta}>{t("nombreDestinoLabel")}</label>
+            <input id="nombre" name="nombre" value={form.nombre} onChange={handleChange} className={styles.input} required disabled={cargando} />
           </div>
 
           {/* Ubicación */}
           <div className={styles.campoHorizontal}>
-            <label htmlFor="ubicacion" className={styles.etiqueta}>Ubicación</label>
-            <input 
-              id="ubicacion" 
-              name="ubicacion" 
-              value={form.ubicacion} 
-              onChange={handleChange} 
-              className={styles.input} 
-              required 
-              disabled={cargando}
-            />
+            <label htmlFor="ubicacion" className={styles.etiqueta}>{t("ubicacionLabel2")}</label>
+            <input id="ubicacion" name="ubicacion" value={form.ubicacion} onChange={handleChange} className={styles.input} required disabled={cargando} />
           </div>
 
           {/* Breve Descripción */}
           <div className={styles.campoHorizontal}>
-            <label htmlFor="descripcionBreve" className={styles.etiqueta}>Breve Descripción</label>
+            <label htmlFor="descripcionBreve" className={styles.etiqueta}>{t("breveDescLabel")}</label>
             <div className={styles.contenedorContador}>
-              <textarea 
-                id="descripcionBreve" 
-                name="descripcionBreve" 
-                maxLength={150} 
-                value={form.descripcionBreve} 
-                onChange={handleChange} 
-                className={styles.textarea} 
-                rows={2} 
-                required 
-                disabled={cargando}
-              />
+              <textarea id="descripcionBreve" name="descripcionBreve" maxLength={150} value={form.descripcionBreve} onChange={handleChange} className={styles.textarea} rows={2} required disabled={cargando} />
               <span className={styles.contador}>{form.descripcionBreve.length} / 150</span>
             </div>
           </div>
 
-          {/* Descripción Detallada con barra de herramientas simulada */}
+          {/* Sección de Descripción Detallada */}
           <div className={styles.campoVertical}>
-            <label htmlFor="descripcionDetallada" className={styles.etiquetaNegrita}>DESCRIPCIÓN DETALLADA</label>
+            <label htmlFor="descripcionDetallada" className={styles.etiquetaNegrita}>{t("descripcionDetalladaDestinoLabel")}</label>
             <div className={styles.editorSimulado}>
               <div className={styles.barraEditor}>
                 <span><b>B</b></span> <span><i>I</i></span> <span><u>U</u></span> <span><s>S</s></span> <span>x₂</span> <span>A ▾</span> <span>Text ▾</span> <span>≡ ▾</span> <span>⋮≡</span> <span>···</span> <span>🔗</span> <span>⟲</span> <span>⟳</span>
               </div>
-              <textarea 
-                id="descripcionDetallada" 
-                name="descripcionDetallada" 
-                value={form.descripcionDetallada} 
-                onChange={handleChange} 
-                className={styles.textareaEditor} 
-                rows={4} 
-                required 
-                disabled={cargando}
-              />
+              <textarea id="descripcionDetallada" name="descripcionDetallada" value={form.descripcionDetallada} onChange={handleChange} className={styles.textareaEditor} rows={4} required disabled={cargando} />
             </div>
           </div>
 
           {/* Sección de Imagen/Multimedia */}
           <div className={styles.campoVertical}>
-            <label className={styles.etiquetaNegrita}>IMÁGENES DEL DESTINO</label>
-            
+            <label className={styles.etiquetaNegrita}>{t("imagenesDestinoLabelUpper")}</label>
             <div className={styles.zonaSubidaHorizontal}>
               <div className={styles.previsualizaciones}>
                 {imagenes.length === 0 ? (
@@ -217,35 +135,9 @@ export default function FormularioAgregarDestinos() {
                 ) : (
                   imagenes.map((img, index) => (
                     <div key={index} style={{ position: "relative", display: "inline-block", marginRight: "8px" }}>
-                      <img 
-                        src={img.preview} 
-                        alt={`Preview ${index + 1}`} 
-                        style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "8px" }} 
-                      />
-                      {/* Botón para eliminar imagen individual */}
-                      <button
-                        type="button"
-                        onClick={() => handleEliminarImagen(index)}
-                        disabled={cargando}
-                        style={{
-                          position: "absolute",
-                          top: "4px",
-                          right: "4px",
-                          background: "rgba(0,0,0,0.55)",
-                          color: "#fff",
-                          border: "none",
-                          borderRadius: "50%",
-                          width: "20px",
-                          height: "20px",
-                          cursor: "pointer",
-                          fontSize: "12px",
-                          lineHeight: "20px",
-                          textAlign: "center",
-                          padding: 0,
-                        }}
-                      >
-                        ×
-                      </button>
+                      <img src={img.preview} alt={`Preview ${index + 1}`} style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "8px" }} />
+                      <button type="button" onClick={() => handleEliminarImagen(index)} disabled={cargando}
+                        style={{ position: "absolute", top: "4px", right: "4px", background: "rgba(0,0,0,0.55)", color: "#fff", border: "none", borderRadius: "50%", width: "20px", height: "20px", cursor: "pointer", fontSize: "12px", lineHeight: "20px", textAlign: "center", padding: 0 }}>×</button>
                     </div>
                   ))
                 )}
@@ -253,36 +145,19 @@ export default function FormularioAgregarDestinos() {
 
               {/* Input acepta múltiples archivos utilizando la propiedad 'multiple' */}
               <label htmlFor="imagenArchivo" className={styles.botonSeleccionar}>
-                Seleccionar Archivos
-                <input 
-                  id="imagenArchivo" 
-                  type="file" 
-                  accept="image/*" 
-                  multiple
-                  onChange={handleFileChange} 
-                  style={{ display: 'none' }} 
-                  disabled={cargando}
-                />
+                {t("seleccionarArchivos")}
+                <input id="imagenArchivo" type="file" accept="image/*" multiple onChange={handleFileChange} style={{ display: "none" }} disabled={cargando} />
               </label>
             </div>
           </div>
 
           {/* Botones de acción */}
           <div className={styles.acciones}>
-            <button 
-              type="button" 
-              className={styles.botonCancel}
-              onClick={() => router.push("/administrativo")}
-              disabled={cargando}
-            >
-              Cancelar
+            <button type="button" className={styles.botonCancel} onClick={() => router.push("/administrativo")} disabled={cargando}>
+              {t("cancelar")}
             </button>
-            <button 
-              type="submit" 
-              className={styles.botonSubmit}
-              disabled={cargando}
-            >
-              {cargando ? "Guardando..." : "Agregar destino"}
+            <button type="submit" className={styles.botonSubmit} disabled={cargando}>
+              {cargando ? t("guardando") : t("agregarDestino")}
             </button>
           </div>
 

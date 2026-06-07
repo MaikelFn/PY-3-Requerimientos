@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import style from "./page.module.css";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext"
 
 type Usuario = {
     id: number;

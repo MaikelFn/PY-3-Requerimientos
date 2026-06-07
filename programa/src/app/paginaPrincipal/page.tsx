@@ -132,7 +132,7 @@ export default function PaginaPrincipal() {
                                 style={{ cursor: "pointer", pointerEvents: "auto" }}
                                 onClick={() => router.push("/historialFacturas")}
                             >
-                                {t("historialPagosTitulo")}
+                                {t("historialPagos")}
                             </a>
                             <button
                                 className={style.botonCerrar}

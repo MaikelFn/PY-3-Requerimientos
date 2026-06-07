@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import styles from "./page.module.css"
+import { useLanguage } from "@/context/LanguageContext"
 
 type ImagenItem = {
   archivo: File | null
@@ -19,15 +20,13 @@ type Destino = {
 
 export default function FormularioModificarDestinos() {
   const router = useRouter()
-  
+  const { t } = useLanguage()
+
   const [listaDestinos, setListaDestinos] = useState<Destino[]>([])
   const [destinoSeleccionadoId, setDestinoSeleccionadoId] = useState<string>("")
-  
+
   const [form, setForm] = useState({
-    nombre: "",
-    ubicacion: "",
-    descripcionBreve: "",
-    descripcionDetallada: "",
+    nombre: "", ubicacion: "", descripcionBreve: "", descripcionDetallada: "",
   })
 
   const [imagenes, setImagenes] = useState<ImagenItem[]>([])
@@ -37,10 +36,7 @@ export default function FormularioModificarDestinos() {
     async function obtenerDestinos() {
       try {
         const res = await fetch("/api/destinos")
-        if (res.ok) {
-          const datos = await res.json()
-          setListaDestinos(datos)
-        }
+        if (res.ok) setListaDestinos(await res.json())
       } catch (error) {
         console.error("Error cargando los destinos:", error)
       }
@@ -50,20 +46,10 @@ export default function FormularioModificarDestinos() {
 
   const handleSelectDestino = (idString: string) => {
     setDestinoSeleccionadoId(idString)
-    if (!idString) {
-      handleLimpiar()
-      return
-    }
-
+    if (!idString) { handleLimpiar(); return }
     const dest = listaDestinos.find((d) => d.id === Number(idString))
     if (dest) {
-      setForm({
-        nombre: dest.nombre,
-        ubicacion: dest.ubicacion,
-        descripcionBreve: dest.descripcionBreve,
-        descripcionDetallada: dest.descripcionDetallada,
-      })
-
+      setForm({ nombre: dest.nombre, ubicacion: dest.ubicacion, descripcionBreve: dest.descripcionBreve, descripcionDetallada: dest.descripcionDetallada })
       if (dest.imagenes && Array.isArray(dest.imagenes)) {
         setImagenes(dest.imagenes.map(ruta => ({ archivo: null, preview: ruta })))
       } else {
@@ -79,17 +65,11 @@ export default function FormularioModificarDestinos() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return
-
     Array.from(e.target.files).forEach((archivo) => {
-      const yaExiste = imagenes.some((img) => img.archivo?.name === archivo.name)
-      if (yaExiste) return
-
+      if (imagenes.some((img) => img.archivo?.name === archivo.name)) return
       const reader = new FileReader()
       reader.onload = (evento) => {
-        setImagenes((prev) => [
-          ...prev,
-          { archivo, preview: evento.target?.result as string },
-        ])
+        setImagenes((prev) => [...prev, { archivo, preview: evento.target?.result as string }])
       }
       reader.readAsDataURL(archivo)
     })
@@ -104,34 +84,24 @@ export default function FormularioModificarDestinos() {
     e.preventDefault()
     if (!destinoSeleccionadoId) return
     setCargando(true)
-
     try {
       const formData = new FormData()
       formData.append("nombre", form.nombre)
       formData.append("ubicacion", form.ubicacion)
       formData.append("descripcionBreve", form.descripcionBreve)
       formData.append("descripcionDetallada", form.descripcionDetallada)
-
       const imagenesExistentesMantenidas: string[] = []
       imagenes.forEach((img) => {
-        if (img.archivo === null) {
-          imagenesExistentesMantenidas.push(img.preview)
-        } else {
-          formData.append("imagenes", img.archivo)
-        }
+        if (img.archivo === null) imagenesExistentesMantenidas.push(img.preview)
+        else formData.append("imagenes", img.archivo)
       })
       formData.append("imagenesExistentes", JSON.stringify(imagenesExistentesMantenidas))
-
-      const res = await fetch(`/api/destinos/${destinoSeleccionadoId}`, {
-        method: "PUT",
-        body: formData,
-      })
-
+      const res = await fetch(`/api/destinos/${destinoSeleccionadoId}`, { method: "PUT", body: formData })
       if (res.ok) {
-        alert("¡Destino modificado exitosamente!")
+        alert(t("destinoModificadoOk"))
         router.push("/administrativo")
       } else {
-        alert("Error al actualizar el destino.")
+        alert(t("errorActualizarDestino"))
       }
     } catch (err) {
       console.error(err)
@@ -142,12 +112,7 @@ export default function FormularioModificarDestinos() {
 
   const handleLimpiar = () => {
     setDestinoSeleccionadoId("")
-    setForm({
-      nombre: "",
-      ubicacion: "",
-      descripcionBreve: "",
-      descripcionDetallada: "",
-    })
+    setForm({ nombre: "", ubicacion: "", descripcionBreve: "", descripcionDetallada: "" })
     setImagenes([])
   }
 
@@ -155,34 +120,27 @@ export default function FormularioModificarDestinos() {
 
   return (
     <main className={styles.contenedor}>
-      <img src="/logo.png" alt="Logo" className={styles.logo} onClick={() => router.push("/paginaPrincipal")}/>
+      <img src="/logo.png" alt="Logo" className={styles.logo} onClick={() => router.push("/paginaPrincipal")} />
       <div className={styles.tarjeta}>
-        
+
         {/* BOTÓN VOLVER */}
         {!destinoSeleccionadoId && (
           <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "1.5rem" }}>
-            <button 
-              type="button" 
-              onClick={() => router.push("/administrativo")} 
-              className={styles.botonCancel}
-              style={{ padding: "0.5rem 1.5rem", fontSize: "0.9rem" }}
-            >
-              Cancelar
+            <button type="button" onClick={() => router.push("/administrativo")} className={styles.botonCancel}
+              style={{ padding: "0.5rem 1.5rem", fontSize: "0.9rem" }}>
+              {t("cancelar")}
             </button>
           </div>
         )}
 
         {/* SELECTOR SUPERIOR */}
         <div className={styles.campoHorizontal} style={{ marginBottom: "2rem", borderBottom: "2px dashed #cbd5e1", paddingBottom: "1.5rem" }}>
-          <label htmlFor="selectorDestino" className={styles.etiqueta} style={{ fontWeight: "bold", color: "#000" }}>Modificar Destino</label>
-          <select 
-            id="selectorDestino" 
-            className={styles.input} 
-            value={destinoSeleccionadoId} 
-            onChange={(e) => handleSelectDestino(e.target.value)}
-            style={estiloTextoNegro}
-          >
-            <option value="">-- Selecciona el destino que deseas modificar --</option>
+          <label htmlFor="selectorDestino" className={styles.etiqueta} style={{ fontWeight: "bold", color: "#000" }}>
+            {t("modificarDestinoLabel")}
+          </label>
+          <select id="selectorDestino" className={styles.input} value={destinoSeleccionadoId}
+            onChange={(e) => handleSelectDestino(e.target.value)} style={estiloTextoNegro}>
+            <option value="">{t("seleccionaDestinoModificar")}</option>
             {listaDestinos.map((d) => (
               <option key={d.id} value={d.id} style={estiloTextoNegro}>{d.nombre}</option>
             ))}
@@ -192,19 +150,19 @@ export default function FormularioModificarDestinos() {
         {/* Formulario */}
         {destinoSeleccionadoId && (
           <form onSubmit={handleGuardarCambios} className={styles.formulario}>
-            
+
             <div className={styles.campoHorizontal}>
-              <label htmlFor="nombre" className={styles.etiqueta}>Nombre del Destino</label>
+              <label htmlFor="nombre" className={styles.etiqueta}>{t("nombreDestinoLabel")}</label>
               <input id="nombre" name="nombre" value={form.nombre} onChange={handleChange} className={styles.input} style={estiloTextoNegro} required disabled={cargando} />
             </div>
 
             <div className={styles.campoHorizontal}>
-              <label htmlFor="ubicacion" className={styles.etiqueta}>Ubicación</label>
+              <label htmlFor="ubicacion" className={styles.etiqueta}>{t("ubicacionLabel2")}</label>
               <input id="ubicacion" name="ubicacion" value={form.ubicacion} onChange={handleChange} className={styles.input} style={estiloTextoNegro} required disabled={cargando} />
             </div>
 
             <div className={styles.campoHorizontal}>
-              <label htmlFor="descripcionBreve" className={styles.etiqueta}>Breve Descripción</label>
+              <label htmlFor="descripcionBreve" className={styles.etiqueta}>{t("breveDescLabel")}</label>
               <div className={styles.contenedorContador}>
                 <textarea id="descripcionBreve" name="descripcionBreve" maxLength={150} value={form.descripcionBreve} onChange={handleChange} className={styles.textarea} style={estiloTextoNegro} rows={2} required disabled={cargando} />
                 <span className={styles.contador}>{form.descripcionBreve.length} / 150</span>
@@ -212,12 +170,12 @@ export default function FormularioModificarDestinos() {
             </div>
 
             <div className={styles.campoVertical}>
-              <label htmlFor="descripcionDetallada" className={styles.etiquetaNegrita}>Descripción Detallada</label>
+              <label htmlFor="descripcionDetallada" className={styles.etiquetaNegrita}>{t("descripcionDetalladaDestino")}</label>
               <textarea id="descripcionDetallada" name="descripcionDetallada" value={form.descripcionDetallada} onChange={handleChange} className={styles.textarea} style={estiloTextoNegro} rows={5} required disabled={cargando} />
             </div>
 
             <div className={styles.campoVertical}>
-              <label className={styles.etiquetaNegrita}>Imágenes del Destino</label>
+              <label className={styles.etiquetaNegrita}>{t("imagenesDestinoLabel")}</label>
               <div className={styles.zonaSubidaHorizontal}>
                 <div className={styles.previsualizaciones}>
                   {imagenes.length === 0 ? (
@@ -226,28 +184,29 @@ export default function FormularioModificarDestinos() {
                     imagenes.map((img, index) => (
                       <div key={index} style={{ position: "relative", display: "inline-block" }}>
                         <img src={img.preview} alt={`Preview ${index + 1}`} style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "8px" }} />
-                        <button type="button" onClick={() => handleEliminarImagen(index)} style={{ position: "absolute", top: "4px", right: "4px", background: "rgba(0,0,0,0.55)", color: "#fff", border: "none", borderRadius: "50%", width: "20px", height: "20px", cursor: "pointer", fontSize: "12px", padding: 0 }} disabled={cargando}>×</button>
+                        <button type="button" onClick={() => handleEliminarImagen(index)}
+                          style={{ position: "absolute", top: "4px", right: "4px", background: "rgba(0,0,0,0.55)", color: "#fff", border: "none", borderRadius: "50%", width: "20px", height: "20px", cursor: "pointer", fontSize: "12px", padding: 0 }}
+                          disabled={cargando}>×</button>
                       </div>
                     ))
                   )}
                 </div>
                 <label htmlFor="imagenArchivo" className={styles.botonSeleccionar}>
-                  Seleccionar Archivos
+                  {t("seleccionarArchivos")}
                   <input id="imagenArchivo" type="file" accept="image/*" multiple onChange={handleFileChange} style={{ display: "none" }} disabled={cargando} />
                 </label>
               </div>
             </div>
 
-            {/* BOTONES DE ACCIÓN */}
             <div className={styles.acciones} style={{ justifyContent: "flex-end", marginTop: "2.5rem" }}>
               <button type="button" onClick={() => router.push("/administrativo")} className={styles.botonCancel} disabled={cargando}>
-                Volver al panel
+                {t("volverPanel")}
               </button>
               <button type="button" onClick={handleLimpiar} className={styles.botonCancel} disabled={cargando}>
-                Cancelar selección
+                {t("cancelarSeleccion")}
               </button>
               <button type="submit" className={styles.botonSubmit} disabled={cargando}>
-                {cargando ? "Guardando..." : "Guardar Cambios"}
+                {cargando ? t("guardando") : t("guardarCambios")}
               </button>
             </div>
 

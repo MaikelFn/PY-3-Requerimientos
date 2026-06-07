@@ -84,7 +84,7 @@ export default function HistorialFacturas() {
                     onClick={() => router.push("/paginaPrincipal")}
                 />
                 <div>
-                    <h1 className={style.titulo}>{t("historialPagosTitulo")}</h1>
+                    <h1 className={style.titulo}>{t("historialPagos")}</h1>
                     <p className={style.subtitulo}>{t("subtituloFacturas")}</p>
                 </div>
             </div>
