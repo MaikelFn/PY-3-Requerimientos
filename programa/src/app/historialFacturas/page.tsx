@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import style from "./page.module.css"
 import { useCurrency } from "@/context/CurrencyContext"
+import { useLanguage } from "@/context/LanguageContext"
 
 type Factura = {
     id: number
@@ -30,6 +31,8 @@ type Usuario = {
 export default function HistorialFacturas() {
     const router = useRouter()
     const { formatCurrency } = useCurrency()
+    const { idioma, t } = useLanguage()
+    const locale = idioma === "en" ? "en-US" : "es-CR"
     const [facturas, setFacturas] = useState<Factura[]>([])
     const [cargando, setCargando] = useState(true)
 
@@ -52,9 +55,7 @@ export default function HistorialFacturas() {
     async function cargarFacturas(usuarioId: number) {
         try {
             const respuesta = await fetch(`/api/facturas?usuarioId=${usuarioId}`)
-            if (!respuesta.ok) {
-                throw new Error("No se pudo cargar el historial de pagos")
-            }
+            if (!respuesta.ok) throw new Error("No se pudo cargar el historial de pagos")
             const datos = await respuesta.json()
             setFacturas(datos)
         } catch (error) {
@@ -69,36 +70,46 @@ export default function HistorialFacturas() {
     if (cargando) return (
         <div className={style.estadoCarga}>
             <div className={style.spinner}></div>
-            <p>Cargando historial de facturas...</p>
+            <p>{t("cargandoFacturas")}</p>
         </div>
     )
 
     return (
         <div className={style.pagina}>
             <div className={style.encabezado}>
-                <img src="/logo.png" alt="Logo" className={style.logo} onClick={() => router.push("/paginaPrincipal")} />
+                <img
+                    src="/logo.png"
+                    alt="Logo"
+                    className={style.logo}
+                    onClick={() => router.push("/paginaPrincipal")}
+                />
                 <div>
-                    <h1 className={style.titulo}>Historial de pagos</h1>
-                    <p className={style.subtitulo}>Consulta tus facturas, montos y fechas de registro.</p>
+                    <h1 className={style.titulo}>{t("historialPagosTitulo")}</h1>
+                    <p className={style.subtitulo}>{t("subtituloFacturas")}</p>
                 </div>
             </div>
 
             <div className={style.contenedor}>
                 <div className={style.resumen}>
                     <div>
-                        <span>Total de facturas</span>
+                        <span>{t("totalFacturas")}</span>
                         <strong>{facturas.length}</strong>
                     </div>
                     <div>
-                        <span>Monto total</span>
+                        <span>{t("montoTotal")}</span>
                         <strong>{formatCurrency(montoTotalGastado)}</strong>
-                        <button className={style.botonExplorar} onClick={() => router.push("/paginaPrincipal")}>Ver tours</button>
+                        <button
+                            className={style.botonExplorar}
+                            onClick={() => router.push("/paginaPrincipal")}
+                        >
+                            {t("verTours")}
+                        </button>
                     </div>
                 </div>
 
                 {facturas.length === 0 ? (
                     <div className={style.estadoCarga}>
-                        <p>No tienes ninguna factura registrada todavía.</p>
+                        <p>{t("sinFacturas")}</p>
                     </div>
                 ) : (
                     <div className={style.lista}>
@@ -107,20 +118,24 @@ export default function HistorialFacturas() {
                                 <div className={style.info}>
                                     <div className={style.infoTop}>
                                         <h3 className={style.nombreTour}>{factura.nombreTour}</h3>
-                                        <span className={style.detalleId}>Factura #{factura.id}</span>
+                                        <span className={style.detalleId}>{t("factura")} #{factura.id}</span>
                                     </div>
 
                                     <div className={style.detalles}>
                                         <span>📍 {factura.destino}</span>
-                                        <span>📅 Viaje: {new Date(factura.fecha).toLocaleDateString("es-CR", { day: "numeric", month: "long", year: "numeric" })}</span>
-                                        <span>👥 {factura.cantidadCupos} cupo{factura.cantidadCupos > 1 ? "s" : ""}</span>
-                                        <span>💰 Precio unidad: {formatCurrency(Number(factura.precio))}</span>
+                                        <span>📅 {t("viaje")}: {new Date(factura.fecha).toLocaleDateString(locale, {
+                                            day: "numeric", month: "long", year: "numeric"
+                                        })}</span>
+                                        <span>👥 {factura.cantidadCupos} {t("cupo")}{factura.cantidadCupos > 1 ? "s" : ""}</span>
+                                        <span>💰 {t("precioUnidad")}: {formatCurrency(Number(factura.precio))}</span>
                                     </div>
 
                                     <div className={style.infoBottom}>
                                         <div>
                                             <p className={style.precio}>{formatCurrency(factura.montoTotal)}</p>
-                                            <p className={style.fechaRegistro}>Registrada el {new Date(factura.fechaRegistro).toLocaleDateString("es-CR")}</p>
+                                            <p className={style.fechaRegistro}>
+                                                {t("registradaEl")} {new Date(factura.fechaRegistro).toLocaleDateString(locale)}
+                                            </p>
                                         </div>
                                         <div className={style.nombreUsuario}>
                                             {factura.nombreUsuario}

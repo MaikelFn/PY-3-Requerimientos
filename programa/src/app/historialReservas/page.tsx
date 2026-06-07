@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import style from "./page.module.css"
 import { useCurrency } from "@/context/CurrencyContext"
+import { useLanguage } from "@/context/LanguageContext"
 
 type Reserva = {
     id: number
@@ -25,6 +26,8 @@ type Tour = {
 export default function HistorialReservas() {
     const router = useRouter()
     const { formatCurrency } = useCurrency()
+    const { idioma, t } = useLanguage()
+    const locale = idioma === "en" ? "en-US" : "es-CR"
     const [reservas, setReservas] = useState<Reserva[]>([])
     const [tours, setTours] = useState<Tour[]>([])
     const [cargando, setCargando] = useState(true)
@@ -66,10 +69,16 @@ export default function HistorialReservas() {
         return style.estadoPendiente
     }
 
+    function traducirEstado(estado: string) {
+        if (estado === "confirmada") return t("estadoConfirmada")
+        if (estado === "cancelada") return t("estadoCancelada")
+        return t("estadoPendiente")
+    }
+
     if (cargando) return (
         <div className={style.estadoCarga}>
             <div className={style.spinner}></div>
-            <p>Cargando reservas...</p>
+            <p>{t("cargandoReservas")}</p>
         </div>
     )
 
@@ -77,17 +86,25 @@ export default function HistorialReservas() {
         <div className={style.pagina}>
             {/* ENCABEZADO */}
             <div className={style.encabaezado}>
-                <img src="/logo.png" alt="Logo" className={style.logo} onClick={() => router.push("/paginaPrincipal")}/>
-                <h1 className={style.titulo}>Mis reservas</h1>
+                <img
+                    src="/logo.png"
+                    alt="Logo"
+                    className={style.logo}
+                    onClick={() => router.push("/paginaPrincipal")}
+                />
+                <h1 className={style.titulo}>{t("misReservas")}</h1>
             </div>
 
             <div className={style.contenedor}>
                 {reservas.length === 0 ? (
                     <div className={style.sinReservas}>
                         <span>🗓️</span>
-                        <p>No tienes reservas registradas aún.</p>
-                        <button className={style.botonExplorar} onClick={() => router.push("/paginaPrincipal")}>
-                            Explorar tours
+                        <p>{t("noTienesReservas")}</p>
+                        <button
+                            className={style.botonExplorar}
+                            onClick={() => router.push("/paginaPrincipal")}
+                        >
+                            {t("explorarTours")}
                         </button>
                     </div>
                 ) : (
@@ -100,7 +117,11 @@ export default function HistorialReservas() {
                                     {/* IMAGEN */}
                                     <div className={style.imagenContenedor}>
                                         {tour?.imagenes && tour.imagenes.length > 0 ? (
-                                            <img src={tour.imagenes[0]} alt={tour?.nombreTour} className={style.imagen} />
+                                            <img
+                                                src={tour.imagenes[0]}
+                                                alt={tour?.nombreTour}
+                                                className={style.imagen}
+                                            />
                                         ) : (
                                             <div className={style.sinImagen}>🌄</div>
                                         )}
@@ -109,24 +130,26 @@ export default function HistorialReservas() {
                                     {/* INFO */}
                                     <div className={style.info}>
                                         <div className={style.infoTop}>
-                                            <h3 className={style.nombreTour}>{tour?.nombreTour ?? `Tour #${reserva.tourId}`}</h3>
+                                            <h3 className={style.nombreTour}>
+                                                {tour?.nombreTour ?? `Tour #${reserva.tourId}`}
+                                            </h3>
                                             <span className={`${style.estado} ${colorEstado(reserva.estadoReserva)}`}>
-                                                {reserva.estadoReserva.charAt(0).toUpperCase() + reserva.estadoReserva.slice(1)}
+                                                {traducirEstado(reserva.estadoReserva)}
                                             </span>
                                         </div>
 
                                         <div className={style.detalles}>
-                                            <span>📅 {new Date(reserva.fecha).toLocaleDateString("es-CR", {
+                                            <span>📅 {new Date(reserva.fecha).toLocaleDateString(locale, {
                                                 weekday: "long", day: "numeric", month: "long", year: "numeric"
                                             })}</span>
-                                            <span>👥 {reserva.cantidadCupos} persona{reserva.cantidadCupos > 1 ? "s" : ""}</span>
+                                            <span>👥 {reserva.cantidadCupos} {t("persona")}{reserva.cantidadCupos > 1 ? (idioma === "en" ? "s" : "s") : ""}</span>
                                             {tour?.duracion && <span>🕐 {tour.duracion}</span>}
                                         </div>
 
                                         <div className={style.infoBottom}>
                                             <span className={style.precio}>{formatCurrency(precioTotal)}</span>
                                             <span className={style.fechaRegistro}>
-                                                Reservado el {new Date(reserva.fechaRegistro).toLocaleDateString("es-CR")}
+                                                {t("reservadoEl")} {new Date(reserva.fechaRegistro).toLocaleDateString(locale)}
                                             </span>
                                         </div>
                                     </div>

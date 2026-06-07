@@ -2,6 +2,7 @@
 import {useEffect, useState} from "react";
 import style from "./page.module.css";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext";
 
 type Destino = {
     id?: number;
@@ -16,6 +17,7 @@ export default function PaginaDestinos() {
     const [destinos, setDestinos] = useState<Destino[]>([]);
     const [query, setQuery] = useState("");
     const router = useRouter();
+    const { t } = useLanguage();
     
     const destinosFiltrados = destinos.filter(destino =>
         destino.nombre.toLowerCase().includes(query.toLowerCase()) ||
@@ -34,28 +36,40 @@ export default function PaginaDestinos() {
     return (
         <main className={style.fondo}>
             <div className={style.contenedor}>
-                {/*Encabezado*/}
+                {/* Encabezado */}
                 <div className={style.encabezado}>
-                    <img src="/logo.png" alt="Logo" className={style.logo} onClick={() => router.push("/paginaPrincipal")}/>
-                    <h1 className={style.tituloPrincipal}>Explora nuestros destinos disponibles</h1>
-                
-                {/*Buscado*/}
-                <div className={style.buscador}>
-                    <span>🔍</span>
-                    <input type="text" placeholder="Buscar destino por nombre o ubicación..." value={query} onChange={(e) => setQuery(e.target.value)} className={style.input}/>
-                </div>
+                    <img
+                        src="/logo.png"
+                        alt="Logo"
+                        className={style.logo}
+                        onClick={() => router.push("/paginaPrincipal")}
+                    />
+                    <h1 className={style.tituloPrincipal}>
+                        {t("exploraNuestrosDestinosDisponibles")}
+                    </h1>
+
+                    {/* Buscador */}
+                    <div className={style.buscador}>
+                        <span>🔍</span>
+                        <input
+                            type="text"
+                            placeholder={t("buscarDestinoPorNombreUbicacion")}
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            className={style.input}
+                        />
+                    </div>
                 </div>
 
-                
-                {/*Lista de destinos*/}
+                {/* Lista de destinos */}
                 <div className={style.lista}>
-                    {destinosFiltrados.length === 0 ?(
+                    {destinosFiltrados.length === 0 ? (
                         <div className={style.sinResultados}>
-                            <p>No se encontraron destinos.</p>
+                            <p>{t("noSeEncontraronDestinos")}</p>
                         </div>
                     ) : (
                         destinosFiltrados.map(destino => (
-                            <TarjetaDestino key={destino.id} destino={destino}/>
+                            <TarjetaDestino key={destino.id} destino={destino} />
                         ))
                     )}
                 </div>
@@ -64,7 +78,7 @@ export default function PaginaDestinos() {
     );
 }
 
-function TarjetaDestino({destino}:{destino: Destino}) {
+function TarjetaDestino({ destino }: { destino: Destino }) {
     const [indiceImagen, setIndiceImagen] = useState(0);
     const [mouseEncima, setMouseEncima] = useState(false);
     const imagenes = destino.imagenes ?? [];
@@ -76,32 +90,40 @@ function TarjetaDestino({destino}:{destino: Destino}) {
         }
         const intervalo = setInterval(() => {
             setIndiceImagen((previo) => (previo + 1) % imagenes.length);
-        }, 1500); 
+        }, 1500);
         return () => clearInterval(intervalo);
     }, [mouseEncima, imagenes.length]);
 
     return (
-        <div className={style.tarjeta} onMouseEnter={() => setMouseEncima(true)} onMouseLeave={() => setMouseEncima(false)}>
-            
-            {/*Imagen del destino*/}
+        <div
+            className={style.tarjeta}
+            onMouseEnter={() => setMouseEncima(true)}
+            onMouseLeave={() => setMouseEncima(false)}
+        >
+            {/* Imagen del destino */}
             <div className={style.imagenContenedor}>
                 {imagenes.length > 0 ? (
-                    <img src={imagenes[indiceImagen]}
+                    <img
+                        src={imagenes[indiceImagen]}
                         alt={destino.nombre}
-                        className={style.imagen}/>
-                    ) : (
-                        <div className={style.sinImagen}>🌄</div>
+                        className={style.imagen}
+                    />
+                ) : (
+                    <div className={style.sinImagen}>🌄</div>
                 )}
                 {imagenes.length > 1 && (
                     <div className={style.indicadores}>
                         {imagenes.map((_, indice) => (
-                            <span key={indice} className={`${style.indicador} ${indice === indiceImagen ? style.activo : ""}`}/>
+                            <span
+                                key={indice}
+                                className={`${style.indicador} ${indice === indiceImagen ? style.activo : ""}`}
+                            />
                         ))}
                     </div>
                 )}
             </div>
 
-            {/*Información del destino*/}
+            {/* Información del destino */}
             <div className={style.informacion}>
                 <h3>{destino.nombre}</h3>
                 <p className={style.ubicacion}>📍{destino.ubicacion}</p>
@@ -109,5 +131,5 @@ function TarjetaDestino({destino}:{destino: Destino}) {
                 <p>{destino.descripcionDetallada}</p>
             </div>
         </div>
-    )
+    );
 }
