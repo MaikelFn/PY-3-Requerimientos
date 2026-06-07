@@ -1,6 +1,8 @@
 ﻿"use client"
 import { useState } from "react"
 import styles from "./page.module.css"
+import { useRouter } from "next/navigation"
+
 
 type FormState = {
   nombre: string
@@ -25,6 +27,7 @@ export default function FormularioAgregarDestinos() {
   const [imagenes, setImagenes] = useState<ImagenItem[]>([])
   const [cargando, setCargando] = useState(false)
   const [mensaje, setMensaje] = useState<{ tipo: "exito" | "error"; texto: string } | null>(null)
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -119,6 +122,8 @@ export default function FormularioAgregarDestinos() {
 
   return (
     <main className={styles.contenedor}>
+      {/*volver al  menu principal*/}
+      <img src="/logo.png" alt="Logo" className={styles.logo} onClick={() => router.push("/paginaPrincipal")}/>
       <div className={styles.tarjeta}>
         {mensaje && (
           <div style={{
@@ -266,8 +271,8 @@ export default function FormularioAgregarDestinos() {
           <div className={styles.acciones}>
             <button 
               type="button" 
-              onClick={handleCancel} 
               className={styles.botonCancel}
+              onClick={() => router.push("/administrativo")}
               disabled={cargando}
             >
               Cancelar

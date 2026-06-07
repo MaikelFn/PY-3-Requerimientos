@@ -78,6 +78,7 @@ export default function VisualizarDestinos() {
 
   return (
     <main className={styles.contenedor}>
+      <img src="/logo.png" alt="Logo" className={styles.logo} onClick={() => router.push("/paginaPrincipal")}/>
       <div className={styles.tarjeta}>
         
         {/* BOTÓN VOLVER (Solo si no hay selección activa) */}
@@ -89,7 +90,7 @@ export default function VisualizarDestinos() {
               className={styles.botonCancel}
               style={{ padding: "0.5rem 1.5rem", fontSize: "0.9rem" }}
             >
-              ← Volver
+              Cancelar
             </button>
           </div>
         )}
@@ -161,7 +162,7 @@ export default function VisualizarDestinos() {
             {/* BOTONES DE ACCIÓN */}
             <div className={styles.acciones}>
               <button type="button" onClick={() => router.push("/administrativo")} className={styles.botonCancel} disabled={cargando}>
-                Volver
+                Volver al panel
               </button>
               <button type="button" onClick={handleCancelarSeleccion} className={styles.botonCancel} disabled={cargando}>
                 Cancelar Selección

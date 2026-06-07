@@ -4,12 +4,12 @@ import style from "./page.module.css";
 import { useRouter } from "next/navigation";
 
 type Usuario = {
-  id: number;
-  nombre: string;
-  apellido: string;
-  correo: string;
-  roll: "Cliente" | "Administrador";
-  fechaRegistro: string;
+    id: number;
+    nombre: string;
+    apellido: string;
+    correo: string;
+    roll: "Cliente" | "Administrador";
+    fechaRegistro: string;
 }
 
 export default function PanelAdministrativo() {

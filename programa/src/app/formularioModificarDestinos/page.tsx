@@ -155,6 +155,7 @@ export default function FormularioModificarDestinos() {
 
   return (
     <main className={styles.contenedor}>
+      <img src="/logo.png" alt="Logo" className={styles.logo} onClick={() => router.push("/paginaPrincipal")}/>
       <div className={styles.tarjeta}>
         
         {/* BOTÓN VOLVER */}
@@ -166,7 +167,7 @@ export default function FormularioModificarDestinos() {
               className={styles.botonCancel}
               style={{ padding: "0.5rem 1.5rem", fontSize: "0.9rem" }}
             >
-              ← Volver
+              Cancelar
             </button>
           </div>
         )}
@@ -239,8 +240,11 @@ export default function FormularioModificarDestinos() {
 
             {/* BOTONES DE ACCIÓN */}
             <div className={styles.acciones} style={{ justifyContent: "flex-end", marginTop: "2.5rem" }}>
+              <button type="button" onClick={() => router.push("/administrativo")} className={styles.botonCancel} disabled={cargando}>
+                Volver al panel
+              </button>
               <button type="button" onClick={handleLimpiar} className={styles.botonCancel} disabled={cargando}>
-                Cancelar
+                Cancelar selección
               </button>
               <button type="submit" className={styles.botonSubmit} disabled={cargando}>
                 {cargando ? "Guardando..." : "Guardar Cambios"}

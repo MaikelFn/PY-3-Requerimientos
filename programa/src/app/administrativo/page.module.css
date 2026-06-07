@@ -1,8 +1,16 @@
 .contenedor {
     min-height: 100vh;
-    background-color: #f2f7f6;
-    font-family: system-ui, -apple-system, sans-serif;
+    background-image: url('/fondo.png');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    font-family: Arial, sans-serif;
 }
+
 
 .menuSuperior {
     display: flex;
@@ -36,8 +44,8 @@
 }
 
 .botonVolver:hover {
-    background-color: #1b4332;
-    color: white;
+    background-color: #E8A020;
+    color: #0d3b2e;
 }
 
 .perfilAdmin {
@@ -99,7 +107,8 @@
 }
 
 .botonGestion:hover {
-    background-color: #1b4332;
+    background: #E8A020;
+    color: #0d3b2e;
 }
 
 .botonDisponibilidad {
@@ -116,7 +125,8 @@
 }
 
 .botonDisponibilidad:hover {
-    background-color: #1b4332;
+    background: #E8A020;
+    color: #0d3b2e;
 }
 
 .submenuAdmin {
