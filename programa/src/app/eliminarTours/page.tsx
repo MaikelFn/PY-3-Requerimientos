@@ -56,7 +56,8 @@ export default function VisualizarTours() {
         setListaTours((prev) => prev.filter((t) => t.id !== Number(tourSeleccionadoId)))
         handleCancelarSeleccion()
       } else {
-        alert(t("errorEliminarTour"))
+        const err = await res.json()
+        alert(err.error || t("errorEliminarTour"))
       }
     } catch (err) {
       console.error(err)

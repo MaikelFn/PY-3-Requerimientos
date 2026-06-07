@@ -2,6 +2,7 @@ import "server-only"
 
 import { readFile, writeFile } from "fs/promises"
 import path from "path"
+import { leerReservas } from "./reservas"
 
 export type FechaCupo = {
   fecha: string
@@ -121,6 +122,13 @@ export async function eliminarTourDelArchivo(id: number) {
   
   if (indice === -1) {
     throw new Error("Tour no encontrado")
+  }
+
+  //Verificar si tiene reservas asociadas
+  const reservas = await leerReservas()
+  const reservasAsociadas = reservas.filter(r => r.tourId === id)
+  if (reservasAsociadas.length > 0) {
+    throw new Error("No se puede eliminar el tour porque tiene reservas asociadas")
   }
 
   const tourEliminado = tours[indice]
