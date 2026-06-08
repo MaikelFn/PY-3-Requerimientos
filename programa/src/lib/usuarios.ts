@@ -1,7 +1,6 @@
 import "server-only"
-
-import { readFile, writeFile } from "fs/promises"
-import path from "path"
+import { getDb } from "./mongodb"
+import type { WithId, Document } from "mongodb"
 
 export type Roll = "Cliente" | "Administrador"
 
@@ -19,56 +18,21 @@ export type UsuarioGuardado = NuevoUsuario & {
   fechaRegistro: string
 }
 
-const rutaUsuarios = path.join(process.cwd(), "src", "database", "usuarios.json")
-
-async function leerUsuarios(): Promise<UsuarioGuardado[]> {
-  try {
-    const contenido = await readFile(rutaUsuarios, "utf8")
-    if (!contenido.trim()) {
-      return []
-    }
-
-    const usuarios = JSON.parse(contenido) as UsuarioGuardado[]
-    return Array.isArray(usuarios) ? usuarios : []
-  } catch (error) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error &&
-      error.code === "ENOENT"
-    ) {
-      return []
-    }
-
-    throw error
-  }
+async function getNextId(): Promise<number> {
+  const db = await getDb()
+  const docs = await db.collection("usuarios").find({}, { projection: { id: 1 } }).toArray()
+  if (docs.length === 0) return 0
+  return Math.max(...docs.map(d => typeof d.id === "number" ? d.id : -1)) + 1
 }
 
-function obtenerSiguienteId(usuarios: UsuarioGuardado[]) {
-  if (usuarios.length === 0) {
-    return 0
-  }
-
-  return usuarios.reduce((mayorId, usuario) => {
-    const idUsuario = typeof usuario.id === "number" ? usuario.id : -1
-    return idUsuario > mayorId ? idUsuario : mayorId
-  }, -1) + 1
-}
-
-export async function guardarUsuarioEnArchivo(datosUsuario: NuevoUsuario) {
-  const usuarios = await leerUsuarios()
+export async function guardarUsuarioEnArchivo(datosUsuario: NuevoUsuario): Promise<UsuarioGuardado> {
+  const db = await getDb()
   const correoNormalizado = datosUsuario.correo.trim().toLowerCase()
-
-  const usuarioDuplicado = usuarios.find(
-    (usuario) => usuario.correo.trim().toLowerCase() === correoNormalizado
-  )
-
-  if (usuarioDuplicado) {
-    throw new Error("El correo ya está registrado")
-  }
-
-  const usuarioGuardado: UsuarioGuardado = {
-    id: obtenerSiguienteId(usuarios),
+  const existente = await db.collection("usuarios").findOne({ correo: correoNormalizado })
+  if (existente) throw new Error("El correo ya está registrado")
+  const id = await getNextId()
+  const usuario: UsuarioGuardado = {
+    id,
     nombre: datosUsuario.nombre.trim(),
     apellido: datosUsuario.apellido.trim(),
     correo: correoNormalizado,
@@ -76,81 +40,47 @@ export async function guardarUsuarioEnArchivo(datosUsuario: NuevoUsuario) {
     roll: datosUsuario.roll ?? "Cliente",
     fechaRegistro: new Date().toISOString(),
   }
-
-  usuarios.push(usuarioGuardado)
-  await writeFile(rutaUsuarios, JSON.stringify(usuarios, null, 2), "utf8")
-
-  return usuarioGuardado
+  await db.collection("usuarios").insertOne({ ...usuario })
+  return usuario
 }
 
-export async function autenticarUsuario(
-  correo: string,
-  contrasena: string
-): Promise<Omit<UsuarioGuardado, "contrasena">> {
-  const usuarios = await leerUsuarios()
-  const correoNormalizado = correo.trim().toLowerCase()
-
-  const usuario = usuarios.find(
-    (u) => u.correo.trim().toLowerCase() === correoNormalizado
-  )
-
-  if (!usuario || usuario.contrasena !== contrasena) {
-    throw new Error("Credenciales inválidas")
-  }
-
-  const { contrasena: _con, ...usuarioSinContrasena } = usuario
-  return usuarioSinContrasena
+export async function autenticarUsuario(correo: string, contrasena: string): Promise<Omit<UsuarioGuardado, "contrasena">> {
+  const db = await getDb()
+  const doc = await db.collection("usuarios").findOne({ correo: correo.trim().toLowerCase() })
+  if (!doc || doc.contrasena !== contrasena) throw new Error("Credenciales inválidas")
+  const { _id, contrasena: _c, ...rest } = doc
+  return rest as Omit<UsuarioGuardado, "contrasena">
 }
 
 export async function actulizarContrasena(correo: string, nuevaContrasena: string): Promise<void> {
-  const usuarios = await leerUsuarios()
-  const correoNormalizado = correo.trim().toLowerCase() //convierte el correo a minusculas y eleimina los espacios
-  const indiceUsuario = usuarios.findIndex(u => u.correo.trim().toLowerCase() === correoNormalizado)
-  if (indiceUsuario === -1) throw new Error("Usuario no encontrado")
-  usuarios[indiceUsuario].contrasena = nuevaContrasena
-  await writeFile(rutaUsuarios, JSON.stringify(usuarios, null, 2), "utf8")
+  const db = await getDb()
+  const result = await db.collection("usuarios").updateOne(
+    { correo: correo.trim().toLowerCase() },
+    { $set: { contrasena: nuevaContrasena } }
+  )
+  if (result.matchedCount === 0) throw new Error("Usuario no encontrado")
 }
 
-
 export async function actualizarRolUsuario(correo: string, nuevoRol: Roll): Promise<Omit<UsuarioGuardado, "contrasena">> {
-  const usuarios = await leerUsuarios()
+  const db = await getDb()
   const correoNormalizado = correo.trim().toLowerCase()
-  
-  const indiceUsuario = usuarios.findIndex(u => u.correo.trim().toLowerCase() === correoNormalizado)
-  if (indiceUsuario === -1) {
-    throw new Error("Usuario no encontrado")
-  }
-
-  // Modificar el rol del usuario seleccionado
-  usuarios[indiceUsuario].roll = nuevoRol
-
-  await writeFile(rutaUsuarios, JSON.stringify(usuarios, null, 2), "utf8")
-  
-  const { contrasena: _con, ...usuarioSinContrasena } = usuarios[indiceUsuario]
-  return usuarioSinContrasena
+  await db.collection("usuarios").updateOne({ correo: correoNormalizado }, { $set: { roll: nuevoRol } })
+  const doc = await db.collection("usuarios").findOne({ correo: correoNormalizado })
+  if (!doc) throw new Error("Usuario no encontrado")
+  const { _id, contrasena, ...rest } = doc
+  return rest as Omit<UsuarioGuardado, "contrasena">
 }
 
 export async function obtenerTodosLosUsuarios(): Promise<Omit<UsuarioGuardado, "contrasena">[]> {
-  const usuarios = await leerUsuarios()
-  
-  return usuarios.map((usuario) => {
-    const { contrasena, ...usuarioSinContrasena } = usuario
-    return {
-      ...usuarioSinContrasena,
-      // Si el usuario viejo de la BD no tiene roll asignado, por defecto se renderiza como Cliente
-      roll: usuario.roll ?? "Cliente"
-    }
-  })
+  const db = await getDb()
+  const docs = await db.collection("usuarios").find({}).toArray()
+  return docs.map(({ _id, contrasena, ...rest }) => ({ ...rest, roll: rest.roll ?? "Cliente" }) as Omit<UsuarioGuardado, "contrasena">)
 }
 
 export async function obtenerUsuarioById(id: number): Promise<Omit<UsuarioGuardado, "contrasena"> | null> {
-  const usuarios = await leerUsuarios()
-  const usuario = usuarios.find(u => u.id === id)
-  
-  if (!usuario) {
-    return null
-  }
-  
-  const { contrasena, ...usuarioSinContrasena } = usuario
-  return usuarioSinContrasena
+  const db = await getDb()
+  const doc = await db.collection("usuarios").findOne({ id })
+  if (!doc) return null
+  const { _id, contrasena, ...rest } = doc
+  return rest as Omit<UsuarioGuardado, "contrasena">
 }

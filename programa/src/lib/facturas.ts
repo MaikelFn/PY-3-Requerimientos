@@ -1,7 +1,5 @@
 import "server-only"
-
-import { readFile, writeFile } from "fs/promises"
-import path from "path"
+import { getDb } from "./mongodb"
 
 export type FacturaNueva = {
   tourId: number
@@ -20,111 +18,59 @@ export type FacturaGuardada = FacturaNueva & {
   fechaRegistro: string
 }
 
-const rutaFacturas = path.join(process.cwd(), "src", "database", "facturas.json")
-
-async function leerArchivoJSON<T>(ruta: string): Promise<T[]> {
-  try {
-    const contenido = await readFile(ruta, "utf8")
-    if (!contenido.trim()) return []
-    
-    const datos = JSON.parse(contenido) as T[]
-    return Array.isArray(datos) ? datos : []
-  } catch (error: any) {
-    if (error?.code === "ENOENT") return []
-    throw error
-  }
-}
-
-function obtenerSiguienteId(facturas: FacturaGuardada[]): number {
-  if (facturas.length === 0) return 1
-  return Math.max(...facturas.map(f => typeof f.id === "number" ? f.id : 0)) + 1
+async function getNextId(): Promise<number> {
+  const db = await getDb()
+  const docs = await db.collection("facturas").find({}, { projection: { id: 1 } }).toArray()
+  if (docs.length === 0) return 1
+  return Math.max(...docs.map(d => typeof d.id === "number" ? d.id : 0)) + 1
 }
 
 export async function leerFacturas(): Promise<FacturaGuardada[]> {
-  return leerArchivoJSON<FacturaGuardada>(rutaFacturas)
+  const db = await getDb()
+  const docs = await db.collection("facturas").find({}).toArray()
+  return docs.map(({ _id, ...rest }) => rest as FacturaGuardada)
 }
 
 export async function obtenerFacturaById(id: number): Promise<FacturaGuardada | null> {
-  const facturas = await leerFacturas()
-  const factura = facturas.find(f => f.id === id)
-  return factura ?? null
+  const db = await getDb()
+  const doc = await db.collection("facturas").findOne({ id })
+  if (!doc) return null
+  const { _id, ...rest } = doc
+  return rest as FacturaGuardada
 }
 
 export async function obtenerFacturasPorUsuario(usuarioId: number): Promise<FacturaGuardada[]> {
-  const facturas = await leerFacturas()
-  return facturas.filter(f => f.usuarioId === usuarioId)
+  const db = await getDb()
+  const docs = await db.collection("facturas").find({ usuarioId }).toArray()
+  return docs.map(({ _id, ...rest }) => rest as FacturaGuardada)
 }
 
 export async function obtenerFacturasPorTour(tourId: number): Promise<FacturaGuardada[]> {
-  const facturas = await leerFacturas()
-  return facturas.filter(f => f.tourId === tourId)
+  const db = await getDb()
+  const docs = await db.collection("facturas").find({ tourId }).toArray()
+  return docs.map(({ _id, ...rest }) => rest as FacturaGuardada)
 }
 
 export async function guardarFacturaEnArchivo(datosFactura: FacturaNueva): Promise<FacturaGuardada> {
-  const facturas = await leerFacturas()
-  const nuevoId = obtenerSiguienteId(facturas)
-  
-  const nuevaFactura: FacturaGuardada = {
-    ...datosFactura,
-    id: nuevoId,
-    fechaRegistro: new Date().toISOString(),
-  }
-  
-  facturas.push(nuevaFactura)
-  await writeFile(rutaFacturas, JSON.stringify(facturas, null, 4), "utf8")
-  
-  return nuevaFactura
+  const db = await getDb()
+  const id = await getNextId()
+  const factura: FacturaGuardada = { ...datosFactura, id, fechaRegistro: new Date().toISOString() }
+  await db.collection("facturas").insertOne({ ...factura })
+  return factura
 }
 
 export async function actualizarFactura(id: number, actualizaciones: Partial<FacturaNueva>): Promise<FacturaGuardada | null> {
-  const facturas = await leerFacturas()
-  const indice = facturas.findIndex(f => f.id === id)
-  
-  if (indice === -1) return null
-  
-  const facturaActualizada: FacturaGuardada = {
-    ...facturas[indice],
-    ...actualizaciones,
-  }
-  
-  facturas[indice] = facturaActualizada
-  await writeFile(rutaFacturas, JSON.stringify(facturas, null, 4), "utf8")
-  
-  return facturaActualizada
+  const db = await getDb()
+  const doc = await db.collection("facturas").findOne({ id })
+  if (!doc) return null
+  await db.collection("facturas").updateOne({ id }, { $set: actualizaciones })
+  const actualizada = { ...doc, ...actualizaciones }
+  const { _id, ...rest } = actualizada
+  return rest as FacturaGuardada
 }
 
 export async function eliminarFactura(id: number): Promise<boolean> {
-  const facturas = await leerFacturas()
-  const indice = facturas.findIndex(f => f.id === id)
-  
-  if (indice === -1) return false
-  
-  facturas.splice(indice, 1)
-  await writeFile(rutaFacturas, JSON.stringify(facturas, null, 4), "utf8")
-  
-  return true
-}
-
-export async function obtenerResumenFacturasUsuario(usuarioId: number) {
-  const facturas = await obtenerFacturasPorUsuario(usuarioId)
-  const montoTotal = facturas.reduce((sum, f) => sum + f.montoTotal, 0)
-  
-  return {
-    totalFacturas: facturas.length,
-    montoTotal,
-    facturas,
-  }
-}
-
-export async function obtenerResumenFacturasTour(tourId: number) {
-  const facturas = await obtenerFacturasPorTour(tourId)
-  const totalCupos = facturas.reduce((sum, f) => sum + f.cantidadCupos, 0)
-  const montoTotal = facturas.reduce((sum, f) => sum + f.montoTotal, 0)
-  
-  return {
-    totalVentas: facturas.length,
-    totalCuposVendidos: totalCupos,
-    montoTotal,
-    facturas,
-  }
+  const db = await getDb()
+  const result = await db.collection("facturas").deleteOne({ id })
+  return result.deletedCount > 0
 }
