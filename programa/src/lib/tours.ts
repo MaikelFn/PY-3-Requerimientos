@@ -1,10 +1,5 @@
 import "server-only"
 import { getDb } from "./mongodb"
-import Anthropic from "@anthropic-ai/sdk"
-
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-})
 
 export type FechaCupo = { fecha: string; cupos: string }
 
@@ -31,18 +26,10 @@ export type TourGuardado = TourNuevo & {
 
 async function traducir(texto: string): Promise<string> {
   try {
-    const mensaje = await client.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 1024,
-      messages: [
-        {
-          role: "user",
-          content: `Translate the following Spanish text to English. Return ONLY the translated text, no explanations, no quotes:\n\n${texto}`,
-        },
-      ],
-    })
-    const bloque = mensaje.content[0]
-    return bloque.type === "text" ? bloque.text.trim() : texto
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(texto)}&langpair=es|en`
+    const res = await fetch(url)
+    const data = await res.json()
+    return data.responseData.translatedText
   } catch {
     return texto
   }

@@ -1,28 +1,113 @@
-//Guardar los codigos de verificacion en memoria, con su fecha de expiracion
-const codigos = new Map<string, {codigo: string; expira: number}>()
+import "server-only"
+import { getDb } from "./mongodb"
 
-//Generar un codigo de verificacion de 6 digitos
-export function generarCodigo(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString()
+export type DestinoNuevo = {
+  nombre: string
+  ubicacion: string
+  descripcionBreve: string
+  descripcionDetallada: string
+  imagenes?: string[]
 }
 
-//Guarda el codigo de verificacion para un correo, con su fecha de expiracion
-export function guardarCodigo(correo: string, codigo: string) {
-    codigos.set(correo.toLowerCase(), {codigo, expira: Date.now() + 15 * 60 * 1000}) //Expira en 15 minutos
+export type DestinoGuardado = DestinoNuevo & {
+  id: number
+  fechaRegistro: string
+  ubicacionEn?: string
+  descripcionBreveEn?: string
+  descripcionDetalladaEn?: string
 }
 
-//Verifica si el codigo de verificacion es correcto para un correo, y lo elimina si es correcto o si ha expirado
-export function verificarCodigo(correo: string, codigo: string): boolean {
-    const entrada = codigos.get(correo.toLowerCase())
-    if (!entrada) return false //No existe el codigo para ese correo
-    if (Date.now() > entrada.expira) {
-        codigos.delete(correo.toLowerCase()) //Eliminar el codigo expirado
-        return false
-    }
-    return entrada.codigo === codigo
+async function traducir(texto: string): Promise<string> {
+  try {
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(texto)}&langpair=es|en`
+    const res = await fetch(url)
+    const data = await res.json()
+    return data.responseData.translatedText
+  } catch {
+    return texto
+  }
 }
 
-//Elimina el codigo de verificacion para un correo
-export function eliminarCodigo(correo: string) {
-    codigos.delete(correo.toLowerCase())
+async function traducirCamposDestino(datosDestino: DestinoNuevo) {
+  const [ubicacionEn, descripcionBreveEn, descripcionDetalladaEn] = await Promise.all([
+    traducir(datosDestino.ubicacion),
+    traducir(datosDestino.descripcionBreve),
+    traducir(datosDestino.descripcionDetallada),
+  ])
+  return { ubicacionEn, descripcionBreveEn, descripcionDetalladaEn }
+}
+
+async function getNextId(): Promise<number> {
+  const db = await getDb()
+  const docs = await db.collection("destinos").find({}, { projection: { id: 1 } }).toArray()
+  if (docs.length === 0) return 0
+  return Math.max(...docs.map(d => typeof d.id === "number" ? d.id : -1)) + 1
+}
+
+export async function leerDestinos(): Promise<DestinoGuardado[]> {
+  const db = await getDb()
+  const docs = await db.collection("destinos").find({}).toArray()
+  return docs.map(({ _id, ...rest }) => rest as DestinoGuardado)
+}
+
+export async function obtenerDestinoById(id: number): Promise<DestinoGuardado | null> {
+  const db = await getDb()
+  const doc = await db.collection("destinos").findOne({ id })
+  if (!doc) return null
+  const { _id, ...rest } = doc
+  return rest as DestinoGuardado
+}
+
+export async function obtenerIdPorNombreDestino(nombre: string): Promise<number | null> {
+  const db = await getDb()
+  const doc = await db.collection("destinos").findOne({ nombre: { $regex: new RegExp(`^${nombre.trim()}$`, "i") } })
+  return doc?.id ?? null
+}
+
+export async function guardarDestinoEnArchivo(datosDestino: DestinoNuevo): Promise<DestinoGuardado> {
+  const db = await getDb()
+  const id = await getNextId()
+  const traducciones = await traducirCamposDestino(datosDestino)
+  const destino: DestinoGuardado = {
+    nombre: datosDestino.nombre.trim(),
+    ubicacion: datosDestino.ubicacion.trim(),
+    descripcionBreve: datosDestino.descripcionBreve.trim(),
+    descripcionDetallada: datosDestino.descripcionDetallada.trim(),
+    imagenes: datosDestino.imagenes?.map(i => i.trim()).filter(Boolean) ?? [],
+    ...traducciones,
+    id,
+    fechaRegistro: new Date().toISOString(),
+  }
+  await db.collection("destinos").insertOne({ ...destino })
+  return destino
+}
+
+export async function actualizarDestinoEnArchivo(id: number, datosDestino: DestinoNuevo): Promise<DestinoGuardado> {
+  const db = await getDb()
+  const existing = await db.collection("destinos").findOne({ id })
+  if (!existing) throw new Error("Destino no encontrado")
+  const traducciones = await traducirCamposDestino(datosDestino)
+  const destino: DestinoGuardado = {
+    nombre: datosDestino.nombre.trim(),
+    ubicacion: datosDestino.ubicacion.trim(),
+    descripcionBreve: datosDestino.descripcionBreve.trim(),
+    descripcionDetallada: datosDestino.descripcionDetallada.trim(),
+    imagenes: datosDestino.imagenes?.map(i => i.trim()).filter(Boolean) ?? [],
+    ...traducciones,
+    id,
+    fechaRegistro: existing.fechaRegistro,
+  }
+  await db.collection("destinos").replaceOne({ id }, { ...destino })
+  return destino
+}
+
+export async function eliminarDestinoDelArchivo(id: number): Promise<DestinoGuardado> {
+  const db = await getDb()
+  const tours = await db.collection("tours").find({ destinoId: id }).toArray()
+  if (tours.length > 0) throw new Error("No se puede eliminar el destino porque tiene tours asociados")
+  const doc = await db.collection("destinos").findOne({ id })
+  if (!doc) throw new Error("Destino no encontrado")
+  await db.collection("destinos").deleteOne({ id })
+  const { _id, ...rest } = doc
+  return rest as DestinoGuardado
 }
