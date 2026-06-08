@@ -122,12 +122,15 @@ export default function PaginaPrincipal() {
                             <p>{t("perfil")}</p>
                         </div>
                         <div className={style.submenu}>
-                            <a
-                                style={{ cursor: "pointer", pointerEvents: "auto" }}
-                                onClick={() => router.push("/historialReservas")}
-                            >
-                                {t("historialReservas")}
-                            </a>
+                            {/*Mnenu administrador */}
+                            {usuario?.roll !== "Administrador" && (
+                                <a
+                                    style={{ cursor: "pointer", pointerEvents: "auto" }}
+                                    onClick={() => router.push("/historialReservas")}
+                                >
+                                    {t("historialReservas")}
+                                </a>
+                            )}
                             <a
                                 style={{ cursor: "pointer", pointerEvents: "auto" }}
                                 onClick={() => router.push("/historialFacturas")}

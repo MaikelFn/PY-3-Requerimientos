@@ -45,7 +45,11 @@ export default function HistorialFacturas() {
 
         try {
             const usuario = JSON.parse(usuarioGuardado) as Usuario
-            cargarFacturas(usuario.id)
+            if (usuario.roll === "Administrador") {
+                cargarTodasFacturas();
+            } else {
+                cargarFacturas(usuario.id);
+            }
         } catch (error) {
             console.error("Error al leer el usuario:", error)
             router.push("/")
@@ -65,6 +69,24 @@ export default function HistorialFacturas() {
         }
     }
 
+    async function cargarTodasFacturas() {
+    try {
+        const respuesta = await fetch("/api/facturas");
+
+        if (!respuesta.ok) {
+            throw new Error("No se pudieron cargar las facturas");
+        }
+
+        const datos = await respuesta.json();
+        setFacturas(datos);
+
+    } catch (error) {
+        console.error(error);
+    } finally {
+        setCargando(false);
+    }
+}
+
     const montoTotalGastado = facturas.reduce((sum, factura) => sum + factura.montoTotal, 0)
 
     if (cargando) return (
@@ -76,7 +98,6 @@ export default function HistorialFacturas() {
 
     return (
         <div className={style.pagina}>
-            <div className={style.encabezado}>
                 <img
                     src="/logo.png"
                     alt="Logo"
@@ -87,7 +108,6 @@ export default function HistorialFacturas() {
                     <h1 className={style.titulo}>{t("historialPagos")}</h1>
                     <p className={style.subtitulo}>{t("subtituloFacturas")}</p>
                 </div>
-            </div>
 
             <div className={style.contenedor}>
                 <div className={style.resumen}>
@@ -98,12 +118,6 @@ export default function HistorialFacturas() {
                     <div>
                         <span>{t("montoTotal")}</span>
                         <strong>{formatCurrency(montoTotalGastado)}</strong>
-                        <button
-                            className={style.botonExplorar}
-                            onClick={() => router.push("/paginaPrincipal")}
-                        >
-                            {t("verTours")}
-                        </button>
                     </div>
                 </div>
 

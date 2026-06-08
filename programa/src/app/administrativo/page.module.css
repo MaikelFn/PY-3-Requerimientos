@@ -11,41 +11,19 @@
     font-family: Arial, sans-serif;
 }
 
-
-.menuSuperior {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 30px;
-    background: #ffffff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.menuIzquierdo {
-    display: flex;
-    align-items: center;
-}
-
-.menuDerecho {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-}
-
-.botonVolver {
-    background-color: #ffffff;
-    color: #1b4332;
-    border: 1px solid #1b4332;
-    padding: 10px 18px;
-    border-radius: 8px;
+/* BOTÓN VOLVER PAGINA PRINCIPAL */
+.logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    height: 120px;
     cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s ease;
+    transition: transform 0.2s;
+    z-index: 10;
 }
-
-.botonVolver:hover {
-    background-color: #E8A020;
-    color: #0d3b2e;
+/*Que se vea mas grande cuando se pasa encima del logo, hace qeu se perciba mas como un boton*/
+.logo:hover {
+    transform: scale(1.05);
 }
 
 .perfilAdmin {
@@ -68,15 +46,15 @@
 }
 
 .tituloSeccion {
-    font-size: 32px;   
+    font-size: 34px;   
     font-weight: bold;
     margin-bottom: 12px;
     color: #1b4332;
 }
 
 .subtitulo {
-    color: #555;
-    font-size: 16px;
+    color: #272727;
+    font-size: 18px;
     margin-bottom: 40px;
 }
 
@@ -111,23 +89,6 @@
     color: #0d3b2e;
 }
 
-.botonDisponibilidad {
-    background-color: #2d6a4f;
-    color: white;
-    border: none;
-    padding: 16px 28px;
-    font-size: 15px;
-    font-weight: bold;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
-    transition: background-color 0.2s ease;
-}
-
-.botonDisponibilidad:hover {
-    background: #E8A020;
-    color: #0d3b2e;
-}
 
 .submenuAdmin {
     opacity: 0;

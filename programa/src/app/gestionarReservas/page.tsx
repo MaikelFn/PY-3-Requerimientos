@@ -218,19 +218,7 @@ export default function GestionarReservas() {
 
   return (
     <div className={style.contenedor}>
-      <div className={style.menuSuperior}>
-        <div className={style.menuIzquierdo}>
-          <button className={style.botonVolver} onClick={() => router.push("/administrativo")}>
-            {t("volverPanelAdmin")}
-          </button>
-        </div>
-        <div className={style.menuDerecho}>
-          <span style={{ fontSize: "18px", fontWeight: "bold", color: "#1b4332" }}>
-            📋 {t("gestionReservas")}
-          </span>
-        </div>
-      </div>
-
+      <img src="/logo.png" alt="Logo" className={style.logo} onClick={() => router.push("/paginaPrincipal")} />
       <div className={style.contenido}>
         <h1 className={style.tituloSeccion}>{t("gestionReservas")}</h1>
         <p className={style.subtitulo}>{t("confirmaVisualizaReservas")}</p>
@@ -263,7 +251,7 @@ export default function GestionarReservas() {
           </div>
         ) : (
           <>
-            <p style={{ color: "#666", marginBottom: "20px", fontSize: "14px" }}>
+            <p style={{ color: "#1b1b1b", marginBottom: "20px", fontSize: "18px" }}>
               {t("totalReservas")}: <strong>{reservasFiltradas.length}</strong>
             </p>
 

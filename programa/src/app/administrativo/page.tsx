@@ -67,20 +67,7 @@ export default function PanelAdministrativo() {
 
     return (
     <div className={style.contenedor}>
-        <div className={style.menuSuperior}>
-            <div className={style.menuIzquierdo}>
-                <button className={style.botonVolver} onClick={() => router.push("/paginaPrincipal")}>
-                    ⬅ Volver a la Pagina Principal
-                </button>
-            </div>
-            <div className={style.menuDerecho}>
-                <div className={style.perfilAdmin}>
-                    <span>👤</span>
-                    <span>Administrador</span>
-                </div>
-            </div>
-        </div>
-
+        <img src="/logo.png" alt="Logo" className={style.logo} onClick={() => router.push("/paginaPrincipal")} />
         <div className={style.contenido}>
             <h1 className={style.tituloSeccion}>Panel de Control Administrativo</h1>
             <p className={style.subtitulo}>Selecciona un módulo para gestionar los recursos del sistema:</p>
@@ -109,17 +96,10 @@ export default function PanelAdministrativo() {
                     </div>
                 </div>
 
-                {/* GESTIONAR DISPONIBILIDAD */}
-                <div className={style.menuAdmin}>
-                    <button className={style.botonDisponibilidad} onClick={() => router.push("/admin/disponibilidad")}>
-                        GESTIONAR DISPONIBILIDAD DE TOUR
-                    </button>
-                </div>
-
                 {/* GESTIONAR RESERVAS */}
                 <div className={style.menuAdmin}>
                     <button className={style.botonGestion} onClick={() => router.push("/gestionarReservas")}>
-                        📋 GESTIONAR RESERVAS ▾
+                    GESTIONAR RESERVAS ▾
                     </button>
                 </div>
             </div>

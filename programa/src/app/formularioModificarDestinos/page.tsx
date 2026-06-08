@@ -123,15 +123,6 @@ export default function FormularioModificarDestinos() {
       <img src="/logo.png" alt="Logo" className={styles.logo} onClick={() => router.push("/paginaPrincipal")} />
       <div className={styles.tarjeta}>
 
-        {/* BOTÓN VOLVER */}
-        {!destinoSeleccionadoId && (
-          <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "1.5rem" }}>
-            <button type="button" onClick={() => router.push("/administrativo")} className={styles.botonCancel}
-              style={{ padding: "0.5rem 1.5rem", fontSize: "0.9rem" }}>
-              {t("cancelar")}
-            </button>
-          </div>
-        )}
 
         {/* SELECTOR SUPERIOR */}
         <div className={styles.campoHorizontal} style={{ marginBottom: "2rem", borderBottom: "2px dashed #cbd5e1", paddingBottom: "1.5rem" }}>
