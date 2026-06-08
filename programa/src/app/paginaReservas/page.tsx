@@ -1,4 +1,5 @@
 "use client"
+import { Suspense } from "react"
 import {useEffect, useState} from "react";
 import {useRouter, useSearchParams} from "next/navigation";
 import style from "./page.module.css"
@@ -23,7 +24,7 @@ type Tour = {
 
 type MetodoPago = "stripe" | "manual" | null
 
-export default function PaginaReservas() {
+function PaginaReservasContenido() {
     const searchParams = useSearchParams()
     const id = searchParams.get("id")
     const router = useRouter()
@@ -38,12 +39,6 @@ export default function PaginaReservas() {
     const { currency, exchangeRate, loading: cambioLoading, formatCurrency } = useCurrency()
     const { idioma, t } = useLanguage()
     const locale = idioma === "en" ? "en-US" : "es-CR"
-
-    // Las claves de traduccionesReservas usan "CRC"/"USD" pero aquí usamos t() del LanguageContext
-    // que busca en todos los diccionarios. Las claves de reservas están en traduccionesReservas
-    // separadas por moneda, así que las manejamos directamente con el diccionario según currency.
-    // Para simplificar, usamos t() para las claves que existen en traduccionesUI/Tours,
-    // y un helper local para las claves exclusivas de reservas.
 
     useEffect(() => {
         async function cargarTour() {
@@ -368,5 +363,17 @@ export default function PaginaReservas() {
                 </div>
             </div>
         </div>
+    )
+}
+
+export default function PaginaReservas() {
+    return (
+        <Suspense fallback={
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+                <p>Cargando...</p>
+            </div>
+        }>
+            <PaginaReservasContenido />
+        </Suspense>
     )
 }
