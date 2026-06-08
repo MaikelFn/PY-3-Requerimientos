@@ -15,17 +15,13 @@ function obtenerString(formData: FormData, campo: string): string {
   return String(formData.get(campo) ?? "").trim()
 }
 
-async function guardarImagenSubida(imagen: File) {
-  await mkdir(rutaCarpetaImagenes, { recursive: true })
+import { subirImagen } from "@/lib/cloudinary"
 
-  const extension = path.extname(imagen.name) || ".jpg"
-  const nombreArchivo = `${randomUUID()}${extension}`
-  const rutaFisicaDestino = path.join(rutaCarpetaImagenes, nombreArchivo)
-
+// Reemplaza la función guardarImagenSubida por:
+async function guardarImagenSubida(imagen: File, carpeta: string): Promise<string> {
   const bytes = await imagen.arrayBuffer()
-  await writeFile(rutaFisicaDestino, Buffer.from(bytes))
-
-  return `/imagenes/destinos/${nombreArchivo}`
+  const buffer = Buffer.from(bytes)
+  return subirImagen(buffer, carpeta)
 }
 
 export async function POST(request: Request) {
@@ -47,7 +43,7 @@ export async function POST(request: Request) {
     if (archivosImagenes && archivosImagenes.length > 0) {
       for (const archivo of archivosImagenes) {
         if (archivo.size > 0) {
-          const rutaImagen = await guardarImagenSubida(archivo)
+          const rutaImagen = await guardarImagenSubida(archivo, "destinos")
           imagenes.push(rutaImagen) 
         }
       }

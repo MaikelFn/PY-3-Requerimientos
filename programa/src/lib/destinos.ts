@@ -1,8 +1,5 @@
 import "server-only"
-
-import { readFile, writeFile } from "fs/promises"
-import path from "path"
-import { leerTours } from "./tours"
+import { getDb } from "./mongodb"
 
 export type DestinoNuevo = {
   nombre: string
@@ -17,112 +14,73 @@ export type DestinoGuardado = DestinoNuevo & {
   fechaRegistro: string
 }
 
-const rutaDestinos = path.join(process.cwd(), "src", "database", "destinos.json")
-
-async function leerArchivoJSON<T>(ruta: string): Promise<T[]> {
-  try {
-    const contenido = await readFile(ruta, "utf8")
-    if (!contenido.trim()) return []
-    
-    const datos = JSON.parse(contenido) as T[]
-    return Array.isArray(datos) ? datos : []
-  } catch (error: any) {
-    if (error?.code === "ENOENT") return []
-    throw error
-  }
-}
-
-function obtenerSiguienteId(destinos: DestinoGuardado[]): number {
-  if (destinos.length === 0) return 0
-  return Math.max(...destinos.map(d => typeof d.id === "number" ? d.id : -1)) + 1
-}
-
-function limpiarCadenas(destino: DestinoNuevo): DestinoNuevo {
-  return {
-    nombre: destino.nombre.trim(),
-    ubicacion: destino.ubicacion.trim(),
-    descripcionBreve: destino.descripcionBreve.trim(),
-    descripcionDetallada: destino.descripcionDetallada.trim(),
-    imagenes: Array.isArray(destino.imagenes)
-      ? destino.imagenes.map(img => img.trim()).filter(Boolean)
-      : [],
-  }
+async function getNextId(): Promise<number> {
+  const db = await getDb()
+  const docs = await db.collection("destinos").find({}, { projection: { id: 1 } }).toArray()
+  if (docs.length === 0) return 0
+  return Math.max(...docs.map(d => typeof d.id === "number" ? d.id : -1)) + 1
 }
 
 export async function leerDestinos(): Promise<DestinoGuardado[]> {
-  return leerArchivoJSON<DestinoGuardado>(rutaDestinos)
-}
-
-export async function obtenerIdPorNombreDestino(nombre: string): Promise<number | null> {
-  const destinos = await leerDestinos()
-  const destino = destinos.find(d => d.nombre.toLowerCase() === nombre.trim().toLowerCase())
-  return destino?.id ?? null
+  const db = await getDb()
+  const docs = await db.collection("destinos").find({}).toArray()
+  return docs.map(({ _id, ...rest }) => rest as DestinoGuardado)
 }
 
 export async function obtenerDestinoById(id: number): Promise<DestinoGuardado | null> {
-  const destinos = await leerDestinos()
-  const destino = destinos.find(d => d.id === id)
-  return destino ?? null
+  const db = await getDb()
+  const doc = await db.collection("destinos").findOne({ id })
+  if (!doc) return null
+  const { _id, ...rest } = doc
+  return rest as DestinoGuardado
 }
 
-export async function guardarDestinoEnArchivo(datosDestino: DestinoNuevo) {
-  const destinos = await leerDestinos()
-  const datosLimpios = limpiarCadenas(datosDestino)
+export async function obtenerIdPorNombreDestino(nombre: string): Promise<number | null> {
+  const db = await getDb()
+  const doc = await db.collection("destinos").findOne({ nombre: { $regex: new RegExp(`^${nombre.trim()}$`, "i") } })
+  return doc?.id ?? null
+}
 
-  const destinoGuardado: DestinoGuardado = {
-    ...datosLimpios,
-    id: obtenerSiguienteId(destinos),
+export async function guardarDestinoEnArchivo(datosDestino: DestinoNuevo): Promise<DestinoGuardado> {
+  const db = await getDb()
+  const id = await getNextId()
+  const destino: DestinoGuardado = {
+    nombre: datosDestino.nombre.trim(),
+    ubicacion: datosDestino.ubicacion.trim(),
+    descripcionBreve: datosDestino.descripcionBreve.trim(),
+    descripcionDetallada: datosDestino.descripcionDetallada.trim(),
+    imagenes: datosDestino.imagenes?.map(i => i.trim()).filter(Boolean) ?? [],
+    id,
     fechaRegistro: new Date().toISOString(),
   }
-
-  destinos.push(destinoGuardado)
-  await writeFile(rutaDestinos, JSON.stringify(destinos, null, 2), "utf8")
-
-  return destinoGuardado
+  await db.collection("destinos").insertOne({ ...destino })
+  return destino
 }
 
-export async function actualizarDestinoEnArchivo(id: number, datosDestino: DestinoNuevo) {
-  const destinos = await leerDestinos()
-  const indice = destinos.findIndex(d => d.id === id)
-  
-  if (indice === -1) {
-    throw new Error("Destino no encontrado")
-  }
-
-  const datosLimpios = limpiarCadenas(datosDestino)
-  const destinoActualizado: DestinoGuardado = {
-    ...datosLimpios,
+export async function actualizarDestinoEnArchivo(id: number, datosDestino: DestinoNuevo): Promise<DestinoGuardado> {
+  const db = await getDb()
+  const existing = await db.collection("destinos").findOne({ id })
+  if (!existing) throw new Error("Destino no encontrado")
+  const destino: DestinoGuardado = {
+    nombre: datosDestino.nombre.trim(),
+    ubicacion: datosDestino.ubicacion.trim(),
+    descripcionBreve: datosDestino.descripcionBreve.trim(),
+    descripcionDetallada: datosDestino.descripcionDetallada.trim(),
+    imagenes: datosDestino.imagenes?.map(i => i.trim()).filter(Boolean) ?? [],
     id,
-    fechaRegistro: destinos[indice].fechaRegistro,
+    fechaRegistro: existing.fechaRegistro,
   }
-
-  destinos[indice] = destinoActualizado
-  await writeFile(rutaDestinos, JSON.stringify(destinos, null, 2), "utf8")
-
-  return destinoActualizado
+  await db.collection("destinos").replaceOne({ id }, { ...destino })
+  return destino
 }
 
-export async function eliminarDestinoDelArchivo(id: number) {
-  const destinos = await leerDestinos()
-  const indice = destinos.findIndex(d => d.id === id)
-  
-  if (indice === -1) {
-    throw new Error("Destino no encontrado")
-  }
-
-  const tours = await leerTours()
-  const toursAsociados = tours.filter(t => t.destinoId === id)
-  
-  console.log(`Intentando eliminar destino ${id}. Tours asociados encontrados: ${toursAsociados.length}`)
-  
-  if (toursAsociados.length > 0) {
-    throw new Error("No se puede eliminar el destino porque tiene tours asociados")
-  }
-
-  const destinoEliminado = destinos[indice]
-  destinos.splice(indice, 1)
-  await writeFile(rutaDestinos, JSON.stringify(destinos, null, 2), "utf8")
-
-  return destinoEliminado
+export async function eliminarDestinoDelArchivo(id: number): Promise<DestinoGuardado> {
+  const db = await getDb()
+  const tours = await db.collection("tours").find({ destinoId: id }).toArray()
+  if (tours.length > 0) throw new Error("No se puede eliminar el destino porque tiene tours asociados")
+  const doc = await db.collection("destinos").findOne({ id })
+  if (!doc) throw new Error("Destino no encontrado")
+  await db.collection("destinos").deleteOne({ id })
+  const { _id, ...rest } = doc
+  return rest as DestinoGuardado
 }
-
