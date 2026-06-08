@@ -1,5 +1,10 @@
 import "server-only"
 import { getDb } from "./mongodb"
+import Anthropic from "@anthropic-ai/sdk"
+
+const client = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+})
 
 export type DestinoNuevo = {
   nombre: string
@@ -12,6 +17,37 @@ export type DestinoNuevo = {
 export type DestinoGuardado = DestinoNuevo & {
   id: number
   fechaRegistro: string
+  ubicacionEn?: string
+  descripcionBreveEn?: string
+  descripcionDetalladaEn?: string
+}
+
+async function traducir(texto: string): Promise<string> {
+  try {
+    const mensaje = await client.messages.create({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1024,
+      messages: [
+        {
+          role: "user",
+          content: `Translate the following Spanish text to English. Return ONLY the translated text, no explanations, no quotes:\n\n${texto}`,
+        },
+      ],
+    })
+    const bloque = mensaje.content[0]
+    return bloque.type === "text" ? bloque.text.trim() : texto
+  } catch {
+    return texto
+  }
+}
+
+async function traducirCamposDestino(datosDestino: DestinoNuevo) {
+  const [ubicacionEn, descripcionBreveEn, descripcionDetalladaEn] = await Promise.all([
+    traducir(datosDestino.ubicacion),
+    traducir(datosDestino.descripcionBreve),
+    traducir(datosDestino.descripcionDetallada),
+  ])
+  return { ubicacionEn, descripcionBreveEn, descripcionDetalladaEn }
 }
 
 async function getNextId(): Promise<number> {
@@ -44,12 +80,14 @@ export async function obtenerIdPorNombreDestino(nombre: string): Promise<number 
 export async function guardarDestinoEnArchivo(datosDestino: DestinoNuevo): Promise<DestinoGuardado> {
   const db = await getDb()
   const id = await getNextId()
+  const traducciones = await traducirCamposDestino(datosDestino)
   const destino: DestinoGuardado = {
     nombre: datosDestino.nombre.trim(),
     ubicacion: datosDestino.ubicacion.trim(),
     descripcionBreve: datosDestino.descripcionBreve.trim(),
     descripcionDetallada: datosDestino.descripcionDetallada.trim(),
     imagenes: datosDestino.imagenes?.map(i => i.trim()).filter(Boolean) ?? [],
+    ...traducciones,
     id,
     fechaRegistro: new Date().toISOString(),
   }
@@ -61,12 +99,14 @@ export async function actualizarDestinoEnArchivo(id: number, datosDestino: Desti
   const db = await getDb()
   const existing = await db.collection("destinos").findOne({ id })
   if (!existing) throw new Error("Destino no encontrado")
+  const traducciones = await traducirCamposDestino(datosDestino)
   const destino: DestinoGuardado = {
     nombre: datosDestino.nombre.trim(),
     ubicacion: datosDestino.ubicacion.trim(),
     descripcionBreve: datosDestino.descripcionBreve.trim(),
     descripcionDetallada: datosDestino.descripcionDetallada.trim(),
     imagenes: datosDestino.imagenes?.map(i => i.trim()).filter(Boolean) ?? [],
+    ...traducciones,
     id,
     fechaRegistro: existing.fechaRegistro,
   }

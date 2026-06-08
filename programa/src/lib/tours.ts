@@ -1,5 +1,10 @@
 import "server-only"
 import { getDb } from "./mongodb"
+import Anthropic from "@anthropic-ai/sdk"
+
+const client = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+})
 
 export type FechaCupo = { fecha: string; cupos: string }
 
@@ -18,6 +23,39 @@ export type TourNuevo = {
 export type TourGuardado = TourNuevo & {
   id: number
   fechaRegistro: string
+  nombreTourEn?: string
+  descripcionBreveEn?: string
+  itinerarioEn?: string
+  descripcionDetalladaEn?: string
+}
+
+async function traducir(texto: string): Promise<string> {
+  try {
+    const mensaje = await client.messages.create({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1024,
+      messages: [
+        {
+          role: "user",
+          content: `Translate the following Spanish text to English. Return ONLY the translated text, no explanations, no quotes:\n\n${texto}`,
+        },
+      ],
+    })
+    const bloque = mensaje.content[0]
+    return bloque.type === "text" ? bloque.text.trim() : texto
+  } catch {
+    return texto
+  }
+}
+
+async function traducirCamposTour(datosTour: TourNuevo) {
+  const [nombreTourEn, descripcionBreveEn, itinerarioEn, descripcionDetalladaEn] = await Promise.all([
+    traducir(datosTour.nombreTour),
+    traducir(datosTour.descripcionBreve),
+    traducir(datosTour.itinerario),
+    traducir(datosTour.descripcionDetallada),
+  ])
+  return { nombreTourEn, descripcionBreveEn, itinerarioEn, descripcionDetalladaEn }
 }
 
 async function getNextId(coleccion: string): Promise<number> {
@@ -50,6 +88,7 @@ export async function obtenerIdPorNombreTour(nombre: string): Promise<number | n
 export async function guardarTourEnArchivo(datosTour: TourNuevo): Promise<TourGuardado> {
   const db = await getDb()
   const id = await getNextId("tours")
+  const traducciones = await traducirCamposTour(datosTour)
   const tour: TourGuardado = {
     ...datosTour,
     nombreTour: datosTour.nombreTour.trim(),
@@ -59,6 +98,7 @@ export async function guardarTourEnArchivo(datosTour: TourNuevo): Promise<TourGu
     itinerario: datosTour.itinerario.trim(),
     descripcionDetallada: datosTour.descripcionDetallada.trim(),
     imagenes: datosTour.imagenes?.map(i => i.trim()).filter(Boolean) ?? [],
+    ...traducciones,
     id,
     fechaRegistro: new Date().toISOString(),
   }
@@ -70,6 +110,7 @@ export async function actualizarTourEnArchivo(id: number, datosTour: TourNuevo):
   const db = await getDb()
   const existing = await db.collection("tours").findOne({ id })
   if (!existing) throw new Error("Tour no encontrado")
+  const traducciones = await traducirCamposTour(datosTour)
   const tour: TourGuardado = {
     ...datosTour,
     nombreTour: datosTour.nombreTour.trim(),
@@ -79,6 +120,7 @@ export async function actualizarTourEnArchivo(id: number, datosTour: TourNuevo):
     itinerario: datosTour.itinerario.trim(),
     descripcionDetallada: datosTour.descripcionDetallada.trim(),
     imagenes: datosTour.imagenes?.map(i => i.trim()).filter(Boolean) ?? [],
+    ...traducciones,
     id,
     fechaRegistro: existing.fechaRegistro,
   }
