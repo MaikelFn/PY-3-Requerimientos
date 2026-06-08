@@ -70,14 +70,11 @@ export default function VisualizarTours() {
 
   return (
     <main className={styles.contenedor}>
+      <img src="/logo.png" alt="Logo" className={styles.logo} onClick={() => router.push("/paginaPrincipal")} />
       <div className={styles.tarjeta}>
 
         {!tourSeleccionadoId && (
           <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "1.5rem" }}>
-            <button type="button" onClick={() => router.push("/administrativo")} className={styles.botonCancel}
-              style={{ padding: "0.5rem 1.5rem", fontSize: "0.9rem" }}>
-              {t("volver")}
-            </button>
           </div>
         )}
 

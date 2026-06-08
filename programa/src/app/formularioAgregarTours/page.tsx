@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react"
 import styles from "./page.module.css"
 import { useLanguage } from "@/context/LanguageContext"
+import { useRouter } from "next/navigation"
 
 type FechaCupo = { fecha: string; cupos: string }
 type ImagenItem = { archivo: File; preview: string }
@@ -14,6 +15,7 @@ type TourFormState = {
 
 export default function FormularioAgregarTours() {
   const { t } = useLanguage()
+  const router = useRouter()
 
   const [form, setForm] = useState<TourFormState>({
     nombreTour: "", destino: "", destinoId: "", precio: "",
@@ -149,6 +151,7 @@ export default function FormularioAgregarTours() {
 
   return (
     <main className={styles.contenedor}>
+      <img src="/logo.png" alt="Logo" className={styles.logo} onClick={() => router.push("/paginaPrincipal")} />
       <div className={styles.tarjeta}>
         <form onSubmit={handleSubmit} className={styles.formulario}>
 
@@ -262,7 +265,9 @@ export default function FormularioAgregarTours() {
 
           {/* Botones */}
           <div className={styles.acciones}>
-            <button type="button" onClick={handleCancel} className={styles.botonCancel}>{t("cancelar")}</button>
+            <button type="button" className={styles.botonCancel} onClick={() => router.push("/administrativo")}>
+              {t("cancelar")}
+            </button>
             <button type="submit" className={styles.botonSubmit} disabled={errorDestino}>{t("agregarTourLabel")}</button>
           </div>
 

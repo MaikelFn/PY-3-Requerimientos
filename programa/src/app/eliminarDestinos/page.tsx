@@ -67,10 +67,6 @@ export default function VisualizarDestinos() {
 
         {!destinoSeleccionadoId && (
           <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "1.5rem" }}>
-            <button type="button" onClick={() => router.push("/administrativo")} className={styles.botonCancel}
-              style={{ padding: "0.5rem 1.5rem", fontSize: "0.9rem" }}>
-              {t("cancelar")}
-            </button>
           </div>
         )}
 

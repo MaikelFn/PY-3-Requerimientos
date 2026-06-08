@@ -11,6 +11,21 @@
   font-family: sans-serif;
 }
 
+/* BOTÓN VOLVER */
+.logo {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  height: 120px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  z-index: 10;
+}
+/*Que se vea mas grande cuando se pasa encima del logo, hace qeu se perciba mas como un boton*/
+.logo:hover {
+  transform: scale(1.05);
+}
+
 .tarjeta {
   background-color: rgba(255, 255, 255, 0.95);
   width: 100%;
@@ -309,7 +324,7 @@
 }
 
 .botonSubmit {
-  background-color: #000000;
+  background-color: #1b4332;
   color: #ffffff;
   padding: 0.8rem 2rem;
   font-size: 0.95rem;
@@ -321,7 +336,8 @@
 }
 
 .botonSubmit:hover {
-  background-color: #222222;
+  background-color: #E8A020;
+  color: #0d3b2e;
 }
 
 .contenedorBuscador {

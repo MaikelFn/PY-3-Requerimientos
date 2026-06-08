@@ -205,18 +205,8 @@ export default function FormularioModificarTours() {
 
   return (
     <main className={styles.contenedor}>
+      <img src="/logo.png" alt="Logo" className={styles.logo} onClick={() => router.push("/paginaPrincipal")} />
       <div className={styles.tarjeta}>
-
-        {/* BOTÓN VOLVER */}
-        {!tourSeleccionadoId && (
-          <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "1.5rem" }}>
-            <button type="button" onClick={() => router.push("/administrativo")} className={styles.botonCancel}
-              style={{ width: "auto", padding: "0.5rem 1.5rem", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.50rem" }}>
-              {t("volver")}
-            </button>
-          </div>
-        )}
-
         {/* SELECTOR SUPERIOR */}
         <div className={styles.campoHorizontal} style={{ marginBottom: "2rem", borderBottom: "2px dashed #cbd5e1", paddingBottom: "1.5rem" }}>
           <label htmlFor="selectorTour" className={styles.etiqueta} style={{ fontWeight: "bold", color: "#000" }}>
@@ -337,10 +327,12 @@ export default function FormularioModificarTours() {
                 </label>
               </div>
             </div>
-
             <div className={styles.acciones} style={{ justifyContent: "flex-end", marginTop: "2.5rem" }}>
+              <button type="button" onClick={() => router.push("/administrativo")} className={styles.botonCancel} disabled={cargando}>
+                {t("volverPanel")}
+              </button>
               <button type="button" onClick={handleLimpiar} className={styles.botonCancel} disabled={cargando}>
-                {t("cancelar")}
+                {t("cancelarSeleccion")}
               </button>
               <button type="submit" className={styles.botonSubmit} disabled={cargando || errorDestino}>
                 {cargando ? t("guardando") : t("guardarCambios")}
