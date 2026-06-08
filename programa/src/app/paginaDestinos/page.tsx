@@ -11,13 +11,15 @@ type Destino = {
     descripcionBreve: string;
     descripcionDetallada: string;
     imagenes?: string[];
+    descripcionBreveEn?: string;
+    descripcionDetalladaEn?: string;
 };
 
 export default function PaginaDestinos() {
     const [destinos, setDestinos] = useState<Destino[]>([]);
     const [query, setQuery] = useState("");
     const router = useRouter();
-    const { t } = useLanguage();
+    const { t, idioma } = useLanguage();
     
     const destinosFiltrados = destinos.filter(destino =>
         destino.nombre.toLowerCase().includes(query.toLowerCase()) ||
@@ -31,7 +33,7 @@ export default function PaginaDestinos() {
             setDestinos(datos);
         }
         cargarDestinos();
-    }, []);
+    }, [idioma]);
 
     return (
         <main className={style.fondo}>
@@ -69,7 +71,7 @@ export default function PaginaDestinos() {
                         </div>
                     ) : (
                         destinosFiltrados.map(destino => (
-                            <TarjetaDestino key={destino.id} destino={destino} />
+                            <TarjetaDestino key={destino.id} destino={destino} idioma={idioma} />
                         ))
                     )}
                 </div>
@@ -78,10 +80,14 @@ export default function PaginaDestinos() {
     );
 }
 
-function TarjetaDestino({ destino }: { destino: Destino }) {
+function TarjetaDestino({ destino, idioma }: { destino: Destino; idioma: string }) {
     const [indiceImagen, setIndiceImagen] = useState(0);
     const [mouseEncima, setMouseEncima] = useState(false);
     const imagenes = destino.imagenes ?? [];
+
+    // Obtener datos según el idioma
+    const descripcionBreve = idioma === "en" ? (destino.descripcionBreveEn || destino.descripcionBreve) : destino.descripcionBreve;
+    const descripcionDetallada = idioma === "en" ? (destino.descripcionDetalladaEn || destino.descripcionDetallada) : destino.descripcionDetallada;
 
     useEffect(() => {
         if (!mouseEncima || imagenes.length <= 1) {
@@ -127,8 +133,8 @@ function TarjetaDestino({ destino }: { destino: Destino }) {
             <div className={style.informacion}>
                 <h3>{destino.nombre}</h3>
                 <p className={style.ubicacion}>📍{destino.ubicacion}</p>
-                <p>{destino.descripcionBreve}</p>
-                <p>{destino.descripcionDetallada}</p>
+                <p>{descripcionBreve}</p>
+                <p>{descripcionDetallada}</p>
             </div>
         </div>
     );

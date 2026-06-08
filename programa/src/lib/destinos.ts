@@ -29,12 +29,11 @@ async function traducir(texto: string): Promise<string> {
 }
 
 async function traducirCamposDestino(datosDestino: DestinoNuevo) {
-  const [ubicacionEn, descripcionBreveEn, descripcionDetalladaEn] = await Promise.all([
-    traducir(datosDestino.ubicacion),
+  const [descripcionBreveEn, descripcionDetalladaEn] = await Promise.all([
     traducir(datosDestino.descripcionBreve),
     traducir(datosDestino.descripcionDetallada),
   ])
-  return { ubicacionEn, descripcionBreveEn, descripcionDetalladaEn }
+  return { descripcionBreveEn, descripcionDetalladaEn }
 }
 
 async function getNextId(): Promise<number> {
