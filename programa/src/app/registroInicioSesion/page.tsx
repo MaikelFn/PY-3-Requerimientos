@@ -21,6 +21,7 @@ export default function RegistroInicioSesion() {
     const [codigoIngresado, setCodigoIngresado] = useState("")
     const [nuevaContrasena, setNuevaContrasena] = useState("")
     const [enviando, setEnviando] = useState(false)
+    const [mostrarContrasena, setMostrarContrasena] = useState(false)
 
     async function handleLogin() {
         if (!esCorreoValido(email)) {
@@ -164,12 +165,26 @@ export default function RegistroInicioSesion() {
 
                         <div className={style.campos}>
                             <label className={style.etiqueta}>Correo electrónico</label>
-                            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="juanperez@correo.com" className={style.input} />
+                            <input value={email} onChange={(e) => setEmail(e.target.value)} onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    handleLogin();
+                                }
+                            }} 
+                            type="email" placeholder="juanperez@correo.com" className={style.input} />
                         </div>
 
                         <div className={style.campos}>
                             <label className={style.etiqueta}>Contraseña</label>
-                            <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="********" className={style.input} />
+                            <input value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    handleLogin();
+                                }
+                            }} 
+                            type={mostrarContrasena ? "text" : "password"} placeholder="********" className={style.input} />
+
+                            <label className={style.mostrarContrasena}>
+                                <input type="checkbox" checked={mostrarContrasena} onChange={() => setMostrarContrasena(!mostrarContrasena)}/> Mostrar contraseña
+                            </label>
                         </div>
                         
                         <div className={style.olvidar}>

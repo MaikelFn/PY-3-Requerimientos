@@ -81,6 +81,16 @@
     border-color: #0e7c6b;
 }
 
+.mostrarContrasena {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: #1d1d1d;
+}
+
 .dosColumnas {
     display: grid;
     grid-template-columns: 1fr 1fr;
