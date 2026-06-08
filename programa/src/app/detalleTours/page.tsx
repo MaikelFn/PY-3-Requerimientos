@@ -6,6 +6,8 @@ import { TourGuardado } from "@/lib/tours"
 import { useSearchParams } from "next/navigation"
 import { useCurrency } from "@/context/CurrencyContext"
 
+export const dynamic = 'force-dynamic'
+
 export default function DetalleTours() {
     const searchParams = useSearchParams()
     const id = searchParams.get("id")
