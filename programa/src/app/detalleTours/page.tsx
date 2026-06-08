@@ -1,4 +1,5 @@
 "use client"
+import { Suspense } from "react"
 import { useEffect, useState } from "react"
 import {useRouter} from "next/navigation"
 import style from "./page.module.css"
@@ -8,7 +9,7 @@ import { useCurrency } from "@/context/CurrencyContext"
 
 export const dynamic = 'force-dynamic'
 
-export default function DetalleTours() {
+function DetalleToursContenido() {
     const searchParams = useSearchParams()
     const id = searchParams.get("id")
     const router = useRouter()
@@ -19,12 +20,9 @@ export default function DetalleTours() {
     const [imagenActiva, setImagenActiva] = useState(0)
     const { formatCurrency } = useCurrency()
 
-
-
     useEffect(() => {
         async function cargarTour() {
             try{
-                // llamada para obtener el tour por id
                 const respuesta = await fetch("/api/tours")
                 const datosTour = await respuesta.json()
                 const tourEncontrado = datosTour.find((t: TourGuardado) => Number(t.id) === Number(id))
@@ -41,7 +39,7 @@ export default function DetalleTours() {
         }
         if (id) cargarTour()
     }, [id])
-    // manejo de estados
+
     if (cargando) return <p>Cargando...</p>
     if (error) return <div>{error}</div>
     if (!tour) return <div>Tour no encontrado</div>
@@ -78,8 +76,8 @@ export default function DetalleTours() {
             </div>
 
             {/* TÍTULO */}
-                <h1 className={style.titulo}>{tour.nombreTour}</h1>
-                <p className={style.descripcionCorta}>{tour.descripcionBreve}</p>
+            <h1 className={style.titulo}>{tour.nombreTour}</h1>
+            <p className={style.descripcionCorta}>{tour.descripcionBreve}</p>
 
             {/* CUERPO */}
             <div className={style.cuerpo}>
@@ -179,5 +177,17 @@ export default function DetalleTours() {
                 </div>
             </div>
         </div>
+    )
+}
+
+export default function DetalleTours() {
+    return (
+        <Suspense fallback={
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+                <p>Cargando...</p>
+            </div>
+        }>
+            <DetalleToursContenido />
+        </Suspense>
     )
 }
