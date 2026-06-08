@@ -10,24 +10,27 @@
     padding: 2rem;
 }
 
+/* BOTÓN VOLVER PAGINA PRINCIPAL */
 .logo {
-    height: 100px;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    height: 120px;
     cursor: pointer;
     transition: transform 0.2s;
-    margin-left: 50px;
+    z-index: 10;
 }
-
-
+/*Que se vea mas grande cuando se pasa encima del logo, hace qeu se perciba mas como un boton*/
 .logo:hover {
     transform: scale(1.05);
 }
 
 .contenedor {
     min-height: 100vh;
-    background-color: #f2f7f6;
-    gap: 10px;
-    
+    margin: 0 auto;
+    padding: 28px 20px 48px;
 }
+    
 
 .encabezado {
     display: flex;
@@ -40,10 +43,10 @@
 
 .tituloPrincipal {
     font-size: 28px;
-    color: #1E8C87;
+    color: #125855;
     margin: 0;
     font-weight: bold;
-    margin-left: 400px;
+    margin-left: 100px;
 }
 
 .buscador {
@@ -56,7 +59,7 @@
     gap: 10px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.07);
     transition: border-color 0.2s;
-    margin-left: 400px;
+    margin-left: 250px;
     width: 40%;
     
 }
@@ -101,7 +104,7 @@
 }
 
 .imagenContenedor {
-    width: 280px;
+    width: 300px;
     flex-shrink: 0;
     position: relative;
     overflow: hidden;

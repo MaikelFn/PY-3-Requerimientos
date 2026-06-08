@@ -34,11 +34,13 @@
 .contenido h2 {
     color: #1b4332;
     margin-bottom: 10px;
+    font-size: 18px;
 }
 
 .contenido p {
     color: #1b4332;
     margin-bottom: 10px;
+    font-size: 18px;
 }
 
 .boton {
@@ -82,6 +84,8 @@
     margin-top: 0;
     color: #e6005c;
     margin-bottom: 8px;
+    font-size: 20px;
+    font-weight: bold;
 }
 
 .cancelacion {

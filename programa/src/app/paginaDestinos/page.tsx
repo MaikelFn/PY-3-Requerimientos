@@ -37,15 +37,14 @@ export default function PaginaDestinos() {
 
     return (
         <main className={style.fondo}>
-            <div className={style.contenedor}>
-                {/* Encabezado */}
-                <div className={style.encabezado}>
-                    <img
+            <img
                         src="/logo.png"
                         alt="Logo"
                         className={style.logo}
                         onClick={() => router.push("/paginaPrincipal")}
                     />
+                    {/* Encabezado */}
+                <div className={style.encabezado}>
                     <h1 className={style.tituloPrincipal}>
                         {t("exploraNuestrosDestinosDisponibles")}
                     </h1>
@@ -62,7 +61,7 @@ export default function PaginaDestinos() {
                         />
                     </div>
                 </div>
-
+            <div className={style.contenedor}>
                 {/* Lista de destinos */}
                 <div className={style.lista}>
                     {destinosFiltrados.length === 0 ? (
