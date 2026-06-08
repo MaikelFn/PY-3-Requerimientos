@@ -1,31 +1,15 @@
-import { randomUUID } from "crypto"
-import { mkdir, writeFile } from "fs/promises"
-import path from "path"
 import { NextResponse } from "next/server"
 import { actualizarTourEnArchivo, eliminarTourDelArchivo } from "../../../../lib/tours"
-
-const rutaCarpetaImagenes = path.join(
-  process.cwd(),
-  "public",
-  "imagenes",
-  "tours"
-)
+import { subirImagen } from "../../../../lib/cloudinary"
 
 function obtenerString(formData: FormData, campo: string): string {
   return String(formData.get(campo) ?? "").trim()
 }
 
-async function guardarImagenSubida(imagen: File) {
-  await mkdir(rutaCarpetaImagenes, { recursive: true })
-
-  const extension = path.extname(imagen.name) || ".jpg"
-  const nombreArchivo = `${randomUUID()}${extension}`
-  const rutaFisicaDestino = path.join(rutaCarpetaImagenes, nombreArchivo)
-
+async function guardarImagenSubida(imagen: File): Promise<string> {
   const bytes = await imagen.arrayBuffer()
-  await writeFile(rutaFisicaDestino, Buffer.from(bytes))
-
-  return `/imagenes/tours/${nombreArchivo}`
+  const buffer = Buffer.from(bytes)
+  return subirImagen(buffer, "tours")
 }
 
 function parsearFechasYCupos(fechasYCuposStr: string) {
@@ -67,15 +51,14 @@ export async function PUT(
     const imagenesExistentes = imagenesExistentesStr ? JSON.parse(imagenesExistentesStr) : []
 
     const camposObligatorios = [
-      nombreTour, destino, precio, duracion, 
+      nombreTour, destino, precio, duracion,
       descripcionBreve, itinerario, descripcionDetallada
     ]
-    
+
     if (camposObligatorios.some(campo => !campo)) {
       return NextResponse.json({ error: "Faltan datos del tour" }, { status: 400 })
     }
 
-    // Procesar nuevas imágenes
     let imagenesNuevas: string[] = []
     if (archivosImagenes && archivosImagenes.length > 0) {
       for (const archivo of archivosImagenes) {
@@ -86,10 +69,8 @@ export async function PUT(
       }
     }
 
-    // Combinar imágenes existentes + nuevas
     const todasLasImagenes = [...imagenesExistentes, ...imagenesNuevas]
 
-    // Obtener el destinoId de la API de destinos por nombre
     let destinoId = 1
     try {
       const resDestinos = await fetch(new URL("/api/destinos", request.url).toString())

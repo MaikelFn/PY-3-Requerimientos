@@ -1,31 +1,15 @@
-import { randomUUID } from "crypto"
-import { mkdir, writeFile } from "fs/promises"
-import path from "path"
 import { NextResponse } from "next/server"
 import { actualizarDestinoEnArchivo, eliminarDestinoDelArchivo } from "../../../../lib/destinos"
-
-const rutaCarpetaImagenes = path.join(
-  process.cwd(),
-  "public",
-  "imagenes",
-  "destinos"
-)
+import { subirImagen } from "../../../../lib/cloudinary"
 
 function obtenerString(formData: FormData, campo: string): string {
   return String(formData.get(campo) ?? "").trim()
 }
 
-async function guardarImagenSubida(imagen: File) {
-  await mkdir(rutaCarpetaImagenes, { recursive: true })
-
-  const extension = path.extname(imagen.name) || ".jpg"
-  const nombreArchivo = `${randomUUID()}${extension}`
-  const rutaFisicaDestino = path.join(rutaCarpetaImagenes, nombreArchivo)
-
+async function guardarImagenSubida(imagen: File): Promise<string> {
   const bytes = await imagen.arrayBuffer()
-  await writeFile(rutaFisicaDestino, Buffer.from(bytes))
-
-  return `/imagenes/destinos/${nombreArchivo}`
+  const buffer = Buffer.from(bytes)
+  return subirImagen(buffer, "destinos")
 }
 
 export async function PUT(
@@ -55,7 +39,6 @@ export async function PUT(
       return NextResponse.json({ error: "Faltan datos del destino" }, { status: 400 })
     }
 
-    // Procesar nuevas imágenes
     let imagenesNuevas: string[] = []
     if (archivosImagenes && archivosImagenes.length > 0) {
       for (const archivo of archivosImagenes) {
@@ -66,7 +49,6 @@ export async function PUT(
       }
     }
 
-    // Combinar imágenes existentes + nuevas
     const todasLasImagenes = [...imagenesExistentes, ...imagenesNuevas]
 
     const destino = await actualizarDestinoEnArchivo(idNum, {
