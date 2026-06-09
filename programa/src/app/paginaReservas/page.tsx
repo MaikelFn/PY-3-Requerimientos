@@ -131,21 +131,17 @@ function PaginaReservasContenido() {
 
     return (
         <div className={style.pagina}>
+            <img
+                src="/logo.png"
+                alt="Logo"
+                className={style.imagen}
+                onClick={() => router.push("/paginaPrincipal")}
+            />
             {/* Menú superior */}
             <div className={style.menuSuperior}>
-                <div className={style.menuIzquierdo}>
-                    <img
-                        src="/logo.png"
-                        alt="Logo"
-                        className={style.imagen}
-                        onClick={() => router.push("/paginaPrincipal")}
-                    />
-                </div>
-                <div className={style.menuDerecho}>
-                    <span className={style.breadcrumb}>
-                        {t("resumenTour")} {tour.nombreTour}
-                    </span>
-                </div>
+                <span className={style.breadcrumb}>
+                    {t("resumenTour")} {tour.nombreTour}
+                </span>
             </div>
 
             {/* Contenedor */}

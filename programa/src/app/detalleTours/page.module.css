@@ -20,6 +20,11 @@
     margin-right: 1200;
 }
 
+/*Que se vea mas grande cuando se pasa encima del logo, hace qeu se perciba mas como un boton*/
+.logo:hover {
+    transform: scale(1.05);
+}
+
 .titulo {
     font-size: 32px;
     font-weight: 700;

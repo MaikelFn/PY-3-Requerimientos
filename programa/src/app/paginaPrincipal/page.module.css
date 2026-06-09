@@ -1,6 +1,12 @@
 .contenedor {
     min-height: 100vh;
-    background-color: #f2f7f6;
+    background:
+    linear-gradient(
+        to bottom,
+        #f5fbfa,
+        #eef8f7
+    );
+
 }
 
 .banner {
@@ -12,7 +18,6 @@
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    color: white;
     position: relative;
 }
 
@@ -32,15 +37,17 @@
 }
 
 .contenido h2 {
-    color: #1b4332;
+    color: #134e4a;
     margin-bottom: 10px;
-    font-size: 18px;
+    font-size: 22px;
+    font-weight: 700;
 }
 
 .contenido p {
-    color: #1b4332;
+    color: #355070;
     margin-bottom: 10px;
     font-size: 18px;
+    font-weight: 300;
 }
 
 .boton {
@@ -61,8 +68,8 @@
 
 .tours { 
     display: block;
-    background: #fff;
-    margin-bottom: 20px;
+    background: transparent;
+    margin-bottom: 40px;
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -72,7 +79,7 @@
     width: 100%;
     text-align: center;
     padding: 20px;
-    color: #1b4332;
+    color: #007a74;
 }
 
 .info {
@@ -295,12 +302,15 @@
     align-items: center;
     justify-content: space-between;
     gap: 20px;
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(8px);
+    margin: 30px auto;
+    padding: 24px;
+    border-radius: 24px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    width: 90%;
+    transition: all 0.3s ease;
 
-    background: #fff;
-    margin: 20px;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 /* Ajustar imagen */
@@ -314,7 +324,7 @@
 .imagenTour {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
 }
 
 /*Ajustar la información a la derecha*/
