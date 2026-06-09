@@ -1,38 +1,65 @@
 "use client"
 import { Suspense } from "react"
 import { useEffect, useState } from "react"
-import {useRouter} from "next/navigation"
+import { useRouter } from "next/navigation"
 import style from "./page.module.css"
-import { TourGuardado } from "@/lib/tours"
 import { useSearchParams } from "next/navigation"
 import { useCurrency } from "@/context/CurrencyContext"
+import { useLanguage } from "@/context/LanguageContext"
 
 export const dynamic = 'force-dynamic'
+
+// Tipo extendido con campos traducidos
+type TourGuardado = {
+    id: number
+    nombreTour: string
+    destinoId: number
+    precio: string
+    duracion: string
+    descripcionBreve: string
+    itinerario: string
+    descripcionDetallada: string
+    imagenes?: string[]
+    fechasYCupos: { fecha: string; cupos: string }[]
+    fechaRegistro: string
+    // campos en inglés
+    nombreTourEn?: string
+    descripcionBreveEn?: string
+    itinerarioEn?: string
+    descripcionDetalladaEn?: string
+}
+
+// Helper: retorna el valor en el idioma correcto, con fallback al español
+function campo(valor_es: string, valor_en: string | undefined, idioma: string): string {
+    if (idioma === "en" && valor_en && valor_en.trim() !== "") return valor_en;
+    return valor_es;
+}
 
 function DetalleToursContenido() {
     const searchParams = useSearchParams()
     const id = searchParams.get("id")
     const router = useRouter()
     const [tour, setTour] = useState<TourGuardado | null>(null)
-    const [cargando, setCargando] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [cargando, setCargando] = useState(true)
+    const [error, setError] = useState<string | null>(null)
     const [fechaSeleccionada, setFechaSeleccionada] = useState<string | null>(null)
     const [imagenActiva, setImagenActiva] = useState(0)
     const { formatCurrency } = useCurrency()
+    const { idioma, t } = useLanguage()
 
     useEffect(() => {
         async function cargarTour() {
-            try{
+            try {
                 const respuesta = await fetch("/api/tours")
                 const datosTour = await respuesta.json()
                 const tourEncontrado = datosTour.find((t: TourGuardado) => Number(t.id) === Number(id))
                 if (!tourEncontrado) {
-                    setError("Tour no encontrado")
-                }else {
+                    setError(t("tourNoEncontrado"))
+                } else {
                     setTour(tourEncontrado)
                 }
-            } catch (error) {
-                setError("Error al cargar el tour")
+            } catch {
+                setError(t("errorCargarTour"))
             } finally {
                 setCargando(false)
             }
@@ -40,22 +67,33 @@ function DetalleToursContenido() {
         if (id) cargarTour()
     }, [id])
 
-    if (cargando) return <p>Cargando...</p>
+    if (cargando) return <p>{t("cargar")}</p>
     if (error) return <div>{error}</div>
-    if (!tour) return <div>Tour no encontrado</div>
+    if (!tour) return <div>{t("tourNoEncontrado")}</div>
 
-    const lineasItinerario = tour.itinerario?.split("\n").filter(l => l.trim() !== "") || []
+    // Campos según idioma activo
+    const nombreMostrar       = campo(tour.nombreTour,         tour.nombreTourEn,         idioma)
+    const descBreveMostrar    = campo(tour.descripcionBreve,   tour.descripcionBreveEn,   idioma)
+    const descDetalleMostrar  = campo(tour.descripcionDetallada, tour.descripcionDetalladaEn, idioma)
+    const itinerarioMostrar   = campo(tour.itinerario,         tour.itinerarioEn,         idioma)
+
+    const lineasItinerario = itinerarioMostrar?.split("\n").filter(l => l.trim() !== "") || []
 
     return (
         <div className={style.contenedor}>
-            {/*volver*/}
-            <img src="/logo.png" alt="Logo" className={style.logo} onClick={() => router.push("/paginaPrincipal")}/>
-            
-            {/*Galeria de imágenes*/}
+            {/* Volver */}
+            <img
+                src="/logo.png"
+                alt="Logo"
+                className={style.logo}
+                onClick={() => router.push("/paginaPrincipal")}
+            />
+
+            {/* Galería de imágenes */}
             <div className={style.galeria}>
                 <div className={style.imagenPrincipal}>
                     {tour.imagenes && tour.imagenes.length > 0 ? (
-                        <img src={tour.imagenes[imagenActiva]} alt={tour.nombreTour} />
+                        <img src={tour.imagenes[imagenActiva]} alt={nombreMostrar} />
                     ) : (
                         <div className={style.sinImagen}>📷</div>
                     )}
@@ -75,9 +113,9 @@ function DetalleToursContenido() {
                 )}
             </div>
 
-            {/* TÍTULO */}
-            <h1 className={style.titulo}>{tour.nombreTour}</h1>
-            <p className={style.descripcionCorta}>{tour.descripcionBreve}</p>
+            {/* TÍTULO — ya en el idioma correcto */}
+            <h1 className={style.titulo}>{nombreMostrar}</h1>
+            <p className={style.descripcionCorta}>{descBreveMostrar}</p>
 
             {/* CUERPO */}
             <div className={style.cuerpo}>
@@ -85,50 +123,51 @@ function DetalleToursContenido() {
                 {/* COLUMNA IZQUIERDA */}
                 <div className={style.columnaIzquierda}>
 
-                    {/* DESCRIPCIÓN */}
+                    {/* DESCRIPCIÓN DETALLADA */}
                     <section className={style.seccion}>
-                        <p className={style.descripcionDetallada}>{tour.descripcionDetallada}</p>
+                        <p className={style.descripcionDetallada}>{descDetalleMostrar}</p>
                     </section>
 
                     {/* INFORMACIÓN GENERAL */}
                     <section className={style.seccion}>
-                        <h2 className={style.tituloSeccion}>Información general</h2>
+                        <h2 className={style.tituloSeccion}>{t("informacionGeneral")}</h2>
                         <div className={style.infoGeneral}>
                             <div className={style.infoItem}>
                                 <span className={style.infoIcono}>🕐</span>
                                 <div>
-                                    <p className={style.infoLabel}>Duración</p>
+                                    <p className={style.infoLabel}>{t("duracion2")}</p>
+                                    {/* duracion no se traduce, es un valor como "3 horas" */}
                                     <p className={style.infoValor}>{tour.duracion}</p>
                                 </div>
                             </div>
                             <div className={style.infoItem}>
                                 <span className={style.infoIcono}>✅</span>
                                 <div>
-                                    <p className={style.infoLabel}>Cancelación</p>
-                                    <p className={style.infoValor}>Gratuita con 24h de antelación</p>
+                                    <p className={style.infoLabel}>{t("cancelacion2")}</p>
+                                    <p className={style.infoValor}>{t("cancelacionGratis2")}</p>
                                 </div>
                             </div>
                             <div className={style.infoItem}>
                                 <span className={style.infoIcono}>👥</span>
                                 <div>
-                                    <p className={style.infoLabel}>Grupo</p>
-                                    <p className={style.infoValor}>Grupo privado disponible</p>
+                                    <p className={style.infoLabel}>{t("grupo2")}</p>
+                                    <p className={style.infoValor}>{t("grupoPrivado2")}</p>
                                 </div>
                             </div>
                             <div className={style.infoItem}>
                                 <span className={style.infoIcono}>🗺️</span>
                                 <div>
-                                    <p className={style.infoLabel}>Guía</p>
-                                    <p className={style.infoValor}>Guía especializado incluido</p>
+                                    <p className={style.infoLabel}>{t("guia2")}</p>
+                                    <p className={style.infoValor}>{t("guiaEspecializado2")}</p>
                                 </div>
                             </div>
                         </div>
                     </section>
 
-                    {/* ITINERARIO */}
+                    {/* ITINERARIO — ya en el idioma correcto */}
                     {lineasItinerario.length > 0 && (
                         <section className={style.seccion}>
-                            <h2 className={style.tituloSeccion}>Itinerario</h2>
+                            <h2 className={style.tituloSeccion}>{t("itinerario2")}</h2>
                             <div className={style.itinerario}>
                                 {lineasItinerario.map((linea, i) => (
                                     <div key={i} className={style.pasoItinerario}>
@@ -145,34 +184,42 @@ function DetalleToursContenido() {
                 <div className={style.columnaDerecha}>
                     <div className={style.reserva}>
                         <div className={style.precioTour}>
-                            <span className={style.desde}>Desde</span>
+                            <span className={style.desde}>{t("desde2")}</span>
                             <span className={style.precio}>{formatCurrency(Number(tour.precio))}</span>
-                            <span className={style.porPersona}>por persona</span>
+                            <span className={style.porPersona}>{t("porPersona2")}</span>
                         </div>
 
                         {/* FECHAS DISPONIBLES */}
                         {tour.fechasYCupos && tour.fechasYCupos.filter(f => Number(f.cupos) > 0).length > 0 && (
                             <div className={style.fechas}>
-                                <p className={style.fechasLabel}>Fechas disponibles</p>
+                                <p className={style.fechasLabel}>{t("fechasDisponibles2")}</p>
                                 {tour.fechasYCupos.filter(item => Number(item.cupos) > 0).map((item, i) => (
                                     <div
                                         key={i}
                                         className={`${style.fechaItem} ${fechaSeleccionada === item.fecha ? style.fechaSeleccionada : ""}`}
-                                        onClick={() => setFechaSeleccionada(item.fecha)}>
+                                        onClick={() => setFechaSeleccionada(item.fecha)}
+                                    >
                                         <span className={style.fechaTexto}>
-                                            📅 {new Date(item.fecha).toLocaleDateString("es-CR", {
-                                                weekday: "long", day: "numeric", month: "long"
-                                            })}
+                                            📅 {new Date(item.fecha).toLocaleDateString(
+                                                idioma === "en" ? "en-US" : "es-CR",
+                                                { weekday: "long", day: "numeric", month: "long" }
+                                            )}
                                         </span>
-                                        <span className={style.cupos}>{item.cupos} cupos disponibles</span>
+                                        <span className={style.cupos}>
+                                            {item.cupos} {t("cuposDisponibles2")}
+                                        </span>
                                     </div>
                                 ))}
                             </div>
                         )}
 
-                        <button className={style.btnReservar}
-                        onClick={() => router.push(`/paginaReservas?id=${tour.id}`)}>Reservar ahora</button>
-                        <p className={style.notaReserva}>Sin cobros hasta confirmar</p>
+                        <button
+                            className={style.btnReservar}
+                            onClick={() => router.push(`/paginaReservas?id=${tour.id}`)}
+                        >
+                            {t("reservarAhora2")}
+                        </button>
+                        <p className={style.notaReserva}>{t("sinCobros2")}</p>
                     </div>
                 </div>
             </div>

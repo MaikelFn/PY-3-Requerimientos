@@ -17,6 +17,9 @@ type Tour = {
     precio: string;
     imagenes?: string[];
     fechasYCupos?: FechaCupo[];
+    // campos traducidos
+    nombreTourEn?: string;
+    descripcionBreveEn?: string;
 };
 
 type UsuarioAutenticado = {
@@ -24,6 +27,12 @@ type UsuarioAutenticado = {
     correo: string;
     roll: string;
 };
+
+// Helper: retorna el campo en el idioma correcto con fallback al español
+function campo(valor_es: string, valor_en: string | undefined, idioma: string): string {
+    if (idioma === "en" && valor_en && valor_en.trim() !== "") return valor_en;
+    return valor_es;
+}
 
 export default function PaginaPrincipal() {
     const [usuario, setUsuario] = useState<UsuarioAutenticado | null>(null);
@@ -36,17 +45,23 @@ export default function PaginaPrincipal() {
     const [precioMaximoFiltro, setPrecioMaximoFiltro] = useState("");
     const router = useRouter();
     const { currency, setCurrency } = useCurrency();
-    const { idioma, setIdioma, t } = useLanguage(); // <-- hook de idioma
+    const { idioma, setIdioma, t } = useLanguage();
 
     const toursFiltrados = tours.filter(tour => {
+        // Buscar en ambos idiomas para que el filtro funcione siempre
+        const nombre = tour.nombreTour.toLowerCase();
+        const nombreEn = (tour.nombreTourEn ?? "").toLowerCase();
+        const desc = tour.descripcionBreve.toLowerCase();
+        const descEn = (tour.descripcionBreveEn ?? "").toLowerCase();
+        const q = queryFiltro.toLowerCase();
+
         const coincideTexto =
-            tour.nombreTour.toLowerCase().includes(queryFiltro.toLowerCase()) ||
-            tour.descripcionBreve.toLowerCase().includes(queryFiltro.toLowerCase());
+            nombre.includes(q) || nombreEn.includes(q) ||
+            desc.includes(q) || descEn.includes(q);
 
         const precio = Number(tour.precio);
         const coincidePrecioMinimo = precioMinimoFiltro === "" || precio >= Number(precioMinimoFiltro);
         const coincidePrecioMaximo = precioMaximoFiltro === "" || precio <= Number(precioMaximoFiltro);
-
         const tieneCuposDisponibles = tour.fechasYCupos?.some(f => Number(f.cupos) > 0) ?? true;
 
         return coincideTexto && coincidePrecioMinimo && coincidePrecioMaximo && tieneCuposDisponibles;
@@ -96,7 +111,6 @@ export default function PaginaPrincipal() {
                 <div className={style.menuIzquierdo}></div>
 
                 <div className={style.menuDerecho}>
-                    {/* Panel Administrativo — solo para administradores */}
                     {usuario && usuario.roll === "Administrador" && (
                         <div className={style.menu}>
                             <div className={style.itemMenu}>
@@ -115,14 +129,12 @@ export default function PaginaPrincipal() {
                         </div>
                     )}
 
-                    {/* Perfil */}
                     <div className={style.menu}>
                         <div className={style.itemMenu}>
                             <span>👤</span>
                             <p>{t("perfil")}</p>
                         </div>
                         <div className={style.submenu}>
-                            {/*Mnenu administrador */}
                             {usuario?.roll !== "Administrador" && (
                                 <a
                                     style={{ cursor: "pointer", pointerEvents: "auto" }}
@@ -149,7 +161,6 @@ export default function PaginaPrincipal() {
                         </div>
                     </div>
 
-                    {/* Idioma y Moneda */}
                     <div className={style.menu}>
                         <div className={style.itemMenu}>
                             <span>🌐</span>
@@ -181,7 +192,6 @@ export default function PaginaPrincipal() {
                         </div>
                     </div>
 
-                    {/* Contacto */}
                     <div className={style.menu}>
                         <div className={style.itemMenu}>
                             <span>📞</span>
@@ -260,21 +270,23 @@ function TarjetaTour({ tour }: { tour: Tour }) {
     const [indiceImagen, setIndiceImagen] = useState(0);
     const [mouseEncima, setMouseEncima] = useState(false);
     const { formatCurrency } = useCurrency();
-    const { t } = useLanguage(); // <-- también usa el hook aquí
+    const { idioma, t } = useLanguage();
 
     const imagenes = tour.imagenes ?? [];
     const tieneMultiplesImagenes = imagenes.length > 1;
+
+    // Nombre y descripción según idioma activo
+    const nombreMostrar = campo(tour.nombreTour, tour.nombreTourEn, idioma);
+    const descMostrar   = campo(tour.descripcionBreve, tour.descripcionBreveEn, idioma);
 
     useEffect(() => {
         if (!mouseEncima || !tieneMultiplesImagenes) {
             setIndiceImagen(0);
             return;
         }
-
         const intervalo = setInterval(() => {
             setIndiceImagen((idPrevio) => (idPrevio + 1) % imagenes.length);
         }, 1500);
-
         return () => clearInterval(intervalo);
     }, [mouseEncima, imagenes.length, tieneMultiplesImagenes]);
 
@@ -293,7 +305,7 @@ function TarjetaTour({ tour }: { tour: Tour }) {
                 {imagenes.length > 0 ? (
                     <img
                         src={imagenes[indiceImagen]}
-                        alt={`${tour.nombreTour} - ${indiceImagen + 1}`}
+                        alt={`${nombreMostrar} - ${indiceImagen + 1}`}
                         className={style.imagenTour}
                     />
                 ) : (
@@ -305,8 +317,9 @@ function TarjetaTour({ tour }: { tour: Tour }) {
             </div>
 
             <div className={style.info}>
-                <h3>{tour.nombreTour}</h3>
-                <p className={style.descripcion}>{tour.descripcionBreve}</p>
+                {/* ← nombre e descripción ya en el idioma correcto */}
+                <h3>{nombreMostrar}</h3>
+                <p className={style.descripcion}>{descMostrar}</p>
             </div>
 
             <div className={style.precio}>
