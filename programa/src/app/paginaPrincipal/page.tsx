@@ -17,7 +17,6 @@ type Tour = {
     precio: string;
     imagenes?: string[];
     fechasYCupos?: FechaCupo[];
-    // campos traducidos
     nombreTourEn?: string;
     descripcionBreveEn?: string;
 };
@@ -28,7 +27,6 @@ type UsuarioAutenticado = {
     roll: string;
 };
 
-// Helper: retorna el campo en el idioma correcto con fallback al español
 function campo(valor_es: string, valor_en: string | undefined, idioma: string): string {
     if (idioma === "en" && valor_en && valor_en.trim() !== "") return valor_en;
     return valor_es;
@@ -47,8 +45,12 @@ export default function PaginaPrincipal() {
     const { currency, setCurrency } = useCurrency();
     const { idioma, setIdioma, t } = useLanguage();
 
+    const scrollASobreNosotros = () => {
+        const seccion = document.getElementById("sobre-nosotros");
+        if (seccion) seccion.scrollIntoView({ behavior: "smooth" });
+    };
+
     const toursFiltrados = tours.filter(tour => {
-        // Buscar en ambos idiomas para que el filtro funcione siempre
         const nombre = tour.nombreTour.toLowerCase();
         const nombreEn = (tour.nombreTourEn ?? "").toLowerCase();
         const desc = tour.descripcionBreve.toLowerCase();
@@ -128,6 +130,18 @@ export default function PaginaPrincipal() {
                             </div>
                         </div>
                     )}
+
+                    {/* BOTÓN SOBRE NOSOTROS — usa t() del i18n */}
+                    <div className={style.menu}>
+                        <div
+                            className={style.itemMenu}
+                            onClick={scrollASobreNosotros}
+                            style={{ cursor: "pointer" }}
+                        >
+                            <span>👥</span>
+                            <p>{t("botonSobreNosotros")}</p>
+                        </div>
+                    </div>
 
                     <div className={style.menu}>
                         <div className={style.itemMenu}>
@@ -260,11 +274,40 @@ export default function PaginaPrincipal() {
                     <TarjetaTour key={tour.id} tour={tour} />
                 ))}
             </div>
+
+            {/* ── SECCIÓN SOBRE NOSOTROS — todos los textos vienen de t() ── */}
+            <section id="sobre-nosotros" className={style.sobreNosotros}>
+                <h2 className={style.sobreNosotrosTitulo}>{t("sobreNosotros")}</h2>
+
+                <div className={style.misionVision}>
+                    <div className={style.mvCard}>
+                        <h3 className={style.mvTitulo}>{t("mision")}</h3>
+                        <p className={style.mvTexto}>{t("misionTexto")}</p>
+                    </div>
+                    <div className={style.mvCard}>
+                        <h3 className={style.mvTitulo}>{t("vision")}</h3>
+                        <p className={style.mvTexto}>{t("visionTexto")}</p>
+                    </div>
+                </div>
+
+                <div className={style.equipoContenedor}>
+                    <div className={style.equipoTexto}>
+                        <h3 className={style.equipoTitulo}>{t("nuestroEquipo")}</h3>
+                        <p className={style.equipoDesc}>{t("nuestroEquipoTexto")}</p>
+                    </div>
+                    <div className={style.equipoImagen}>
+                        <img
+                            src="/nosotros.png"
+                            alt={t("nuestroEquipo")}
+                            className={style.imagenEquipo}
+                        />
+                    </div>
+                </div>
+            </section>
         </div>
     );
 }
 
-// SUBCOMPONENTE: TarjetaTour
 function TarjetaTour({ tour }: { tour: Tour }) {
     const router = useRouter();
     const [indiceImagen, setIndiceImagen] = useState(0);
@@ -275,7 +318,6 @@ function TarjetaTour({ tour }: { tour: Tour }) {
     const imagenes = tour.imagenes ?? [];
     const tieneMultiplesImagenes = imagenes.length > 1;
 
-    // Nombre y descripción según idioma activo
     const nombreMostrar = campo(tour.nombreTour, tour.nombreTourEn, idioma);
     const descMostrar   = campo(tour.descripcionBreve, tour.descripcionBreveEn, idioma);
 
@@ -317,7 +359,6 @@ function TarjetaTour({ tour }: { tour: Tour }) {
             </div>
 
             <div className={style.info}>
-                {/* ← nombre e descripción ya en el idioma correcto */}
                 <h3>{nombreMostrar}</h3>
                 <p className={style.descripcion}>{descMostrar}</p>
             </div>

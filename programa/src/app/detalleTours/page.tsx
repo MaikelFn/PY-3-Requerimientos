@@ -113,7 +113,7 @@ function DetalleToursContenido() {
                 )}
             </div>
 
-            {/* TÍTULO — ya en el idioma correcto */}
+            {/* TÍTULO */}
             <h1 className={style.titulo}>{nombreMostrar}</h1>
             <p className={style.descripcionCorta}>{descBreveMostrar}</p>
 
@@ -164,7 +164,7 @@ function DetalleToursContenido() {
                         </div>
                     </section>
 
-                    {/* ITINERARIO — ya en el idioma correcto */}
+                    {/* ITINERARIO*/}
                     {lineasItinerario.length > 0 && (
                         <section className={style.seccion}>
                             <h2 className={style.tituloSeccion}>{t("itinerario2")}</h2>

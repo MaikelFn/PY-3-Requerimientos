@@ -378,6 +378,137 @@
     margin: 20px 20px;
 }
 
+/* ── AGREGAR AL FINAL DE tu page.module.css ── */
 
+/* Sección Sobre Nosotros */
+.sobreNosotros {
+    width: 100%;
+    padding: 60px 40px;
+    background-color: #f9f9f7;
+    margin-top: 60px;
+}
 
+.sobreNosotrosTitulo {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 48px;
+    position: relative;
+}
 
+.sobreNosotrosTitulo::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 3px;
+    background-color: #2e7d52; /* verde/turquesa acorde a turismo */
+    margin: 12px auto 0;
+    border-radius: 2px;
+}
+
+/* Misión y Visión — dos columnas */
+.misionVision {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    max-width: 1000px;
+    margin: 0 auto 56px;
+}
+
+@media (max-width: 700px) {
+    .misionVision {
+        grid-template-columns: 1fr;
+    }
+}
+
+.mvCard {
+    background: #ffffff;
+    border: 1px solid #e5e5e0;
+    border-radius: 12px;
+    padding: 32px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    transition: box-shadow 0.2s ease;
+}
+
+.mvCard:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+}
+
+.mvIcono {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.mvTitulo {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.mvTexto {
+    font-size: 0.97rem;
+    color: #555;
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* Nuestro Equipo — imagen + texto lado a lado */
+.equipoContenedor {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+    max-width: 1000px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+}
+
+.equipoTexto {
+    flex: 1;
+    min-width: 260px;
+}
+
+.equipoTitulo {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 14px;
+}
+
+.equipoDesc {
+    font-size: 0.97rem;
+    color: #555;
+    line-height: 1.75;
+    margin: 0;
+}
+
+.equipoImagen {
+    flex: 1;
+    min-width: 260px;
+    max-width: 480px;
+}
+
+.imagenEquipo {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    border-radius: 12px;
+    display: block;
+}
+
+@media (max-width: 700px) {
+    .equipoContenedor {
+        flex-direction: column-reverse;
+        gap: 24px;
+    }
+    .imagenEquipo {
+        height: 220px;
+    }
+    .sobreNosotros {
+        padding: 40px 20px;
+    }
+}
