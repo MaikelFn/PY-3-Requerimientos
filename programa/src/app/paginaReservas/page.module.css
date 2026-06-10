@@ -457,3 +457,126 @@
     color: #2d6a4f;
     font-weight: 600;
 }
+
+/* ===== RESPONSIVO MÓVIL ===== */
+
+/* Tablets (≤768px) */
+@media (max-width: 768px) {
+    .cuerpo {
+        grid-template-columns: 1fr;
+    }
+
+    .columnaDerecha {
+        position: static;
+    }
+
+    .menuSuperior {
+        width: calc(100% - 48px);
+        max-width: 400px;
+        padding: 0 16px;
+    }
+
+    .contenedor {
+        padding: 16px 16px 48px;
+    }
+
+    .titulo {
+        font-size: 22px;
+        margin-bottom: 20px;
+    }
+
+    .resumenTour {
+        flex-direction: column;
+    }
+
+    .imagenTour {
+        width: 100%;
+        height: 160px;
+    }
+}
+
+/* Móvil (≤480px) */
+@media (max-width: 480px) {
+    .pagina {
+        padding: 1rem;
+    }
+
+    .imagen {
+        height: 80px;
+        top: 12px;
+        left: 12px;
+    }
+
+    .menuSuperior {
+        width: 100%;
+        padding: 0 12px;
+        border-radius: 8px;
+        margin-top: 8px;
+    }
+
+    .breadcrumb {
+        font-size: 18px;
+    }
+
+    .contenedor {
+        padding: 12px 12px 40px;
+    }
+
+    .titulo {
+        font-size: 20px;
+    }
+
+    .seccion {
+        padding: 16px;
+        margin-bottom: 14px;
+    }
+
+    .tituloSeccion {
+        font-size: 16px;
+    }
+
+    .fechaItem {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 12px;
+    }
+
+    .exitoTarjeta {
+        padding: 28px 20px;
+    }
+
+    .exitoTarjeta h2 {
+        font-size: 22px;
+    }
+
+    .metodoPago {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .metodoTitulo {
+        font-size: 14px;
+    }
+
+    .botonAccion {
+        padding: 13px;
+        font-size: 14px;
+    }
+
+    .contenedorResumen {
+        padding: 16px;
+    }
+
+    .lineaTotal {
+        font-size: 18px;
+    }
+
+    .cuposControl {
+        gap: 12px;
+    }
+
+    .cupoNumero {
+        font-size: 22px;
+    }
+}

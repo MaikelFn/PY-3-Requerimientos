@@ -346,3 +346,112 @@
     object-fit: cover;
     display: block;
 }
+
+/* ===== RESPONSIVO MÓVIL ===== */
+
+/* Tablets (≤768px) */
+@media (max-width: 768px) {
+    .cuerpo {
+        grid-template-columns: 1fr;
+    }
+
+    .columnaDerecha {
+        position: static;
+        top: auto;
+    }
+
+    .infoGeneral {
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+    .imagenPrincipal {
+        height: 260px;
+    }
+
+    .logo {
+        height: 90px;
+        margin-right: 0;
+    }
+
+    .titulo {
+        font-size: 26px;
+    }
+
+    .imagenContenedor {
+        flex: none;
+        width: 100%;
+        height: 200px;
+    }
+}
+
+/* Móvil (≤480px) */
+@media (max-width: 480px) {
+    .contenedor {
+        padding: 1rem;
+    }
+
+    .logo {
+        height: 70px;
+    }
+
+    .titulo {
+        font-size: 22px;
+    }
+
+    .descripcionCorta {
+        font-size: 15px;
+    }
+
+    .seccion {
+        padding: 16px;
+        margin-bottom: 14px;
+        border-radius: 10px;
+    }
+
+    .tituloSeccion {
+        font-size: 17px;
+        margin-bottom: 14px;
+    }
+
+    .infoGeneral {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .imagenPrincipal {
+        height: 200px;
+        border-radius: 10px;
+    }
+
+    .miniatura {
+        width: 80px;
+        height: 56px;
+    }
+
+    .reserva {
+        padding: 20px 16px;
+        border-radius: 12px;
+    }
+
+    .precio {
+        font-size: 28px;
+    }
+
+    .fechaItem {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        padding: 10px 12px;
+    }
+
+    .btnReservar {
+        padding: 14px;
+        font-size: 15px;
+    }
+
+    .imagenContenedor {
+        height: 160px;
+        border-radius: 8px;
+    }
+}
