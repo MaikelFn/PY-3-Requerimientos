@@ -80,6 +80,8 @@
     text-align: center;
     padding: 20px;
     color: #007a74;
+    font-weight: 600;
+    font-size: 2rem;
 }
 
 .info {
@@ -392,7 +394,7 @@
     text-align: center;
     font-size: 2rem;
     font-weight: 600;
-    color: #1a1a1a;
+    color: #007a74;
     margin-bottom: 48px;
     position: relative;
 }
@@ -500,15 +502,113 @@
     display: block;
 }
 
-@media (max-width: 700px) {
-    .equipoContenedor {
-        flex-direction: column-reverse;
-        gap: 24px;
+/*Diseño responsivo*/
+@media (max-width: 768px) {
+    .menuSuperior {
+        padding: 8px 12px;
+        flex-wrap: wrap;
+        gap: 8px;
     }
-    .imagenEquipo {
-        height: 220px;
+
+    .menuDerecho {
+        gap: 8px;
     }
+
+    .itemMenu p {
+        font-size: 10px;
+    }
+
+    .banner {
+        height: 180px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+    .buscador {
+        width: 95%;
+        margin: 10px auto;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .buscador input {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .contenido {
+        padding: 20px 16px;
+    }
+
+    .contenido h2 {
+        font-size: 18px;
+    }
+
+    .contenido p {
+        font-size: 15px;
+    }
+
+    .tour {
+        flex-direction: column;
+        width: 95%;
+        padding: 16px;
+        gap: 12px;
+    }
+
+    .contenedorImagen {
+        width: 100%;
+        height: 200px;
+    }
+
+    .info {
+        width: 100%;
+    }
+
+    .precio {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0 0;
+    }
+
+    .tituloSeccion {
+        font-size: 22px;
+    }
+
+    .submenu {
+        right: -10px;
+        min-width: 160px;
+    }
+
+    .misionVision {
+        grid-template-columns: 1fr;
+    }
+
     .sobreNosotros {
-        padding: 40px 20px;
+        padding: 30px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .menuDerecho {
+        gap: 4px;
+    }
+
+    .itemMenu span {
+        font-size: 16px;
+    }
+
+    .itemMenu p {
+        display: none;
+    }
+
+    .banner {
+        height: 200px;
+    }
+
+    .botonBuscar, .botonLimpiar {
+        width: 100%;
     }
 }
