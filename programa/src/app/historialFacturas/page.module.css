@@ -16,7 +16,11 @@
     justify-content: center;
     height: 100vh;
     gap: 16px;
-    color: #555;
+    color: #ffffff;
+    font-size: 25px;
+    font-weight: 00;
+
+
 }
 
 .spinner {
@@ -101,12 +105,14 @@
     color: #888;
     background: rgba(255,255,255,0.9);
     border-radius: 18px;
+
 }
 
 .sinFacturas span {
     font-size: 48px;
     display: block;
     margin-bottom: 16px;
+    
 }
 
 .sinFacturas p {
