@@ -233,6 +233,8 @@
   resize: vertical;
   box-sizing: border-box;
   font-family: inherit;
+  color: #000000;
+  background-color: #ffffff;
 }
 
 .selectorMetodo {

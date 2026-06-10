@@ -233,6 +233,8 @@
   resize: vertical;
   box-sizing: border-box;
   font-family: inherit;
+  color: #000000;
+  background-color: #ffffff;
 }
 
 .selectorMetodo {
@@ -430,6 +432,7 @@
   border-radius: 6px;
   font-size: 0.85rem;
   outline: none;
+  color: #000000;
 }
 
 .inputCupos:focus {
