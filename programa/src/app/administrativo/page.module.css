@@ -141,3 +141,148 @@
     background-color: #f0f7f4;
     color: #2d6a4f;
 }
+
+/*RESPONSIVE */
+@media (max-width: 1200px) {
+    .contenedor {
+        padding: 1rem;
+    }
+
+    .contenido,
+    .pagina,
+    .tarjeta,
+    .cuerpo,
+    .contenedor {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+@media (max-width: 1024px) {
+    .contenedor {
+        padding: 1rem;
+        justify-content: flex-start;
+    }
+
+    .logo {
+        height: 90px;
+    }
+
+    .titulo,
+    .tituloSeccion,
+    .tituloPagina {
+        font-size: clamp(24px, 4vw, 32px);
+        line-height: 1.2;
+    }
+
+    .subtitulo {
+        font-size: 16px;
+    }
+
+    .panelControles,
+    .resumen,
+    .detalles,
+    .cuerpo,
+    .infoGeneral {
+        gap: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .contenedor {
+        padding: 0.75rem;
+        align-items: stretch;
+    }
+
+    .logo {
+        position: absolute;
+        display: block;
+        margin: 0 0 0.75rem 0;
+        height: 72px;
+        top: 10px;
+        left: 10px;
+        height: 60px;
+        margin: 0;
+    }
+
+    .contenido,
+    .pagina,
+    .tarjeta,
+    .cuerpo,
+    .seccion,
+    .resumen,
+    .lista,
+    .acciones,
+    .menuSuperior {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .panelControles,
+    .lista,
+    .resumen,
+    .cuerpo,
+    .infoGeneral,
+    .infoBottom,
+    .acciones {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .titulo,
+    .tituloSeccion,
+    .tituloPagina {
+        font-size: 22px;
+        text-align: center;
+    }
+
+    .subtitulo {
+        font-size: 15px;
+        text-align: center;
+    }
+
+    .botonGestion,
+    .botonExplorar,
+    .botonAccion,
+    .botonEliminar,
+    .botonCancel {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .contenedor {
+        padding: 0.5rem;
+    }
+
+    .logo {
+        height: 70px;
+    }
+
+    .titulo,
+    .tituloSeccion,
+    .tituloPagina {
+        font-size: 20px;
+    }
+
+    .subtitulo {
+        font-size: 14px;
+    }
+
+    .botonGestion,
+    .botonExplorar,
+    .botonAccion,
+    .botonEliminar,
+    .botonCancel {
+        padding: 12px 14px;
+        font-size: 14px;
+    }
+
+    .tarjeta,
+    .seccion,
+    .resumen div,
+    .info {
+        padding: 14px;
+    }
+}
