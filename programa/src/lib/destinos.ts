@@ -19,10 +19,28 @@ export type DestinoGuardado = DestinoNuevo & {
 
 async function traducir(texto: string): Promise<string> {
   try {
-    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(texto)}&langpair=es|en`
-    const res = await fetch(url)
-    const data = await res.json()
-    return data.responseData.translatedText
+    const partes: string[] = []
+    let inicio = 0
+    while (inicio < texto.length) {
+      let fin = inicio + 450
+      if (fin < texto.length) {
+        const espacio = texto.lastIndexOf(" ", fin)
+        if (espacio > inicio) fin = espacio
+      }
+      partes.push(texto.slice(inicio, fin).trim())
+      inicio = fin
+    }
+
+    const traducciones = await Promise.all(
+      partes.map(async (parte) => {
+        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(parte)}&langpair=es|en`
+        const res = await fetch(url)
+        const data = await res.json()
+        return data.responseData.translatedText as string
+      })
+    )
+
+    return traducciones.join(" ")
   } catch {
     return texto
   }
