@@ -212,17 +212,40 @@
     font-weight: 600;
 }
 
-@media (max-width: 800px) {
-    .resumen {
-        grid-template-columns: 1fr;
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .pagina {
+        padding: 1.2rem 1rem 1rem;
     }
 
+    .logo {
+        height: 70px;
+        top: 10px;
+        left: 10px;
+    }
+
+    .titulo {
+        padding: 60px 0 0;
+        margin-left: 0;
+        text-align: center;
+        font-size: 22px;
+    }
+
+    .subtitulo {
+        margin-left: 0;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    .contenedor {
+        padding: 20px 12px 32px;
+    }
+
+    .resumen,
     .detalles {
         grid-template-columns: 1fr;
     }
-}
 
-@media (max-width: 600px) {
     .tarjeta {
         flex-direction: column;
     }
@@ -230,5 +253,9 @@
     .infoBottom {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .botonExplorar {
+        width: 100%;
     }
 }

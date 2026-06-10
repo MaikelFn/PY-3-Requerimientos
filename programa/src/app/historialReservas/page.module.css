@@ -6,7 +6,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 2rem;
+    padding: 0;
 }
 
 /* CARGA */
@@ -33,34 +33,46 @@
 .encabezado {
     background: #fff;
     border-bottom: 1px solid #e8e0d8;
-    padding: 14px 32px;
+    padding: 12px 18px;
     display: flex;
     align-items: center;
-    gap: 20px;
+    justify-content: space-between;
+    gap: 10px;
     position: sticky;
     top: 0;
     z-index: 100;
+    box-sizing: border-box;
 }
 
 .logo {
     height: 200;
     cursor: pointer;
+    object-fit: contain;
     transition: transform 0.2s;
     margin-left: 10px;
 }
 
+.logo:hover {
+    transform: scale(1.05);
+}
+
+
 .titulo {
-    font-size: 30px;
+    flex: 1;
+    text-align: center;
+    font-size: 28px;
     font-weight: 800;
-    color: #ffffff;
-    margin-left: 570;
+    color: #1b4332;
+    margin: 0;
 }
 
 /* CONTENEDOR */
 .contenedor {
+    width: 100%;
     max-width: 900px;
     margin: 0 auto;
-    padding: 32px 24px 60px;
+    padding: 18px 12px 40px;
+    box-sizing: border-box;
 }
 
 /* SIN RESERVAS */
@@ -207,8 +219,73 @@
 }
 
 /* RESPONSIVE */
-@media (max-width: 600px) {
-    .tarjeta { flex-direction: column; }
-    .imagenContenedor { width: 100%; height: 180px; }
-    .infoBottom { flex-direction: column; align-items: flex-start; gap: 6px; }
+@media (max-width: 768px) {
+    .pagina {
+        padding: 0;
+    }
+
+    .encabezado {
+        padding: 10px 12px;
+    }
+
+    .logo {
+        height: 70px;
+    }
+
+    .titulo {
+        font-size: 20px;
+        margin-left: 0 ;
+        color: #1b4332;
+        flex-basis: 100%;
+        order: 2;
+    }
+
+    .contenedor {
+        max-width: 100%;
+        padding: 16px 12px 40px;
+    }
+
+    .tarjeta {
+        flex-direction: column;
+    }
+
+    .imagenContenedor {
+        width: 100%;
+        height: 180px;
+    }
+
+    .info {
+        padding: 14px 16px;
+    }
+
+    .infoTop {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .estado {
+        align-self: flex-start;
+    }
+
+    .nombreTour {
+        font-size: 16px;
+    }
+
+    .precio {
+        font-size: 18px;
+    }
+
+    .infoBottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .sinReservas {
+        padding: 40px 16px;
+    }
+
+    .botonExplorar {
+        width: 100%;
+    }
 }
